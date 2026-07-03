@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import User from '../models/User.model.js'
+import Role from '../models/Role.model.js'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -37,7 +38,14 @@ export const login = asyncHandler(async (req, res) => {
   const refreshToken = generateRefreshToken(user._id)
   setCookies(res, accessToken, refreshToken)
 
+  let roleDoc = await Role.findOne({ name: user.role })
+  if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
+    roleDoc = await Role.create({ name: user.role })
+  }
+  const rolePermissions = roleDoc ? roleDoc.permissions : {}
+
   const { password: _, ...userData } = user.toObject()
+  userData.permissions = rolePermissions
   res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
 })
 
@@ -49,7 +57,16 @@ export const logout = asyncHandler(async (req, res) => {
 
 // GET /api/auth/me
 export const getMe = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, req.user, 'User fetched'))
+  let roleDoc = await Role.findOne({ name: req.user.role })
+  if (!roleDoc && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    roleDoc = await Role.create({ name: req.user.role })
+  }
+  const rolePermissions = roleDoc ? roleDoc.permissions : {}
+
+  const userData = req.user.toObject()
+  userData.permissions = rolePermissions
+
+  res.status(200).json(new ApiResponse(200, userData, 'User fetched'))
 })
 
 // POST /api/auth/forgot-password

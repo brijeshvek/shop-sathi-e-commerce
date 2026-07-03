@@ -65,10 +65,17 @@ export const changePassword = asyncHandler(async (req, res) => {
 
 // PUT /api/users/:id/block  (Admin)
 export const blockUser = asyncHandler(async (req, res) => {
+  const target = await User.findById(req.params.id).lean()
+  if (!target) throw new ApiError(404, 'User not found.')
+
+  // Prevent blocking admin or superadmin accounts to avoid lockout
+  if (target.role === 'admin' || target.role === 'superadmin') {
+    throw new ApiError(403, 'Admin accounts cannot be blocked.')
+  }
+
   const user = await User.findByIdAndUpdate(
     req.params.id, { isBlocked: req.body.isBlocked }, { new: true }
   ).lean()
-  if (!user) throw new ApiError(404, 'User not found.')
   res.status(200).json(new ApiResponse(200, null,
     req.body.isBlocked ? 'User has been blocked.' : 'User has been unblocked.'
   ))

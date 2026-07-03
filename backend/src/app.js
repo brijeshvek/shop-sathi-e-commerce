@@ -19,6 +19,8 @@ import reviewRouter    from './routes/review.routes.js'
 import couponRouter    from './routes/coupon.routes.js'
 import uploadRouter    from './routes/upload.routes.js'
 import analyticsRouter from './routes/analytics.routes.js'
+import sellerRouter    from './routes/seller.routes.js'
+import roleRouter      from './routes/role.routes.js'
 
 // Error middleware
 import { errorHandler, notFound } from './middleware/error.middleware.js'
@@ -32,6 +34,7 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL    || 'http://localhost:3000',
     process.env.DASHBOARD_URL || 'http://localhost:3001',
+    'http://localhost:3002',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -71,6 +74,8 @@ app.use('/api/reviews',  reviewRouter)
 app.use('/api/coupons',  couponRouter)
 app.use('/api/upload',   uploadRouter)
 app.use('/api/analytics', analyticsRouter)
+app.use('/api/seller',   sellerRouter)
+app.use('/api/roles',    roleRouter)
 
 // ── Error Handling ────────────────────────────────────────────────────────────
 app.use(notFound)

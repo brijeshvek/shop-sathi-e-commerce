@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema({
   sku:   { type: String, unique: true, sparse: true, trim: true, uppercase: true },
   images: [{
     url:      { type: String, required: true },
-    publicId: { type: String, required: true },
+    publicId: { type: String, default: '' },
     isMain:   { type: Boolean, default: false },
   }],
   variants: [{
@@ -44,6 +44,7 @@ const productSchema = new mongoose.Schema({
     count:   { type: Number, default: 0, min: 0 },
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  seller:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
 }, { timestamps: true })
 
 // Auto-generate slug

@@ -6,7 +6,7 @@ const couponSchema = new mongoose.Schema({
     unique: true, uppercase: true, trim: true,
     minLength: 3, maxLength: 20,
   },
-  discountType:  { type: String, enum: ['percentage', 'flat'], required: true },
+  discountType:  { type: String, enum: ['percentage', 'fixed'], required: true },
   discountValue: { type: Number, required: true, min: 1 },
   minOrderAmount:{ type: Number, default: 0 },
   maxDiscount:   { type: Number, default: null },
@@ -15,8 +15,14 @@ const couponSchema = new mongoose.Schema({
   perUserLimit:  { type: Number, default: 1 },
   usedBy:        [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   isActive:      { type: Boolean, default: true },
+  startDate:     { type: Date, default: Date.now },
   expiresAt:     { type: Date, required: [true, 'Expiry date is required'] },
 }, { timestamps: true })
+
+// Also expose expiryDate as alias for expiresAt for frontend compatibility
+couponSchema.virtual('expiryDate').get(function () {
+  return this.expiresAt
+})
 
 couponSchema.virtual('isExpired').get(function () {
   return new Date() > this.expiresAt
@@ -40,7 +46,7 @@ couponSchema.methods.validateForUser = function (userId, orderAmount) {
 
 couponSchema.methods.calculateDiscount = function (orderAmount) {
   let discount = 0
-  if (this.discountType === 'flat') {
+  if (this.discountType === 'fixed') {
     discount = Math.min(this.discountValue, orderAmount)
   } else {
     discount = (orderAmount * this.discountValue) / 100

@@ -6,10 +6,6 @@ import asyncHandler from '../utils/asyncHandler.js'
 
 // GET /api/categories
 export const getAllCategories = asyncHandler(async (req, res) => {
-  const categories = await Category.find({ isActive: true, parent: null })
-    .populate({ path: 'children', model: 'Category', localField: '_id', foreignField: 'parent', match: { isActive: true } })
-    .lean()
-
   // Manual populate children since Mongoose doesn't support virtual populate in lean easily
   const parents = await Category.find({ isActive: true, parent: null }).lean()
   const children = await Category.find({ isActive: true, parent: { $ne: null } }).lean()

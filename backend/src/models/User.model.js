@@ -36,8 +36,13 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['customer', 'admin', 'superadmin'],
+    enum: ['customer', 'seller', 'admin', 'superadmin'],
     default: 'customer',
+  },
+  sellerInfo: {
+    storeName:   { type: String, trim: true, default: '' },
+    description: { type: String, trim: true, default: '' },
+    isApproved:  { type: Boolean, default: true },
   },
   addresses: [addressSchema],
   isBlocked: { type: Boolean, default: false },
