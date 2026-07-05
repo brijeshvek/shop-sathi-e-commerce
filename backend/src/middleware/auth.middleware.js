@@ -5,7 +5,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 import { generateAccessToken, setCookies } from '../utils/generateToken.js'
 
 const authMiddleware = asyncHandler(async (req, res, next) => {
-  let { accessToken, refreshToken } = req.cookies
+  let { accessToken, refreshToken } = req.cookies || {}
   
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     accessToken = req.headers.authorization.split(' ')[1]
