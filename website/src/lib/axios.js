@@ -8,4 +8,15 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  // Only access localStorage if we are in the browser
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 export default api;

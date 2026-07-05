@@ -5,7 +5,11 @@ import asyncHandler from '../utils/asyncHandler.js'
 import { generateAccessToken, setCookies } from '../utils/generateToken.js'
 
 const authMiddleware = asyncHandler(async (req, res, next) => {
-  const { accessToken, refreshToken } = req.cookies
+  let { accessToken, refreshToken } = req.cookies
+  
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    accessToken = req.headers.authorization.split(' ')[1]
+  }
 
   if (!accessToken && !refreshToken) {
     throw new ApiError(401, 'Authentication required. Please login.')

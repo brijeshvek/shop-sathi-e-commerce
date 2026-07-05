@@ -30,6 +30,9 @@ export const LoginPage = () => {
       const res = await loginApi(data).unwrap()
       const role = res.data?.role
       if (res.success && (role === 'admin' || role === 'superadmin' || role === 'seller')) {
+        if (res.data.token) {
+          localStorage.setItem('accessToken', res.data.token)
+        }
         dispatch(setCredentials(res.data))
         toast.success(`Welcome back, ${role === 'seller' ? 'Seller' : 'Admin'}!`)
         navigate('/')

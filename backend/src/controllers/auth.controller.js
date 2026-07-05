@@ -22,6 +22,7 @@ export const register = asyncHandler(async (req, res) => {
   sendWelcomeEmail(user).catch(err => console.error('Welcome email error:', err.message))
 
   const { password: _, ...userData } = user.toObject()
+  userData.token = accessToken
   res.status(201).json(new ApiResponse(201, userData, 'Account created successfully'))
 })
 
@@ -46,6 +47,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const { password: _, ...userData } = user.toObject()
   userData.permissions = rolePermissions
+  userData.token = accessToken
   res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
 })
 
