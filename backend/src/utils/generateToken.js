@@ -14,14 +14,20 @@ export const setCookies = (res, accessToken, refreshToken) => {
   const isProduction = process.env.NODE_ENV === 'production'
   const cookieOptions = {
     httpOnly: true,
-    secure:   isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    secure:   true, // Must be true for sameSite 'none'
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-domain Render <-> Netlify
   }
   res.cookie('accessToken',  accessToken,  { ...cookieOptions, maxAge: 15 * 60 * 1000 })
   res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 })
 }
 
 export const clearCookies = (res) => {
-  res.clearCookie('accessToken')
-  res.clearCookie('refreshToken')
+  const isProduction = process.env.NODE_ENV === 'production'
+  const cookieOptions = {
+    httpOnly: true,
+    secure:   true,
+    sameSite: isProduction ? 'none' : 'lax',
+  }
+  res.clearCookie('accessToken', cookieOptions)
+  res.clearCookie('refreshToken', cookieOptions)
 }
