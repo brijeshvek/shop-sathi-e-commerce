@@ -27,6 +27,9 @@ import { errorHandler, notFound } from './middleware/error.middleware.js'
 
 const app = express()
 
+// Trust proxy required for Secure cookies on Render
+app.set('trust proxy', 1)
+
 // ── Security ─────────────────────────────────────────────────────────────────
 app.use(helmet())
 
