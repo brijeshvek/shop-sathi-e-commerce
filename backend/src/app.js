@@ -34,13 +34,21 @@ app.set('trust proxy', 1)
 app.use(helmet())
 
 app.use(cors({
-  origin: [
-    process.env.CLIENT_URL,
-    process.env.DASHBOARD_URL,
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    const allowed = [
+      process.env.CLIENT_URL,
+      process.env.DASHBOARD_URL,
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+    ];
+    // Allow if it matches allowed list, OR if it's a netlify domain, OR if no origin (tools like Postman)
+    if (!origin || allowed.includes(origin) || origin.endsWith('.netlify.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
