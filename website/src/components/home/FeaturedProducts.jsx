@@ -1,0 +1,107 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
+import Link from "next/link";
+import { useCart } from "@/context/CartContext";
+import toast from "react-hot-toast";
+
+export function FeaturedProducts() {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const { data } = await api.get("/products?limit=8");
+        setProducts(data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch featured products", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  const handleAddToCart = async (product) => {
+    try {
+      await addToCart(product, 1);
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      toast.error("Failed to add to cart");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white mb-8">Featured Products</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="animate-pulse flex flex-col space-y-4">
+              <div className="bg-gray-200 dark:bg-gray-800 aspect-[4/5] rounded-xl"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/4"></div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-end mb-8">
+        <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white">Featured Products</h2>
+        <Link href="/products" className="text-primary-600 hover:text-primary-700 font-medium hidden sm:block">
+          View All &rarr;
+        </Link>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <div key={product._id} className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800">
+            <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+              {product.images?.[0] ? (
+                <img 
+                  src={product.images[0].url} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+              )}
+            </Link>
+            <div className="p-4 flex flex-col flex-grow">
+              <div className="text-xs text-gray-500 mb-1">{product.category?.name || "Product"}</div>
+              <Link href={`/products/${product.slug || product._id}`}>
+                <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 hover:text-primary-600 transition-colors">
+                  {product.name}
+                </h3>
+              </Link>
+              <div className="mt-auto pt-4 flex items-center justify-between">
+                <span className="font-bold text-lg text-primary-600">${product.price?.toFixed(2)}</span>
+                <button 
+                  onClick={() => handleAddToCart(product)}
+                  className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
+                  aria-label="Add to cart"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-8 text-center sm:hidden">
+        <Link href="/products" className="inline-block text-primary-600 font-medium py-2 px-4 border border-primary-200 rounded-full">
+          View All Products
+        </Link>
+      </div>
+    </section>
+  );
+}
