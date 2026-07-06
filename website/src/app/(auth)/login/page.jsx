@@ -7,6 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
