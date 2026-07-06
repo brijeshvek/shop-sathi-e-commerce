@@ -1,12 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { X, User, Heart, Settings, LogOut } from "lucide-react";
+import { X, User, Heart, Settings, LogOut, ShoppingBag, LayoutDashboard } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/axios";
 
 export function MobileMenu({ isOpen, onClose }) {
   const { isAuthenticated, logout, user } = useAuth();
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      api.get("/categories")
+        .then(({ data }) => setCategories(data.data || []))
+        .catch(() => {});
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -39,18 +50,22 @@ export function MobileMenu({ isOpen, onClose }) {
 
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="flex flex-col space-y-2 px-4">
-            <Link href="/products" onClick={onClose} className="text-lg font-medium text-gray-800 py-2 border-b border-gray-100">
+            <Link href="/" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
+              Home
+            </Link>
+            <Link href="/products" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
               Shop All
             </Link>
-            <Link href="/category/electronics" onClick={onClose} className="text-lg font-medium text-gray-800 py-2 border-b border-gray-100">
-              Electronics
-            </Link>
-            <Link href="/category/fashion" onClick={onClose} className="text-lg font-medium text-gray-800 py-2 border-b border-gray-100">
-              Fashion
-            </Link>
-            <Link href="/category/home-kitchen" onClick={onClose} className="text-lg font-medium text-gray-800 py-2 border-b border-gray-100">
-              Home & Kitchen
-            </Link>
+            {categories.map((cat) => (
+              <Link
+                key={cat._id}
+                href={`/products?category=${cat._id}`}
+                onClick={onClose}
+                className="text-lg font-medium text-gray-650 py-2 border-b border-gray-100 hover:text-primary-600 transition-colors"
+              >
+                {cat.name}
+              </Link>
+            ))}
           </nav>
 
           <div className="mt-8 px-4">
@@ -66,14 +81,35 @@ export function MobileMenu({ isOpen, onClose }) {
                   </div>
                 </div>
                 <nav className="flex flex-col space-y-2 pt-4">
-                  <Link href="/profile" onClick={onClose} className="flex items-center space-x-3 text-gray-600 py-2">
-                    <User className="w-5 h-5" /> <span>My Profile</span>
+                  <Link href="/profile" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
+                    <User className="w-5 h-5 text-gray-400" /> <span>My Profile</span>
                   </Link>
-                  <Link href="/profile/wishlist" onClick={onClose} className="flex items-center space-x-3 text-gray-600 py-2">
-                    <Heart className="w-5 h-5" /> <span>Wishlist</span>
+                  <Link href="/profile/orders" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
+                    <ShoppingBag className="w-5 h-5 text-gray-400" /> <span>My Orders</span>
                   </Link>
-                  <button onClick={() => { logout(); onClose(); }} className="flex items-center space-x-3 text-error-600 py-2 text-left">
-                    <LogOut className="w-5 h-5" /> <span>Logout</span>
+                  <Link href="/profile/wishlist" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
+                    <Heart className="w-5 h-5 text-gray-400" /> <span>Wishlist</span>
+                  </Link>
+                  {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'seller') && (
+                    <a 
+                      href="http://localhost:3001" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      onClick={onClose}
+                      className="flex items-center space-x-3 text-primary-600 font-semibold py-2"
+                    >
+                      <LayoutDashboard className="w-5 h-5 text-primary-650" /> <span>Admin Dashboard</span>
+                    </a>
+                  )}
+                  <button 
+                    onClick={() => { 
+                      logout(); 
+                      localStorage.removeItem('accessToken');
+                      onClose(); 
+                    }} 
+                    className="flex items-center space-x-3 text-red-600 py-2 text-left font-medium border-none bg-transparent cursor-pointer"
+                  >
+                    <LogOut className="w-5 h-5 text-red-650" /> <span>Sign Out</span>
                   </button>
                 </nav>
               </div>

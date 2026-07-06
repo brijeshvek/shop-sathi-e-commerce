@@ -39,8 +39,13 @@ function ProductsContent() {
   }, [category, search, minPrice, maxPrice, sort]);
   
   useEffect(() => {
-    if (searchParams.get("search") !== search) {
-      setSearch(searchParams.get("search") || "");
+    const searchParamVal = searchParams.get("search") || "";
+    if (searchParamVal !== search) {
+      setSearch(searchParamVal);
+    }
+    const catParamVal = searchParams.get("category") || "";
+    if (catParamVal !== category) {
+      setCategory(catParamVal);
     }
   }, [searchParams]);
 

@@ -2,16 +2,26 @@
 
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
-import { Search, ShoppingCart, Heart, User, Menu, X, ShoppingBag } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, ShoppingBag, ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MobileMenu } from "./MobileMenu";
+import api from "@/lib/axios";
 
 export function Navbar() {
   const { itemCount } = useCart();
   const { isAuthenticated, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    api.get("/categories")
+      .then(({ data }) => setCategories(data.data || []))
+      .catch(() => {});
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface shadow-sm transition-all duration-200">
@@ -36,15 +46,51 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/products" className="text-gray-600 hover:text-primary-600 font-medium">
+            <Link href="/" className="text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150">
+              Home
+            </Link>
+
+            <Link href="/products" className="text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150">
               Shop
             </Link>
-            
-            {isAuthenticated ? (
-              <Link href="/profile/wishlist" className="text-gray-600 hover:text-primary-600">
+
+            {/* Categories Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
+              onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
+            >
+              <button className="flex items-center space-x-1 text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none py-2">
+                <span>Categories</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCategoriesDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isCategoriesDropdownOpen && (
+                <div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <Link 
+                    href="/products"
+                    className="block px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    All Products
+                  </Link>
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat._id}
+                      href={`/products?category=${cat._id}`}
+                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {isAuthenticated && (
+              <Link href="/profile/wishlist" className="text-gray-600 hover:text-primary-600 relative">
                 <Heart className="w-6 h-6" />
               </Link>
-            ) : null}
+            )}
 
             <Link href="/cart" className="relative text-gray-600 hover:text-primary-600">
               <ShoppingCart className="w-6 h-6" />
@@ -56,12 +102,81 @@ export function Navbar() {
             </Link>
 
             {isAuthenticated ? (
-              <Link href="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-primary-600">
-                <User className="w-6 h-6" />
-                <span className="text-sm font-medium">{user?.name?.split(" ")[0]}</span>
-              </Link>
+              <div 
+                className="relative"
+                onMouseEnter={() => setIsProfileDropdownOpen(true)}
+                onMouseLeave={() => setIsProfileDropdownOpen(false)}
+              >
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none py-2">
+                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center font-bold text-primary-750 text-xs">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium">{user?.name?.split(" ")[0]}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-0 w-60 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-2">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    </div>
+
+                    <Link 
+                      href="/profile"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <User className="w-4 h-4 text-gray-400" />
+                      <span>My Profile</span>
+                    </Link>
+
+                    <Link 
+                      href="/profile/orders"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <ShoppingBag className="w-4 h-4 text-gray-400" />
+                      <span>My Orders</span>
+                    </Link>
+
+                    <Link 
+                      href="/profile/wishlist"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <Heart className="w-4 h-4 text-gray-400" />
+                      <span>Wishlist</span>
+                    </Link>
+
+                    {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'seller') && (
+                      <a 
+                        href="http://localhost:3001" 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 font-medium"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-primary-600" />
+                        <span>Admin Dashboard</span>
+                      </a>
+                    )}
+
+                    <div className="border-t border-gray-100 dark:border-gray-800 my-1.5"></div>
+
+                    <button
+                      onClick={() => {
+                        api.post('/auth/logout').then(() => {
+                          localStorage.removeItem('accessToken');
+                          window.location.href = '/login';
+                        });
+                      }}
+                      className="flex w-full items-center space-x-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-left font-medium border-none bg-transparent cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4 text-red-600" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <Link href="/login" className="text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-full transition-colors">
+              <Link href="/login" className="text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-full transition-colors">
                 Sign In
               </Link>
             )}
