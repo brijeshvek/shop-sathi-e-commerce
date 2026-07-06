@@ -10,6 +10,14 @@ export const authApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    verifyOtp: builder.mutation({
+      query: (otpData) => ({
+        url: '/auth/verify-otp',
+        method: 'POST',
+        body: otpData,
+      }),
+      invalidatesTags: ['User'],
+    }),
     logout: builder.mutation({
       query: () => ({
         url: '/auth/logout',
@@ -26,6 +34,7 @@ export const authApi = apiSlice.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useVerifyOtpMutation,
   useLogoutMutation,
   useGetMeQuery,
 } = authApi

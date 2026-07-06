@@ -10,10 +10,10 @@ export const Spinner = ({ size = 'md', className = '' }) => {
   return (
     <div className={`relative flex items-center justify-center ${sizes[size]} ${className}`} role="status">
       {/* Glow effect */}
-      <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-md animate-pulse"></div>
+      <div className="absolute inset-0 rounded-full bg-primary-500/20 blur-md animate-pulse"></div>
       
       {/* Outer rotating ring */}
-      <svg className="animate-spin w-full h-full text-indigo-600" viewBox="0 0 50 50">
+      <svg className="animate-spin w-full h-full text-primary-600" viewBox="0 0 50 50">
         <circle
           className="opacity-10"
           cx="25"
@@ -31,10 +31,10 @@ export const Spinner = ({ size = 'md', className = '' }) => {
       </svg>
       
       {/* Inner counter-rotating shape */}
-      <div className="absolute inset-2.5 rounded-full border-2 border-dashed border-indigo-400/50 animate-[spin_3s_linear_infinite_reverse]"></div>
+      <div className="absolute inset-2.5 rounded-full border-2 border-dashed border-primary-400/50 animate-[spin_3s_linear_infinite_reverse]"></div>
       
       {/* Center core */}
-      <div className="absolute w-2 h-2 rounded-full bg-indigo-600 animate-ping"></div>
+      <div className="absolute w-2 h-2 rounded-full bg-primary-600 animate-ping"></div>
       
       <span className="sr-only">Loading...</span>
     </div>

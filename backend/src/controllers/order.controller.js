@@ -7,6 +7,8 @@ import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { sendOrderConfirmationEmail, sendOrderStatusEmail } from '../services/email.service.js'
+import crypto from 'crypto'
+import razorpay from '../config/razorpay.js'
 
 const TAX_RATE              = Number(process.env.TAX_RATE) || 0.18
 const FREE_SHIPPING         = Number(process.env.FREE_SHIPPING_THRESHOLD) || 499
@@ -64,6 +66,26 @@ export const placeOrder = asyncHandler(async (req, res) => {
     subtotal, discountAmount, taxAmount, shippingCharge, totalAmount, estimatedDelivery,
   })
 
+  // Create Razorpay order if ONLINE
+  let razorpayOrder = null
+  if (order.paymentMethod === 'ONLINE') {
+    try {
+      const options = {
+        amount: Math.round(order.totalAmount * 100), // in paise
+        currency: 'INR',
+        receipt: order._id.toString(),
+      }
+      razorpayOrder = await razorpay.orders.create(options)
+      order.paymentDetails = {
+        razorpayOrderId: razorpayOrder.id,
+      }
+      await order.save()
+    } catch (err) {
+      // If Razorpay order creation fails, we still have the order in DB, but payment status is pending.
+      console.error('Razorpay order creation failed:', err.message)
+    }
+  }
+
   // Decrement stock
   await Promise.all(cart.items.map(item =>
     Product.findByIdAndUpdate(item.product._id, { $inc: { stock: -item.quantity } })
@@ -79,10 +101,12 @@ export const placeOrder = asyncHandler(async (req, res) => {
   // Clear cart
   await Cart.findOneAndUpdate({ user: req.user._id }, { items: [], coupon: null, discountAmount: 0 })
 
-  // Send confirmation email (non-blocking)
-  sendOrderConfirmationEmail(req.user, order).catch(e => console.error('Order email error:', e.message))
+  // Send confirmation email only if COD (Online orders get it after payment verification)
+  if (order.paymentMethod === 'COD') {
+    sendOrderConfirmationEmail(req.user, order).catch(e => console.error('Order email error:', e.message))
+  }
 
-  res.status(201).json(new ApiResponse(201, order, 'Order placed successfully'))
+  res.status(201).json(new ApiResponse(201, { order, razorpayOrder }, 'Order placed successfully'))
 })
 
 // GET /api/orders  (Admin)
@@ -177,4 +201,71 @@ export const cancelOrder = asyncHandler(async (req, res) => {
   ))
 
   res.status(200).json(new ApiResponse(200, null, 'Order cancelled successfully'))
+})
+
+// GET /api/orders/razorpay-key
+export const getRazorpayKey = asyncHandler(async (req, res) => {
+  res.status(200).json(new ApiResponse(200, { keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder_key' }, 'Razorpay Key fetched'))
+})
+
+// POST /api/orders/verify-payment
+export const verifyPayment = asyncHandler(async (req, res) => {
+  const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body
+
+  const order = await Order.findById(orderId)
+  if (!order) throw new ApiError(404, 'Order not found.')
+
+  // Verify signature
+  const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret')
+  hmac.update(razorpayOrderId + '|' + razorpayPaymentId)
+  const generatedSignature = hmac.digest('hex')
+
+  if (generatedSignature !== razorpaySignature) {
+    order.paymentStatus = 'failed'
+    await order.save()
+    throw new ApiError(400, 'Payment verification failed. Invalid signature.')
+  }
+
+  // Update order status
+  order.paymentStatus = 'paid'
+  order.orderStatus = 'processing'
+  order.paymentDetails = {
+    razorpayOrderId,
+    razorpayPaymentId,
+    razorpaySignature,
+    paidAt: new Date(),
+  }
+  await order.save()
+
+  // Send confirmation email (non-blocking)
+  const user = await User.findById(order.user)
+  if (user) {
+    sendOrderConfirmationEmail(user, order).catch(e => console.error('Order email error:', e.message))
+  }
+
+  res.status(200).json(new ApiResponse(200, order, 'Payment verified successfully'))
+})
+
+// POST /api/orders/:id/pay
+export const payPendingOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id)
+  if (!order) throw new ApiError(404, 'Order not found.')
+  if (order.user.toString() !== req.user._id.toString()) throw new ApiError(403, 'Not authorized.')
+  if (order.paymentStatus === 'paid') throw new ApiError(400, 'Order is already paid.')
+  if (order.paymentMethod !== 'ONLINE') throw new ApiError(400, 'Only online payment orders can be paid online.')
+
+  const options = {
+    amount: Math.round(order.totalAmount * 100), // in paise
+    currency: 'INR',
+    receipt: order._id.toString(),
+  }
+  const razorpayOrder = await razorpay.orders.create(options)
+
+  order.paymentDetails = {
+    ...order.paymentDetails,
+    razorpayOrderId: razorpayOrder.id,
+  }
+  await order.save()
+
+  res.status(200).json(new ApiResponse(200, { order, razorpayOrder }, 'Razorpay payment re-initiated'))
 })

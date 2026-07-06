@@ -5,7 +5,7 @@ import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { generateAccessToken, generateRefreshToken, setCookies, clearCookies } from '../utils/generateToken.js'
-import { sendWelcomeEmail, sendPasswordResetEmail } from '../services/email.service.js'
+import { sendWelcomeEmail, sendPasswordResetEmail, sendLoginOtpEmail } from '../services/email.service.js'
 
 // POST /api/auth/register
 export const register = asyncHandler(async (req, res) => {
@@ -34,6 +34,41 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Invalid email or password.')
   }
   if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
+
+  // Generate 6-digit verification code
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  user.loginOtp = otp
+  user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
+  await user.save({ validateBeforeSave: false })
+
+  // Send OTP email (non-blocking)
+  sendLoginOtpEmail(user, otp).catch(err => console.error('OTP email error:', err.message))
+
+  res.status(200).json(new ApiResponse(200, { otpRequired: true, email: user.email }, 'Verification OTP sent to email.'))
+})
+
+// POST /api/auth/verify-otp
+export const verifyLoginOtp = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body
+  if (!email || !otp) {
+    throw new ApiError(400, 'Email and OTP code are required.')
+  }
+
+  const user = await User.findOne({ email }).select('+loginOtp +loginOtpExpire')
+  if (!user) throw new ApiError(404, 'User not found.')
+
+  if (!user.loginOtp || !user.loginOtpExpire || user.loginOtpExpire < Date.now()) {
+    throw new ApiError(400, 'The verification code has expired or is invalid. Please login again.')
+  }
+
+  if (user.loginOtp !== otp) {
+    throw new ApiError(400, 'Invalid verification code. Please try again.')
+  }
+
+  // Clear OTP fields
+  user.loginOtp = undefined
+  user.loginOtpExpire = undefined
+  await user.save({ validateBeforeSave: false })
 
   const accessToken  = generateAccessToken(user._id)
   const refreshToken = generateRefreshToken(user._id)

@@ -6,6 +6,7 @@ import { User, MapPin, Package, Heart, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/common/Spinner";
 
 export default function ProfileLayout({ children }) {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export default function ProfileLayout({ children }) {
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }

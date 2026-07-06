@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { ShoppingCart, Lock, Mail } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { useLoginMutation } from '../../features/auth/authApi.js'
+import { useLoginMutation, useVerifyOtpMutation } from '../../features/auth/authApi.js'
 import { setCredentials } from '../../features/auth/authSlice.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
@@ -20,27 +20,56 @@ export const LoginPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [loginApi, { isLoading }] = useLoginMutation()
+  const [verifyOtpApi, { isLoading: isVerifying }] = useVerifyOtpMutation()
+
+  const [otpRequired, setOtpRequired] = useState(false)
+  const [email, setEmail] = useState('')
+  const [otp, setOtp] = useState('')
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   })
 
+  const handleLoginSuccess = (res) => {
+    const role = res.data?.role
+    if (role === 'admin' || role === 'superadmin' || role === 'seller') {
+      if (res.data.token) {
+        localStorage.setItem('accessToken', res.data.token)
+      }
+      dispatch(setCredentials(res.data))
+      toast.success(`Welcome back, ${role === 'seller' ? 'Seller' : 'Admin'}!`)
+      navigate('/')
+    } else {
+      toast.error('Access denied. Admin or Seller role required.')
+    }
+  }
+
   const onSubmit = async (data) => {
     try {
       const res = await loginApi(data).unwrap()
-      const role = res.data?.role
-      if (res.success && (role === 'admin' || role === 'superadmin' || role === 'seller')) {
-        if (res.data.token) {
-          localStorage.setItem('accessToken', res.data.token)
-        }
-        dispatch(setCredentials(res.data))
-        toast.success(`Welcome back, ${role === 'seller' ? 'Seller' : 'Admin'}!`)
-        navigate('/')
+      if (res.data?.otpRequired) {
+        setEmail(data.email)
+        setOtpRequired(true)
+        toast.success('Verification code sent to your email!')
       } else {
-        toast.error('Access denied. Admin or Seller role required.')
+        handleLoginSuccess(res)
       }
     } catch (err) {
       toast.error(err?.data?.message || 'Login failed. Please try again.')
+    }
+  }
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault()
+    if (!otp || otp.length < 6) {
+      toast.error('Please enter a valid 6-digit OTP')
+      return
+    }
+    try {
+      const res = await verifyOtpApi({ email, otp }).unwrap()
+      handleLoginSuccess(res)
+    } catch (err) {
+      toast.error(err?.data?.message || 'OTP verification failed. Please try again.')
     }
   }
 
@@ -55,37 +84,72 @@ export const LoginPage = () => {
         <p className="text-sm text-slate-500 mt-1.5">Sign in to manage your e-commerce platform</p>
       </div>
 
-      {/* Login Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="relative">
-          <Input
-            label="Email Address"
-            type="email"
-            placeholder="admin@shopease.com"
-            error={errors.email}
-            {...register('email')}
-          />
-        </div>
+      {otpRequired ? (
+        <form onSubmit={handleVerifyOtp} className="space-y-4">
+          <div className="text-center text-sm text-slate-650 bg-slate-50 border border-slate-100 rounded-xl p-3 mb-2 leading-relaxed">
+            We have sent a 6-digit verification code to <span className="font-semibold text-slate-900">{email}</span>.
+          </div>
+          <div className="relative">
+            <Input
+              label="OTP Code"
+              type="text"
+              maxLength={6}
+              placeholder="Enter 6-digit code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+              required
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full mt-2"
+            isLoading={isVerifying}
+          >
+            Verify & Sign In
+          </Button>
+          <div className="text-center text-sm mt-3">
+            <button
+              type="button"
+              onClick={() => setOtpRequired(false)}
+              className="text-indigo-600 hover:text-indigo-500 font-semibold transition-colors"
+            >
+              Back to Sign In
+            </button>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="relative">
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="admin@shopease.com"
+              error={errors.email}
+              {...register('email')}
+            />
+          </div>
 
-        <div className="relative">
-          <Input
-            label="Password"
-            type="password"
-            placeholder="••••••••"
-            error={errors.password}
-            {...register('password')}
-          />
-        </div>
+          <div className="relative">
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              error={errors.password}
+              {...register('password')}
+            />
+          </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full mt-2"
-          isLoading={isLoading}
-        >
-          Sign In
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full mt-2"
+            isLoading={isLoading}
+          >
+            Sign In
+          </Button>
+        </form>
+      )}
     </div>
   )
 }

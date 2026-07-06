@@ -10,6 +10,7 @@ import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/common/Button";
 import { Filter, X } from "lucide-react";
+import { Spinner } from "@/components/common/Spinner";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -243,7 +244,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Spinner size="lg" /></div>}>
       <ProductsContent />
     </Suspense>
   );

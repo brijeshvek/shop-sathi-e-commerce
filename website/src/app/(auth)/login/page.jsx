@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,8 +17,13 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, verifyOtp } = useAuth();
   const router = useRouter();
+
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const {
     register,
@@ -29,73 +35,142 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     try {
-      await login(data.email, data.password);
+      const res = await login(data.email, data.password);
+      if (res.data?.otpRequired) {
+        setEmail(data.email);
+        setOtpRequired(true);
+        toast.success("Verification code sent to your email!");
+      } else {
+        toast.success("Welcome back!");
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectPath = urlParams.get('redirect') || "/";
+        router.push(redirectPath);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp || otp.length < 6) {
+      toast.error("Please enter a valid 6-digit OTP code");
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      await verifyOtp(email, otp);
       toast.success("Welcome back!");
       const urlParams = new URLSearchParams(window.location.search);
       const redirectPath = urlParams.get('redirect') || "/";
       router.push(redirectPath);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "OTP verification failed");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-surface p-8 rounded-2xl shadow-xl">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white font-heading">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Or{" "}
-            <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              create a new account
-            </Link>
-          </p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="you@example.com"
-              {...register("email")}
-              error={errors.email}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              {...register("password")}
-              error={errors.password}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                Remember me
-              </label>
+        {otpRequired ? (
+          <>
+            <div className="text-center">
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white font-heading">
+                Enter Verification Code
+              </h2>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                We have sent a 6-digit OTP to <span className="font-semibold text-gray-900 dark:text-white">{email}</span>.
+              </p>
             </div>
 
-            <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
+            <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
+              <div className="space-y-4">
+                <Input
+                  label="OTP Code"
+                  type="text"
+                  maxLength={6}
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  required
+                />
+              </div>
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
-            Sign In
-          </Button>
-        </form>
+              <Button type="submit" className="w-full" isLoading={isVerifying}>
+                Verify & Sign In
+              </Button>
+              
+              <div className="text-center text-sm">
+                <button 
+                  type="button"
+                  onClick={() => setOtpRequired(false)} 
+                  className="font-medium text-primary-600 hover:text-primary-500"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            <div className="text-center">
+              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white font-heading">
+                Sign in to your account
+              </h2>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Or{" "}
+                <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                  create a new account
+                </Link>
+              </p>
+            </div>
+
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-4">
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="you@example.com"
+                  {...register("email")}
+                  error={errors.email}
+                />
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="••••••••"
+                  {...register("password")}
+                  error={errors.password}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                    Remember me
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                    Forgot your password?
+                  </Link>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" isLoading={isSubmitting}>
+                Sign In
+              </Button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );

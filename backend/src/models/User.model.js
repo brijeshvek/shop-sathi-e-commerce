@@ -48,6 +48,8 @@ const userSchema = new mongoose.Schema({
   isBlocked: { type: Boolean, default: false },
   resetPasswordToken:  { type: String, select: false },
   resetPasswordExpire: { type: Date,   select: false },
+  loginOtp:            { type: String, select: false },
+  loginOtpExpire:      { type: Date,   select: false },
 }, { timestamps: true })
 
 // Hash password before save

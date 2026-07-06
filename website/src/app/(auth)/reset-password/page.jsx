@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
+import { Spinner } from "@/components/common/Spinner";
 
 const resetSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -105,7 +106,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Spinner size="lg" /></div>}>
       <ResetPasswordContent />
     </Suspense>
   );
