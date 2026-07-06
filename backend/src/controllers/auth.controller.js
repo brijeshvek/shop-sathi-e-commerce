@@ -140,3 +140,24 @@ export const resetPassword = asyncHandler(async (req, res) => {
   clearCookies(res)
   res.status(200).json(new ApiResponse(200, null, 'Password reset successful. Please login.'))
 })
+
+// POST /api/auth/resend-otp
+export const resendLoginOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  if (!email) throw new ApiError(400, 'Email is required.')
+
+  const user = await User.findOne({ email })
+  if (!user) throw new ApiError(404, 'User not found.')
+  if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
+
+  // Generate new 6-digit verification code
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  user.loginOtp = otp
+  user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
+  await user.save({ validateBeforeSave: false })
+
+  // Send OTP email (non-blocking)
+  sendLoginOtpEmail(user, otp).catch(err => console.error('OTP email error:', err.message))
+
+  res.status(200).json(new ApiResponse(200, { email: user.email }, 'Verification OTP resent to email.'))
+})

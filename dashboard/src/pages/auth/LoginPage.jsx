@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -21,10 +21,39 @@ export const LoginPage = () => {
   const dispatch = useDispatch()
   const [loginApi, { isLoading }] = useLoginMutation()
   const [verifyOtpApi, { isLoading: isVerifying }] = useVerifyOtpMutation()
+  const [resendOtpApi, { isLoading: isResending }] = useResendOtpMutation()
 
   const [otpRequired, setOtpRequired] = useState(false)
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
+
+  const [timer, setTimer] = useState(15)
+  const [canResend, setCanResend] = useState(false)
+
+  useEffect(() => {
+    let interval
+    if (otpRequired && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1)
+      }, 1000)
+    } else if (timer === 0) {
+      setCanResend(true)
+    }
+    return () => clearInterval(interval)
+  }, [otpRequired, timer])
+
+  const handleResendOtp = async () => {
+    if (!canResend) return
+    setCanResend(false)
+    setTimer(15)
+    try {
+      await resendOtpApi({ email }).unwrap()
+      toast.success('Verification OTP code resent successfully!')
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to resend verification code.')
+      setCanResend(true)
+    }
+  }
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
@@ -50,6 +79,8 @@ export const LoginPage = () => {
       if (res.data?.otpRequired) {
         setEmail(data.email)
         setOtpRequired(true)
+        setTimer(15)
+        setCanResend(false)
         toast.success('Verification code sent to your email!')
       } else {
         handleLoginSuccess(res)
@@ -108,11 +139,28 @@ export const LoginPage = () => {
           >
             Verify & Sign In
           </Button>
-          <div className="text-center text-sm mt-3">
+          <div className="flex flex-col items-center justify-center space-y-3 mt-4 text-sm text-center">
+            <div>
+              {canResend ? (
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  className="font-semibold text-indigo-600 hover:text-indigo-500 underline focus:outline-none"
+                  disabled={isResending}
+                >
+                  {isResending ? 'Resending...' : 'Resend OTP Code'}
+                </button>
+              ) : (
+                <span className="text-slate-400 font-medium">
+                  Resend code in {timer}s
+                </span>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => setOtpRequired(false)}
-              className="text-indigo-600 hover:text-indigo-500 font-semibold transition-colors"
+              className="text-slate-500 hover:text-slate-700 font-medium transition-colors focus:outline-none"
             >
               Back to Sign In
             </button>

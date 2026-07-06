@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,6 +25,34 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
+  const [timer, setTimer] = useState(15);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (otpRequired && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [otpRequired, timer]);
+
+  const handleResendOtp = async () => {
+    if (!canResend) return;
+    setCanResend(false);
+    setTimer(15);
+    try {
+      await api.post('/auth/resend-otp', { email });
+      toast.success("Verification OTP code resent successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to resend code");
+      setCanResend(true);
+    }
+  };
+
   const {
     register,
     handleSubmit,
@@ -39,6 +67,8 @@ export default function LoginPage() {
       if (res.data?.otpRequired) {
         setEmail(data.email);
         setOtpRequired(true);
+        setTimer(15);
+        setCanResend(false);
         toast.success("Verification code sent to your email!");
       } else {
         toast.success("Welcome back!");
@@ -102,11 +132,27 @@ export default function LoginPage() {
                 Verify & Sign In
               </Button>
               
-              <div className="text-center text-sm">
+              <div className="flex flex-col items-center justify-center space-y-3 mt-4 text-sm text-center">
+                <div>
+                  {canResend ? (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="font-semibold text-primary-600 hover:text-primary-500 underline focus:outline-none"
+                    >
+                      Resend OTP Code
+                    </button>
+                  ) : (
+                    <span className="text-gray-400 font-medium">
+                      Resend code in {timer}s
+                    </span>
+                  )}
+                </div>
+
                 <button 
                   type="button"
                   onClick={() => setOtpRequired(false)} 
-                  className="font-medium text-primary-600 hover:text-primary-500"
+                  className="font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
                 >
                   Back to Sign In
                 </button>
