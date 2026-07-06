@@ -35,7 +35,25 @@ export const login = asyncHandler(async (req, res) => {
   }
   if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
 
-  // Generate 6-digit verification code
+  // Bypass OTP for administrative and seller roles
+  if (user.role === 'admin' || user.role === 'superadmin' || user.role === 'seller') {
+    const accessToken  = generateAccessToken(user._id)
+    const refreshToken = generateRefreshToken(user._id)
+    setCookies(res, accessToken, refreshToken)
+
+    let roleDoc = await Role.findOne({ name: user.role })
+    if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
+      roleDoc = await Role.create({ name: user.role })
+    }
+    const rolePermissions = roleDoc ? roleDoc.permissions : {}
+
+    const { password: _, ...userData } = user.toObject()
+    userData.permissions = rolePermissions
+    userData.token = accessToken
+    return res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
+  }
+
+  // Generate 6-digit verification code for customers
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   user.loginOtp = otp
   user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
