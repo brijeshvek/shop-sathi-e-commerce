@@ -59,14 +59,14 @@ export function HeroBanner() {
 
   if (loading) {
     return (
-      <div className="relative w-full h-[60vh] min-h-[500px] bg-gray-200 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+      <div className="relative w-full h-[50vh] min-h-[400px] md:h-[60vh] md:min-h-[500px] bg-gray-200 dark:bg-gray-800 animate-pulse flex items-center justify-center">
         <span className="text-gray-400 font-semibold">Loading slideshow...</span>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden" role="region" aria-label="Hero banner slideshow">
+    <div className="relative w-full h-[50vh] min-h-[400px] md:h-[60vh] md:min-h-[500px] overflow-hidden" role="region" aria-label="Hero banner slideshow">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"
@@ -90,17 +90,17 @@ export function HeroBanner() {
               <div className="absolute inset-0 bg-black/40"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center px-4 max-w-3xl">
-                  <h2 className="text-4xl md:text-6xl font-extrabold text-white font-heading tracking-tight drop-shadow-md">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white font-heading tracking-tight drop-shadow-md">
                     {slide.title}
                   </h2>
                   {slide.subtitle && (
-                    <p className="mt-4 text-xl md:text-2xl text-gray-200 drop-shadow-md">
+                    <p className="mt-3 sm:mt-4 text-lg sm:text-xl md:text-2xl text-gray-200 drop-shadow-md">
                       {slide.subtitle}
                     </p>
                   )}
-                  <div className="mt-8">
+                  <div className="mt-6 sm:mt-8">
                     <Link href={slide.link || '/products'}>
-                      <Button size="lg" className="px-8 py-3 text-lg rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all">
+                      <Button size="lg" className="px-6 py-2.5 sm:px-8 sm:py-3 text-base sm:text-lg rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all">
                         Shop Now
                       </Button>
                     </Link>
