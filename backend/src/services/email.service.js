@@ -2,6 +2,19 @@ import transporter from '../config/email.js'
 
 const FROM = process.env.EMAIL_FROM || 'ShopEase <noreply@shopease.com>'
 
+// Helper to send emails via standard Nodemailer transporter
+const sendMailHelper = async ({ to, subject, html, attachments }) => {
+  return await transporter.sendMail({
+    from: FROM,
+    to,
+    subject,
+    html,
+    attachments
+  });
+}
+
+
+
 const baseTemplate = (content) => `
 <!DOCTYPE html>
 <html>
@@ -33,8 +46,7 @@ const baseTemplate = (content) => `
 
 // Welcome Email
 export const sendWelcomeEmail = async (user) => {
-  await transporter.sendMail({
-    from:    FROM,
+  await sendMailHelper({
     to:      user.email,
     subject: '🎉 Welcome to ShopEase!',
     html:    baseTemplate(`
@@ -49,8 +61,7 @@ export const sendWelcomeEmail = async (user) => {
 
 // Password Reset Email
 export const sendPasswordResetEmail = async (user, resetUrl) => {
-  await transporter.sendMail({
-    from:    FROM,
+  await sendMailHelper({
     to:      user.email,
     subject: '🔑 Reset Your Password',
     html:    baseTemplate(`
@@ -191,8 +202,7 @@ export const sendOrderConfirmationEmail = async (user, order) => {
       <td style="text-align:right">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
     </tr>`).join('')
 
-  await transporter.sendMail({
-    from:    FROM,
+  await sendMailHelper({
     to:      user.email,
     subject: `✅ Order Confirmed — ${order.orderNumber}`,
     html:    baseTemplate(`
@@ -228,8 +238,7 @@ export const sendOrderStatusEmail = async (user, order) => {
     cancelled:  'Your order has been cancelled.',
   }
 
-  await transporter.sendMail({
-    from:    FROM,
+  await sendMailHelper({
     to:      user.email,
     subject: `📦 Order Update — ${order.orderNumber}`,
     html:    baseTemplate(`
@@ -244,8 +253,7 @@ export const sendOrderStatusEmail = async (user, order) => {
 
 // Login OTP Email
 export const sendLoginOtpEmail = async (user, otp) => {
-  await transporter.sendMail({
-    from:    FROM,
+  await sendMailHelper({
     to:      user.email,
     subject: `🔐 Your Login OTP — ${otp}`,
     html:    baseTemplate(`

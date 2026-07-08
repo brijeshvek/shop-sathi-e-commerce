@@ -98,6 +98,9 @@ export default function CheckoutPage() {
       const orderData = data.data.order;
       const rzOrder = data.data.razorpayOrder;
 
+      // Clear client-side cart state immediately since the order has been created
+      await clearCart();
+
       if (paymentMethod === "ONLINE" && rzOrder) {
         const isScriptLoaded = await loadRazorpayScript();
         if (!isScriptLoaded) {
@@ -128,7 +131,6 @@ export default function CheckoutPage() {
                 razorpaySignature: response.razorpay_signature,
               });
               toast.success("Payment successful!");
-              await clearCart();
               router.push("/order-success");
             } catch (err) {
               toast.error(err.response?.data?.message || "Payment verification failed");
@@ -158,7 +160,6 @@ export default function CheckoutPage() {
       } else {
         // COD order
         toast.success("Order placed successfully via Cash on Delivery!");
-        await clearCart();
         router.push("/order-success");
       }
     } catch (error) {
@@ -175,10 +176,10 @@ export default function CheckoutPage() {
       <div className="flex flex-col lg:flex-row gap-12">
         <div className="w-full lg:w-2/3">
           {/* Step 1: Address */}
-          <div className={`p-6 bg-surface border border-gray-200 rounded-2xl mb-6 ${step !== 1 ? 'opacity-50' : ''}`}>
+          <div className={`p-6 bg-surface border border-gray-200 rounded-2xl mb-6 transition-all duration-350 ease-in-out ${step !== 1 ? 'opacity-40 select-none' : 'shadow-md border-primary-100'}`}>
             <h2 className="text-xl font-bold font-heading mb-4">1. Shipping Address</h2>
             {step === 1 ? (
-              <form onSubmit={handleNextStep} className="space-y-4">
+              <form onSubmit={handleNextStep} className="space-y-4 animate-fade-in">
                 <div className="grid grid-cols-2 gap-4">
                   <Input label="Full Name" value={address.fullName} onChange={e => setAddress({...address, fullName: e.target.value})} required />
                   <Input label="Phone Number" type="tel" value={address.phone} onChange={e => setAddress({...address, phone: e.target.value})} required />
@@ -205,10 +206,10 @@ export default function CheckoutPage() {
           </div>
 
           {/* Step 2: Review & Pay */}
-          <div className={`p-6 bg-surface border border-gray-200 rounded-2xl ${step !== 2 ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div className={`p-6 bg-surface border border-gray-200 rounded-2xl transition-all duration-350 ease-in-out ${step !== 2 ? 'opacity-40 pointer-events-none select-none' : 'shadow-md border-primary-100'}`}>
             <h2 className="text-xl font-bold font-heading mb-4">2. Review & Place Order</h2>
             {step === 2 && (
-              <div>
+              <div className="animate-fade-in">
                 <div className="mb-6">
                   <h3 className="text-md font-bold mb-3 text-gray-800">Select Payment Method</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,7 +246,7 @@ export default function CheckoutPage() {
 
                 <p className="text-gray-600 mb-6 text-sm">By clicking place order, you agree to our terms and conditions. Your payment will be processed securely.</p>
                 <Button onClick={handlePlaceOrder} isLoading={isSubmitting} size="lg" className="w-full">
-                  Place Order - ${(subtotal + 10).toFixed(2)}
+                  Place Order - ₹{(subtotal + 10).toFixed(2)}
                 </Button>
                 <button onClick={() => setStep(1)} className="block w-full text-center mt-4 text-sm text-gray-500 hover:text-gray-700">Back to Address</button>
               </div>
@@ -264,20 +265,20 @@ export default function CheckoutPage() {
                     <span className="text-gray-500 text-sm">{item.quantity}x</span>
                     <span className="text-sm font-medium line-clamp-1">{item.product.name}</span>
                   </div>
-                  <span className="text-sm font-medium">${(item.product.price * item.quantity).toFixed(2)}</span>
+                  <span className="text-sm font-medium">₹{(item.product.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
             
             <div className="border-t border-gray-200 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Shipping</span><span>$10.00</span></div>
-              <div className="flex justify-between text-gray-600"><span>Tax</span><span>$0.00</span></div>
+              <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between text-gray-600"><span>Shipping</span><span>₹10.00</span></div>
+              <div className="flex justify-between text-gray-600"><span>Tax</span><span>₹0.00</span></div>
             </div>
             
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
               <span className="text-lg font-bold">Total</span>
-              <span className="text-2xl font-bold text-primary-600">${(subtotal + 10).toFixed(2)}</span>
+              <span className="text-2xl font-bold text-primary-600">₹{(subtotal + 10).toFixed(2)}</span>
             </div>
           </div>
         </div>

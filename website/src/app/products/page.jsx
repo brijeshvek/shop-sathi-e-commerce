@@ -226,7 +226,7 @@ function ProductsContent() {
                       </h3>
                     </Link>
                     <div className="mt-auto pt-4 flex items-center justify-between">
-                      <span className="font-bold text-lg text-primary-600">${product.price?.toFixed(2)}</span>
+                      <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
                       <button 
                         onClick={(e) => handleAddToCart(product, e)}
                         className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"

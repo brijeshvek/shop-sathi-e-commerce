@@ -209,7 +209,7 @@ export default function OrderDetailsPage() {
           </div>
           <div>
             <p className="text-sm text-gray-500">Total Amount</p>
-            <p className="font-medium text-gray-900 dark:text-white">${order.totalAmount?.toFixed(2)}</p>
+            <p className="font-medium text-gray-900 dark:text-white">₹{order.totalAmount?.toFixed(2)}</p>
           </div>
           <div>
             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold capitalize
@@ -303,8 +303,8 @@ export default function OrderDetailsPage() {
                     <p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
                   </div>
                   <div className="text-right whitespace-nowrap">
-                    <p className="text-base font-bold text-gray-900 dark:text-white">${(item.price * item.quantity).toFixed(2)}</p>
-                    {item.quantity > 1 && <p className="text-xs text-gray-500 mt-1">${item.price.toFixed(2)} each</p>}
+                    <p className="text-base font-bold text-gray-900 dark:text-white">₹{(item.price * item.quantity).toFixed(2)}</p>
+                    {item.quantity > 1 && <p className="text-xs text-gray-500 mt-1">₹{item.price.toFixed(2)} each</p>}
                   </div>
                 </li>
               ))}
@@ -318,25 +318,25 @@ export default function OrderDetailsPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between text-gray-600 dark:text-gray-400">
                 <span>Subtotal</span>
-                <span>${order.subtotal?.toFixed(2)}</span>
+                <span>₹{order.subtotal?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600 dark:text-gray-400">
                 <span>Shipping</span>
-                <span>{order.shippingCharge === 0 ? 'Free' : `$${order.shippingCharge?.toFixed(2)}`}</span>
+                <span>{order.shippingCharge === 0 ? 'Free' : `₹${order.shippingCharge?.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-gray-600 dark:text-gray-400">
                 <span>Tax</span>
-                <span>${order.taxAmount?.toFixed(2)}</span>
+                <span>₹{order.taxAmount?.toFixed(2)}</span>
               </div>
               {order.discountAmount > 0 && (
                 <div className="flex justify-between text-success-600">
                   <span>Discount</span>
-                  <span>-${order.discountAmount?.toFixed(2)}</span>
+                  <span>-₹{order.discountAmount?.toFixed(2)}</span>
                 </div>
               )}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex justify-between font-bold text-lg text-gray-900 dark:text-white">
                 <span>Total</span>
-                <span className="text-primary-600">${order.totalAmount?.toFixed(2)}</span>
+                <span className="text-primary-600">₹{order.totalAmount?.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -399,8 +399,8 @@ export default function OrderDetailsPage() {
       </div>
 
       {showInvoice && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto print:absolute print:inset-0 print:bg-white print:p-0">
-          <div id="printable-invoice" className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-3xl p-8 shadow-2xl relative print:shadow-none print:w-full print:max-w-none print:p-0">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto print:absolute print:inset-0 print:bg-white print:p-0 animate-fade-in-overlay">
+          <div id="printable-invoice" className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-3xl p-8 shadow-2xl relative print:shadow-none print:w-full print:max-w-none print:p-0 animate-modal-open">
             {/* Close button (hidden in print) */}
             <button 
               onClick={() => setShowInvoice(false)}
@@ -475,9 +475,9 @@ export default function OrderDetailsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-3 text-right">${item.price.toFixed(2)}</td>
+                    <td className="py-3 px-3 text-right">₹{item.price.toFixed(2)}</td>
                     <td className="py-3 px-3 text-center">{item.quantity}</td>
-                    <td className="py-3 px-3 text-right">${(item.price * item.quantity).toFixed(2)}</td>
+                    <td className="py-3 px-3 text-right">₹{(item.price * item.quantity).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -488,25 +488,25 @@ export default function OrderDetailsPage() {
               <div className="w-64 space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Subtotal</span>
-                  <span>${order.subtotal?.toFixed(2)}</span>
+                  <span>₹{order.subtotal?.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Shipping</span>
-                  <span>{order.shippingCharge === 0 ? 'Free' : `$${order.shippingCharge?.toFixed(2)}`}</span>
+                  <span>{order.shippingCharge === 0 ? 'Free' : `₹${order.shippingCharge?.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Tax</span>
-                  <span>${order.taxAmount?.toFixed(2)}</span>
+                  <span>₹{order.taxAmount?.toFixed(2)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between text-success-600 font-medium">
                     <span>Discount</span>
-                    <span>-${order.discountAmount?.toFixed(2)}</span>
+                    <span>-₹{order.discountAmount?.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="border-t border-gray-200 dark:border-gray-800 pt-2 flex justify-between font-bold text-base text-gray-900 dark:text-white">
                   <span>Total</span>
-                  <span className="text-primary-600">${order.totalAmount?.toFixed(2)}</span>
+                  <span className="text-primary-600">₹{order.totalAmount?.toFixed(2)}</span>
                 </div>
               </div>
             </div>

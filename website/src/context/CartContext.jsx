@@ -86,7 +86,11 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     if (isAuthenticated) {
-      // Normally no endpoint for user clearing cart manually, but clear local state
+      try {
+        await api.delete('/cart/clear');
+      } catch (error) {
+        console.error('Failed to clear cart on backend', error);
+      }
       setItems([]);
     } else {
       setItems([]);

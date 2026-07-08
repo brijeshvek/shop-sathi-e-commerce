@@ -83,7 +83,7 @@ export default function WishlistPage() {
             </div>
             <div className="p-4">
               <h3 className="font-medium text-gray-900 dark:text-white truncate">{product.name}</h3>
-              <p className="mt-1 font-bold text-primary-600">${product.price?.toFixed(2)}</p>
+              <p className="mt-1 font-bold text-primary-600">₹{product.price?.toFixed(2)}</p>
               <Link href={`/products/${product.slug || product._id}`} className="block mt-4">
                 <Button variant="outline" className="w-full h-9">View Product</Button>
               </Link>

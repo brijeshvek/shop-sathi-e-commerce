@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ShoppingBag, Layers, FileText,
-  Users, Ticket, BarChart2, Settings, LogOut, ShoppingCart, Store, UserCog
+  Users, Ticket, BarChart2, Settings, LogOut, ShoppingCart, Store, UserCog, Megaphone
 } from 'lucide-react'
 import { useLogoutMutation } from '../../features/auth/authApi.js'
 import { useDispatch } from 'react-redux'
@@ -16,6 +16,7 @@ const ADMIN_NAV = [
   { name: 'Orders', path: '/orders', icon: FileText },
   { name: 'Customers', path: '/customers', icon: Users },
   { name: 'Coupons', path: '/coupons', icon: Ticket },
+  { name: 'Banners & Offers', path: '/banners', icon: Megaphone },
   { name: 'Analytics', path: '/analytics', icon: BarChart2 },
   { name: 'Role Permissions', path: '/roles', icon: UserCog },
   { name: 'Settings', path: '/settings', icon: Settings },

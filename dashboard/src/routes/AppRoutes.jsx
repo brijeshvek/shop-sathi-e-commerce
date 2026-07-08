@@ -22,6 +22,7 @@ import CouponsPage from '../pages/coupons/CouponsPage.jsx'
 import AnalyticsPage from '../pages/analytics/AnalyticsPage.jsx'
 import RolePermissionsPage from '../pages/roles/RolePermissionsPage.jsx'
 import SettingsPage from '../pages/settings/SettingsPage.jsx'
+import BannersPage from '../pages/banners/BannersPage.jsx'
 
 // Seller pages
 import SellerDashboardPage from '../pages/seller/SellerDashboardPage.jsx'
@@ -55,6 +56,7 @@ export const AppRoutes = () => {
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/coupons" element={<CouponsPage />} />
+            <Route path="/banners" element={<BannersPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/roles" element={<RolePermissionsPage />} />
 

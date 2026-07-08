@@ -16,6 +16,15 @@ export function Navbar() {
   const [categories, setCategories] = useState([]);
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [animateCart, setAnimateCart] = useState(false);
+
+  useEffect(() => {
+    if (itemCount > 0) {
+      setAnimateCart(true);
+      const timer = setTimeout(() => setAnimateCart(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [itemCount]);
 
   useEffect(() => {
     api.get("/categories")
@@ -66,7 +75,7 @@ export function Navbar() {
               </button>
               
               {isCategoriesDropdownOpen && (
-                <div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-dropdown-open">
                   <Link 
                     href="/products"
                     className="block px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -95,7 +104,7 @@ export function Navbar() {
             <Link href="/cart" className="relative text-gray-600 hover:text-primary-600">
               <ShoppingCart className="w-6 h-6" />
               {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className={`absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ${animateCart ? 'animate-cart-bounce' : ''}`}>
                   {itemCount}
                 </span>
               )}
@@ -116,7 +125,7 @@ export function Navbar() {
                 </button>
 
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-0 w-60 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 mt-0 w-60 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-dropdown-open">
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-2">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
                       <p className="text-xs text-gray-500 truncate">{user?.email}</p>
@@ -187,7 +196,7 @@ export function Navbar() {
             <Link href="/cart" className="relative text-gray-600">
               <ShoppingCart className="w-6 h-6" />
               {itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className={`absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ${animateCart ? 'animate-cart-bounce' : ''}`}>
                   {itemCount}
                 </span>
               )}

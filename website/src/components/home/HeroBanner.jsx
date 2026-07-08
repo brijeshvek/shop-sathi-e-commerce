@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -7,44 +8,75 @@ import 'swiper/css/effect-fade';
 import 'swiper/css/pagination';
 import Link from 'next/link';
 import { Button } from '@/components/common/Button';
+import api from '@/lib/axios';
 
-const slides = [
+const DEFAULT_SLIDES = [
   {
-    id: 1,
+    _id: "default-1",
     title: "Summer Collection 2026",
     subtitle: "Up to 50% off on all new arrivals",
     image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    link: "/category/fashion"
+    link: "/products"
   },
   {
-    id: 2,
+    _id: "default-2",
     title: "Smart Home Tech",
     subtitle: "Upgrade your living space today",
     image: "https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    link: "/category/electronics"
+    link: "/products"
   },
   {
-    id: 3,
+    _id: "default-3",
     title: "Fresh & Organic",
     subtitle: "Farm fresh groceries delivered to you",
     image: "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80",
-    link: "/category/grocery"
+    link: "/products"
   }
 ];
 
 export function HeroBanner() {
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHeroBanners = async () => {
+      try {
+        const { data } = await api.get('/banners?activeOnly=true&type=hero');
+        if (data.data && data.data.length > 0) {
+          setSlides(data.data);
+        } else {
+          setSlides(DEFAULT_SLIDES);
+        }
+      } catch (error) {
+        console.error("Failed to fetch custom hero banners", error);
+        setSlides(DEFAULT_SLIDES);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHeroBanners();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="relative w-full h-[60vh] min-h-[500px] bg-gray-200 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+        <span className="text-gray-400 font-semibold">Loading slideshow...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-[60vh] min-h-[500px]">
+    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
-        loop={true}
+        loop={slides.length > 1}
         className="w-full h-full"
       >
         {slides.map((slide) => (
-          <SwiperSlide key={slide.id}>
+          <SwiperSlide key={slide._id}>
             <div className="relative w-full h-full">
               <img 
                 src={slide.image} 
@@ -57,12 +89,14 @@ export function HeroBanner() {
                   <h2 className="text-4xl md:text-6xl font-extrabold text-white font-heading tracking-tight drop-shadow-md">
                     {slide.title}
                   </h2>
-                  <p className="mt-4 text-xl md:text-2xl text-gray-200 drop-shadow-md">
-                    {slide.subtitle}
-                  </p>
+                  {slide.subtitle && (
+                    <p className="mt-4 text-xl md:text-2xl text-gray-200 drop-shadow-md">
+                      {slide.subtitle}
+                    </p>
+                  )}
                   <div className="mt-8">
-                    <Link href={slide.link}>
-                      <Button size="lg" className="px-8 py-3 text-lg rounded-full">
+                    <Link href={slide.link || '/products'}>
+                      <Button size="lg" className="px-8 py-3 text-lg rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all">
                         Shop Now
                       </Button>
                     </Link>

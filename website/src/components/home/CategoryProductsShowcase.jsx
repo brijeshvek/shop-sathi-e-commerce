@@ -7,26 +7,29 @@ import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 
-export function FeaturedProducts() {
+export function CategoryProductsShowcase({ category, limit = 4 }) {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const fetchCategoryProducts = async () => {
       try {
-        const { data } = await api.get("/products?limit=8");
+        const { data } = await api.get(`/products?category=${category._id}&limit=${limit}`);
         setProducts(data.data || []);
       } catch (error) {
-        console.error("Failed to fetch featured products", error);
+        console.error(`Failed to fetch products for category ${category.name}`, error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchFeatured();
-  }, []);
+    if (category?._id) {
+      fetchCategoryProducts();
+    }
+  }, [category, limit]);
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (product, e) => {
+    e.preventDefault();
     try {
       await addToCart(product, 1);
       toast.success(`${product.name} added to cart`);
@@ -37,30 +40,33 @@ export function FeaturedProducts() {
 
   if (isLoading) {
     return (
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white mb-8">New Arrivals</h2>
+      <div className="py-8">
+        <div className="h-7 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-6"></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse flex flex-col space-y-4">
               <div className="bg-gray-200 dark:bg-gray-800 aspect-[4/5] rounded-xl"></div>
               <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/4"></div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
     );
   }
 
+  if (products.length === 0) return null;
+
   return (
-    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-end mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white">New Arrivals</h2>
-        <Link href="/products" className="text-primary-600 hover:text-primary-700 font-medium hidden sm:block">
+    <div className="py-8 border-b border-gray-100 dark:border-gray-800 last:border-0">
+      <div className="flex justify-between items-end mb-6">
+        <h3 className="text-xl md:text-2xl font-bold font-heading text-gray-900 dark:text-white">
+          {category.name}
+        </h3>
+        <Link href={`/products?category=${category._id}`} className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">
           View All &rarr;
         </Link>
       </div>
-      
+
       <motion.div 
         initial="hidden"
         whileInView="visible"
@@ -97,17 +103,16 @@ export function FeaturedProducts() {
               )}
             </Link>
             <div className="p-4 flex flex-col flex-grow">
-              <div className="text-xs text-gray-500 mb-1">{product.category?.name || "Product"}</div>
               <Link href={`/products/${product.slug || product._id}`}>
-                <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 hover:text-primary-600 transition-colors">
+                <h4 className="font-medium text-gray-900 dark:text-white text-sm line-clamp-2 hover:text-primary-600 transition-colors">
                   {product.name}
-                </h3>
+                </h4>
               </Link>
               <div className="mt-auto pt-4 flex items-center justify-between">
-                <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
+                <span className="font-bold text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
                 <button 
-                  onClick={() => handleAddToCart(product)}
-                  className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
+                  onClick={(e) => handleAddToCart(product, e)}
+                  className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                   aria-label="Add to cart"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,11 +124,6 @@ export function FeaturedProducts() {
           </motion.div>
         ))}
       </motion.div>
-      <div className="mt-8 text-center sm:hidden">
-        <Link href="/products" className="inline-block text-primary-600 font-medium py-2 px-4 border border-primary-200 rounded-full">
-          View All Products
-        </Link>
-      </div>
-    </section>
+    </div>
   );
 }

@@ -25,13 +25,18 @@ export function FeaturedCategories() {
   if (categories.length === 0) return null;
 
   return (
-    <section className="py-12 bg-gray-50 dark:bg-gray-900/50">
+    <section className="py-10 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold font-heading text-center text-gray-900 dark:text-white mb-10">Shop by Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+        <h2 className="text-xl md:text-2xl font-bold font-heading text-gray-900 dark:text-white mb-6">Shop by Category</h2>
+        <div className="flex overflow-x-auto space-x-6 pb-4 scrollbar-none scroll-smooth snap-x snap-mandatory">
           {categories.map((category) => (
-            <Link key={category._id} href={`/category/${category.slug}`} className="group flex flex-col items-center text-center">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-white shadow-sm mb-4 border border-gray-100 dark:border-gray-800 group-hover:shadow-md group-hover:border-primary-300 transition-all">
+            <Link 
+              key={category._id} 
+              href={`/products?category=${category._id}`} 
+              className="group flex flex-col items-center text-center flex-shrink-0 snap-start"
+              style={{ minWidth: '96px' }}
+            >
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-white shadow-sm mb-3 border border-gray-100 dark:border-gray-800 group-hover:shadow-md group-hover:border-primary-300 transition-all">
                 {category.image ? (
                   <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
                 ) : (
@@ -42,7 +47,7 @@ export function FeaturedCategories() {
                   </div>
                 )}
               </div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-200 group-hover:text-primary-600 transition-colors">
+              <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors truncate max-w-[96px]">
                 {category.name}
               </h3>
             </Link>

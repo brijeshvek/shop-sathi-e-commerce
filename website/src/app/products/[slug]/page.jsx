@@ -16,10 +16,27 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isWishlistAnimating, setIsWishlistAnimating] = useState(false);
   
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (isAuthenticated && product) {
+        try {
+          const { data } = await api.get('/wishlist');
+          const wishlistProducts = data.data.products || [];
+          setIsInWishlist(wishlistProducts.some(p => p._id === product._id));
+        } catch (error) {
+          console.error("Failed to check wishlist status", error);
+        }
+      }
+    };
+    checkWishlistStatus();
+  }, [product, isAuthenticated]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -58,11 +75,20 @@ export default function ProductDetailPage() {
       toast.error("Please login to use wishlist");
       return;
     }
+    setIsWishlistAnimating(true);
+    setTimeout(() => setIsWishlistAnimating(false), 300);
     try {
-      await api.post('/wishlist/add', { productId: product._id });
-      toast.success("Added to wishlist!");
+      if (isInWishlist) {
+        await api.delete(`/wishlist/remove/${product._id}`);
+        setIsInWishlist(false);
+        toast.success("Removed from wishlist");
+      } else {
+        await api.post('/wishlist/add', { productId: product._id });
+        setIsInWishlist(true);
+        toast.success("Added to wishlist!");
+      }
     } catch (error) {
-      toast.error("Failed to add to wishlist");
+      toast.error("Failed to update wishlist");
     }
   };
 
@@ -108,8 +134,12 @@ export default function ProductDetailPage() {
               <div className="w-full h-full flex items-center justify-center text-gray-400">No Image Available</div>
             )}
             
-            <button onClick={handleAddToWishlist} className="absolute top-4 right-4 p-3 bg-white/80 backdrop-blur rounded-full shadow-sm hover:text-error-500 transition-colors">
-              <Heart className="w-5 h-5" />
+            <button 
+              onClick={handleAddToWishlist} 
+              className="absolute top-4 right-4 p-3 bg-white/80 backdrop-blur rounded-full shadow-sm hover:text-error-500 transition-all hover:scale-110 active:scale-90"
+              aria-label="Add to wishlist"
+            >
+              <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'fill-error-500 text-error-500' : 'text-gray-650'} ${isWishlistAnimating ? 'animate-wishlist-toggle' : ''}`} />
             </button>
           </div>
           
@@ -152,7 +182,7 @@ export default function ProductDetailPage() {
           </div>
           
           <div className="mb-8">
-            <span className="text-3xl font-bold text-gray-900">${product.price?.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-gray-900">₹{product.price?.toFixed(2)}</span>
             {product.stock > 0 ? (
               <span className="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
                 In Stock ({product.stock})
@@ -204,7 +234,7 @@ export default function ProductDetailPage() {
               <Truck className="w-6 h-6 text-gray-400" />
               <div>
                 <p className="text-sm font-semibold text-gray-900">Free Shipping</p>
-                <p className="text-xs text-gray-500">On orders over $50</p>
+                <p className="text-xs text-gray-500">On orders over ₹499</p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">

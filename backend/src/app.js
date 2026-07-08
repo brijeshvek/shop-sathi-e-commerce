@@ -21,6 +21,7 @@ import uploadRouter    from './routes/upload.routes.js'
 import analyticsRouter from './routes/analytics.routes.js'
 import sellerRouter    from './routes/seller.routes.js'
 import roleRouter      from './routes/role.routes.js'
+import bannerRouter    from './routes/banner.routes.js'
 
 // Error middleware
 import { errorHandler, notFound } from './middleware/error.middleware.js'
@@ -89,6 +90,7 @@ app.use('/api/upload',   uploadRouter)
 app.use('/api/analytics', analyticsRouter)
 app.use('/api/seller',   sellerRouter)
 app.use('/api/roles',    roleRouter)
+app.use('/api/banners',  bannerRouter)
 
 // ── Error Handling ────────────────────────────────────────────────────────────
 app.use(notFound)

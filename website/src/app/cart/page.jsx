@@ -73,7 +73,7 @@ export default function CartPage() {
                     </Link>
                   </div>
                   <p className="font-bold text-gray-900 dark:text-white text-lg whitespace-nowrap ml-4">
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    ₹{(item.product.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
                 
@@ -111,7 +111,7 @@ export default function CartPage() {
             <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300 mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-medium text-gray-900 dark:text-white">${subtotal.toFixed(2)}</span>
+                <span className="font-medium text-gray-900 dark:text-white">₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping estimate</span>
@@ -125,7 +125,7 @@ export default function CartPage() {
             
             <div className="flex justify-between items-center mb-8">
               <span className="text-lg font-bold text-gray-900 dark:text-white">Estimated Total</span>
-              <span className="text-2xl font-bold text-primary-600">${subtotal.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-primary-600">₹{subtotal.toFixed(2)}</span>
             </div>
             
             <Link href="/checkout" className="block w-full">
