@@ -67,15 +67,15 @@ export function BestSellers() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100 dark:border-gray-850">
-      <div className="flex justify-between items-end mb-8">
+    <section className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100 dark:border-gray-850">
+      <div className="flex justify-between items-end mb-5 sm:mb-8">
         <div className="flex items-center space-x-2">
-          <span className="text-2xl">⭐</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+          <span className="text-xl sm:text-2xl">⭐</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
             Best Sellers
           </h2>
         </div>
-        <Link href="/products?sort=ratings.average" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+        <Link href="/products?sort=ratings.average" className="text-xs sm:text-sm font-semibold text-primary-600 hover:text-primary-700 whitespace-nowrap">
           View All &rarr;
         </Link>
       </div>
@@ -89,7 +89,7 @@ export function BestSellers() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.05 } }
         }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12"
       >
         {products.map((product) => (
           <motion.div 
@@ -112,7 +112,7 @@ export function BestSellers() {
               )}
             </Link>
             
-            <div className="p-4 flex flex-col flex-grow">
+            <div className="p-3 sm:p-4 flex flex-col flex-grow">
               <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                 <span>{product.brand}</span>
                 <span className="flex items-center text-amber-500">
@@ -126,8 +126,8 @@ export function BestSellers() {
                 </h3>
               </Link>
               
-              <div className="mt-auto pt-4 flex items-center justify-between">
-                <span className="font-bold text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
+              <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
+                <span className="font-bold text-sm sm:text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
                 <button 
                   onClick={(e) => handleAddToCart(product, e)}
                   className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
@@ -144,14 +144,14 @@ export function BestSellers() {
       </motion.div>
 
       {/* Brands List */}
-      <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Popular Brands</h3>
-        <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-none scroll-smooth">
+      <div className="pt-4 sm:pt-6 border-t border-gray-100 dark:border-gray-800">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Popular Brands</h3>
+        <div className="flex overflow-x-auto space-x-3 sm:space-x-4 pb-4 scrollbar-none scroll-smooth">
           {BRANDS.map(brand => (
             <Link 
               key={brand.name}
               href={`/products?brand=${brand.name}`}
-              className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-900/60 px-5 py-3 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 border border-gray-150 dark:border-gray-800 transition-all flex-shrink-0 cursor-pointer"
+              className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-900/60 px-3.5 sm:px-5 py-2 sm:py-3 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 border border-gray-150 dark:border-gray-800 transition-all flex-shrink-0 cursor-pointer"
             >
               <span className="text-xl">{brand.logo}</span>
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{brand.name}</span>

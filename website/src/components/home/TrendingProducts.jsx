@@ -57,15 +57,15 @@ export function TrendingProducts() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100 dark:border-gray-850">
-      <div className="flex justify-between items-end mb-8">
+    <section className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-100 dark:border-gray-850">
+      <div className="flex justify-between items-end mb-5 sm:mb-8">
         <div className="flex items-center space-x-2">
-          <span className="text-2xl">🔥</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+          <span className="text-xl sm:text-2xl">🔥</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
             Trending Products
           </h2>
         </div>
-        <Link href="/products?sort=ratings.count" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+        <Link href="/products?sort=ratings.count" className="text-xs sm:text-sm font-semibold text-primary-600 hover:text-primary-700 whitespace-nowrap">
           View All &rarr;
         </Link>
       </div>
@@ -78,7 +78,7 @@ export function TrendingProducts() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.05 } }
         }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
       >
         {products.map((product) => (
           <motion.div 
@@ -101,7 +101,7 @@ export function TrendingProducts() {
               )}
             </Link>
             
-            <div className="p-4 flex flex-col flex-grow">
+            <div className="p-3 sm:p-4 flex flex-col flex-grow">
               <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                 <span>{product.brand}</span>
                 <span className="flex items-center text-amber-500">
@@ -115,8 +115,8 @@ export function TrendingProducts() {
                 </h3>
               </Link>
               
-              <div className="mt-auto pt-4 flex items-center justify-between">
-                <span className="font-bold text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
+              <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
+                <span className="font-bold text-sm sm:text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
                 <button 
                   onClick={(e) => handleAddToCart(product, e)}
                   className="text-white bg-gray-900 hover:bg-primary-655 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"

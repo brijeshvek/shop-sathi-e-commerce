@@ -82,19 +82,19 @@ export function FlashSale() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 bg-rose-50/20 dark:bg-rose-950/5 border-y border-rose-100/30 dark:border-rose-950/10">
+    <section className="py-8 sm:py-12 bg-rose-50/20 dark:bg-rose-950/5 border-y border-rose-100/30 dark:border-rose-950/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title and Countdown */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl">⚡</span>
-            <h2 className="text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <span className="text-xl sm:text-2xl">⚡</span>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
               Flash Sale
             </h2>
           </div>
           
           {/* Ticking Clock */}
-          <div className="flex items-center space-x-2 bg-rose-600 text-white px-4 py-2 rounded-xl shadow-md font-mono text-sm font-bold animate-pulse">
+          <div className="flex items-center space-x-2 bg-rose-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-md font-mono text-xs sm:text-sm font-bold animate-pulse">
             <Timer className="w-4 h-4" />
             <span>Ends In:</span>
             <span>{formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}</span>
@@ -110,7 +110,7 @@ export function FlashSale() {
             hidden: {},
             visible: { transition: { staggerChildren: 0.05 } }
           }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
         >
           {products.map((product) => (
             <motion.div 
@@ -140,7 +140,7 @@ export function FlashSale() {
                 )}
               </Link>
               
-              <div className="p-4 flex flex-col flex-grow">
+              <div className="p-3 sm:p-4 flex flex-col flex-grow">
                 <span className="text-xs font-semibold text-rose-600 mb-1">{product.brand}</span>
                 <Link href={`/products/${product.slug || product._id}`}>
                   <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 hover:text-rose-600 transition-colors">
@@ -148,9 +148,9 @@ export function FlashSale() {
                   </h3>
                 </Link>
                 
-                <div className="mt-auto pt-4 flex items-center justify-between">
+                <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="font-bold text-lg text-rose-650">₹{product.price?.toFixed(2)}</span>
+                    <span className="font-bold text-sm sm:text-lg text-rose-650">₹{product.price?.toFixed(2)}</span>
                     {product.originalPrice && (
                       <span className="text-xs text-gray-400 line-through">₹{product.originalPrice?.toFixed(2)}</span>
                     )}

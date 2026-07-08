@@ -57,15 +57,15 @@ export function DealsOffers() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-end mb-8">
+    <section className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-end mb-5 sm:mb-8">
         <div className="flex items-center space-x-2">
-          <span className="text-2xl">💥</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+          <span className="text-xl sm:text-2xl">💥</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
             Deals & Offers
           </h2>
         </div>
-        <Link href="/products?sort=discount" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+        <Link href="/products?sort=discount" className="text-xs sm:text-sm font-semibold text-primary-600 hover:text-primary-700 whitespace-nowrap">
           View All &rarr;
         </Link>
       </div>
@@ -78,7 +78,7 @@ export function DealsOffers() {
           hidden: {},
           visible: { transition: { staggerChildren: 0.05 } }
         }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
       >
         {products.map((product) => (
           <motion.div 
@@ -109,7 +109,7 @@ export function DealsOffers() {
               )}
             </Link>
             
-            <div className="p-4 flex flex-col flex-grow">
+            <div className="p-3 sm:p-4 flex flex-col flex-grow">
               <span className="text-xs font-semibold text-gray-500 mb-1">{product.brand}</span>
               <Link href={`/products/${product.slug || product._id}`}>
                 <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 hover:text-primary-650 transition-colors">
@@ -117,9 +117,9 @@ export function DealsOffers() {
                 </h3>
               </Link>
               
-              <div className="mt-auto pt-4 flex items-center justify-between">
+              <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="font-bold text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
+                  <span className="font-bold text-sm sm:text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
                   {product.originalPrice && (
                     <span className="text-xs text-gray-400 line-through">₹{product.originalPrice?.toFixed(2)}</span>
                   )}
