@@ -59,6 +59,11 @@ export const login = asyncHandler(async (req, res) => {
   user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
   await user.save({ validateBeforeSave: false })
 
+  // Log OTP in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`\n🔑 [DEV ONLY] OTP for ${user.email} is: ${otp}\n`)
+  }
+
   // Send OTP email (non-blocking)
   sendLoginOtpEmail(user, otp).catch(err => console.error('OTP email error:', err.message))
 
@@ -173,6 +178,11 @@ export const resendLoginOtp = asyncHandler(async (req, res) => {
   user.loginOtp = otp
   user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
   await user.save({ validateBeforeSave: false })
+
+  // Log OTP in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`\n🔑 [DEV ONLY] OTP for ${user.email} is: ${otp}\n`)
+  }
 
   // Send OTP email (non-blocking)
   sendLoginOtpEmail(user, otp).catch(err => console.error('OTP email error:', err.message))
