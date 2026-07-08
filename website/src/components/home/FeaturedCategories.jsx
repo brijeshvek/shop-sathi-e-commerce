@@ -37,8 +37,8 @@ export function FeaturedCategories() {
               style={{ minWidth: '96px' }}
             >
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-white shadow-sm mb-3 border border-gray-100 dark:border-gray-800 group-hover:shadow-md group-hover:border-primary-300 transition-all">
-                {category.image ? (
-                  <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                {category.image?.url ? (
+                  <img src={category.image.url} alt={category.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Edit2, Trash2, Folder } from 'lucide-react'
+import { Plus, Edit2, Trash2, Folder, Upload, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -14,6 +14,7 @@ import Modal from '../../components/common/Modal.jsx'
 import ConfirmDialog from '../../components/common/ConfirmDialog.jsx'
 import Table from '../../components/common/Table.jsx'
 import Spinner from '../../components/common/Spinner.jsx'
+import api from '../../services/api.js'
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -31,6 +32,8 @@ export const CategoriesPage = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [previewImage, setPreviewImage] = useState(null)
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(categorySchema),
@@ -40,12 +43,14 @@ export const CategoriesPage = () => {
 
   const handleOpenAdd = () => {
     setEditingCategory(null)
+    setPreviewImage(null)
     reset({ name: '', description: '', imageUrl: '', parent: null })
     setModalOpen(true)
   }
 
   const handleOpenEdit = (category) => {
     setEditingCategory(category)
+    setPreviewImage(category.image?.url || null)
     reset({
       name: category.name,
       description: category.description || '',
@@ -53,6 +58,36 @@ export const CategoriesPage = () => {
       parent: category.parent?._id || category.parent || null,
     })
     setModalOpen(true)
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('image', file)
+
+    setUploading(true)
+    try {
+      const res = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      if (res.data?.success) {
+        const imageUrl = res.data.data.url
+        setValue('imageUrl', imageUrl)
+        setPreviewImage(imageUrl)
+        toast.success('Image uploaded successfully!')
+      }
+    } catch (err) {
+      toast.error('Image upload failed. Ensure it is a valid image under 5MB.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setValue('imageUrl', '')
+    setPreviewImage(null)
   }
 
   const onSubmit = async (data) => {
@@ -185,12 +220,67 @@ export const CategoriesPage = () => {
             </select>
           </div>
 
-          <Input
-            label="Image URL"
-            placeholder="https://images.unsplash.com/..."
-            error={errors.imageUrl}
-            {...register('imageUrl')}
-          />
+          {/* Category Image Upload */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-700">Category Image</label>
+            
+            {/* Preview */}
+            {previewImage && (
+              <div className="relative inline-block">
+                <img 
+                  src={previewImage} 
+                  alt="Category preview" 
+                  className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-xs"
+                />
+                <button 
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
+
+            {/* Upload Box */}
+            {!previewImage && (
+              <div className="border-2 border-dashed border-slate-200 hover:border-slate-400 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={uploading}
+                />
+                {uploading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <>
+                    <Upload size={22} className="text-slate-400 mb-1" />
+                    <p className="text-xs text-slate-500 font-medium">Click to upload image</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP under 5MB</p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Or paste URL */}
+            <Input
+              label="Or paste Image URL"
+              placeholder="https://images.unsplash.com/..."
+              error={errors.imageUrl}
+              {...register('imageUrl', {
+                onChange: (e) => {
+                  const url = e.target.value
+                  if (url && (url.startsWith('http') || url.startsWith('data:'))) {
+                    setPreviewImage(url)
+                  } else if (!url) {
+                    setPreviewImage(null)
+                  }
+                }
+              })}
+            />
+          </div>
 
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">Description</label>
