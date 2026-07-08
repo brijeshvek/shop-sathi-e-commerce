@@ -53,9 +53,6 @@ export function MobileMenu({ isOpen, onClose }) {
             <Link href="/" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
               Home
             </Link>
-            <Link href="/products" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
-              Shop All
-            </Link>
             {categories.map((cat) => (
               <Link
                 key={cat._id}

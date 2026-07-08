@@ -60,13 +60,17 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateQuantity = async (productId, quantity) => {
+  const updateQuantity = async (item, quantity) => {
     if (isAuthenticated) {
-      await api.put('/cart/update', { productId, quantity });
-      await fetchCart();
+      try {
+        await api.put('/cart/update', { cartItemId: item._id, quantity });
+        await fetchCart();
+      } catch (error) {
+        console.error('Failed to update quantity on backend', error);
+      }
     } else {
-      const updatedItems = items.map(item => 
-        item.product._id === productId ? { ...item, quantity } : item
+      const updatedItems = items.map(i => 
+        i.product._id === item.product._id ? { ...i, quantity } : i
       );
       setItems(updatedItems);
       localStorage.setItem('guest_cart', JSON.stringify(updatedItems));

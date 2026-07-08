@@ -13,8 +13,8 @@ export function FeaturedCategories() {
     const fetchCategories = async () => {
       try {
         const { data } = await api.get("/categories");
-        // Take the first 6 parent categories
-        setCategories(data.data?.slice(0, 6) || []);
+        // Take all parent categories
+        setCategories(data.data || []);
       } catch (error) {
         console.error("Failed to fetch categories");
       }

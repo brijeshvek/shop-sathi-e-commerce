@@ -21,6 +21,25 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState({
     fullName: "", phone: "", street: "", city: "", state: "", pincode: "", country: "India"
   });
+  const [settings, setSettings] = useState({ taxRate: 18, freeShippingThreshold: 499, shippingCharge: 99 });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data?.success && data.data) {
+          setSettings(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load settings", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const taxAmount = parseFloat((subtotal * (settings.taxRate / 100)).toFixed(2));
+  const shippingCharge = subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingCharge;
+  const totalAmount = parseFloat((subtotal + taxAmount + shippingCharge).toFixed(2));
 
   useEffect(() => {
     if (user?.addresses?.length > 0) {
@@ -246,7 +265,7 @@ export default function CheckoutPage() {
 
                 <p className="text-gray-600 mb-6 text-sm">By clicking place order, you agree to our terms and conditions. Your payment will be processed securely.</p>
                 <Button onClick={handlePlaceOrder} isLoading={isSubmitting} size="lg" className="w-full">
-                  Place Order - ₹{(subtotal + 10).toFixed(2)}
+                  Place Order - ₹{totalAmount.toFixed(2)}
                 </Button>
                 <button onClick={() => setStep(1)} className="block w-full text-center mt-4 text-sm text-gray-500 hover:text-gray-700">Back to Address</button>
               </div>
@@ -272,13 +291,13 @@ export default function CheckoutPage() {
             
             <div className="border-t border-gray-200 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-gray-600"><span>Shipping</span><span>₹10.00</span></div>
-              <div className="flex justify-between text-gray-600"><span>Tax</span><span>₹0.00</span></div>
+              <div className="flex justify-between text-gray-650"><span>Shipping</span><span>₹{shippingCharge.toFixed(2)}</span></div>
+              <div className="flex justify-between text-gray-650"><span>Tax</span><span>₹{taxAmount.toFixed(2)}</span></div>
             </div>
             
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
               <span className="text-lg font-bold">Total</span>
-              <span className="text-2xl font-bold text-primary-600">₹{(subtotal + 10).toFixed(2)}</span>
+              <span className="text-2xl font-bold text-primary-600">₹{totalAmount.toFixed(2)}</span>
             </div>
           </div>
         </div>

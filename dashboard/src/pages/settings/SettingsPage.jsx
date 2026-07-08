@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { User, Lock, Save, ShieldAlert } from 'lucide-react'
+import { User, Lock, Save, ShieldAlert, Sliders } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../hooks/useAuth.js'
 import { useUpdateProfileMutation, useChangePasswordMutation } from '../../features/customers/customersApi.js'
@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux'
 import { setCredentials } from '../../features/auth/authSlice.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
+import api from '../../services/api.js'
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -25,6 +26,12 @@ const passwordSchema = z.object({
   path: ['confirmPassword']
 })
 
+const settingsSchema = z.object({
+  taxRate: z.preprocess((val) => Number(val), z.number().min(0, 'Tax rate must be positive').max(100, 'Tax rate cannot exceed 100')),
+  freeShippingThreshold: z.preprocess((val) => Number(val), z.number().min(0, 'Threshold must be positive')),
+  shippingCharge: z.preprocess((val) => Number(val), z.number().min(0, 'Shipping charge must be positive')),
+})
+
 export const SettingsPage = () => {
   const { user } = useAuth()
   const dispatch = useDispatch()
@@ -32,6 +39,9 @@ export const SettingsPage = () => {
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
   const [changePassword, { isLoading: isChanging }] = useChangePasswordMutation()
+
+  const [settingsLoading, setSettingsLoading] = useState(false)
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false)
 
   // Form 1: Profile
   const { register: regProfile, handleSubmit: handleProfileSubmit, reset: resetProfile, formState: { errors: errProfile } } = useForm({
@@ -43,6 +53,11 @@ export const SettingsPage = () => {
     resolver: zodResolver(passwordSchema)
   })
 
+  // Form 3: Business Settings
+  const { register: regSettings, handleSubmit: handleSettingsSubmit, reset: resetSettings, formState: { errors: errSettings } } = useForm({
+    resolver: zodResolver(settingsSchema)
+  })
+
   useEffect(() => {
     if (user) {
       resetProfile({
@@ -51,6 +66,29 @@ export const SettingsPage = () => {
       })
     }
   }, [user, resetProfile])
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      const fetchSettings = async () => {
+        setSettingsLoading(true)
+        try {
+          const res = await api.get('/settings')
+          if (res.data?.success) {
+            resetSettings({
+              taxRate: res.data.data.taxRate,
+              freeShippingThreshold: res.data.data.freeShippingThreshold,
+              shippingCharge: res.data.data.shippingCharge,
+            })
+          }
+        } catch (err) {
+          toast.error('Failed to load business settings')
+        } finally {
+          setSettingsLoading(false)
+        }
+      }
+      fetchSettings()
+    }
+  }, [activeTab, resetSettings])
 
   const onProfileSubmit = async (data) => {
     try {
@@ -72,12 +110,24 @@ export const SettingsPage = () => {
     }
   }
 
+  const onSettingsSubmit = async (data) => {
+    setIsUpdatingSettings(true)
+    try {
+      await api.put('/settings', data)
+      toast.success('Business settings updated successfully!')
+    } catch (err) {
+      toast.error('Failed to update business settings')
+    } finally {
+      setIsUpdatingSettings(false)
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-500 text-sm mt-1">Configure profile settings and security passwords</p>
+        <p className="text-slate-500 text-sm mt-1">Configure profile settings, passwords, and tax properties</p>
       </div>
 
       {/* Tabs list */}
@@ -104,6 +154,19 @@ export const SettingsPage = () => {
           <Lock size={16} />
           <span>Security & Password</span>
         </button>
+        {user?.role === 'admin' && (
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center space-x-2 py-3 px-4 border-b-2 font-semibold text-sm transition-all focus:outline-none ${
+              activeTab === 'settings'
+                ? 'border-slate-900 text-slate-900'
+                : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <Sliders size={16} />
+            <span>Tax & Shipping Settings</span>
+          </button>
+        )}
       </div>
 
       {/* Form sections */}
@@ -173,6 +236,44 @@ export const SettingsPage = () => {
               Update Password
             </Button>
           </form>
+        )}
+
+        {activeTab === 'settings' && (
+          settingsLoading ? (
+            <div className="py-10 text-center text-slate-400">Loading settings...</div>
+          ) : (
+            <form onSubmit={handleSettingsSubmit(onSettingsSubmit)} className="space-y-4">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-2 mb-4">Tax & Shipping Settings</h3>
+              
+              <Input
+                label="GST / Tax Rate (%)"
+                type="number"
+                placeholder="18"
+                error={errSettings.taxRate}
+                {...regSettings('taxRate')}
+              />
+
+              <Input
+                label="Free Shipping Minimum Threshold (₹)"
+                type="number"
+                placeholder="499"
+                error={errSettings.freeShippingThreshold}
+                {...regSettings('freeShippingThreshold')}
+              />
+
+              <Input
+                label="Default Shipping Charge (₹)"
+                type="number"
+                placeholder="99"
+                error={errSettings.shippingCharge}
+                {...regSettings('shippingCharge')}
+              />
+
+              <Button type="submit" variant="primary" icon={Save} isLoading={isUpdatingSettings} className="pt-2">
+                Save Business Settings
+              </Button>
+            </form>
+          )
         )}
       </div>
     </div>

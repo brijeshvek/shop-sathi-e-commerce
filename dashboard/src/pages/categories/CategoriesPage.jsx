@@ -18,7 +18,7 @@ import Spinner from '../../components/common/Spinner.jsx'
 const categorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   description: z.string().optional(),
-  imageUrl: z.string().url('Please enter a valid Image URL').or(z.literal('')),
+  imageUrl: z.string().optional().nullable(),
   parent: z.string().optional().nullable(),
 })
 

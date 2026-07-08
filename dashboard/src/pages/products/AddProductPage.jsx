@@ -219,7 +219,12 @@ export const AddProductPage = () => {
                   >
                     <option value="">Select Category</option>
                     {categories.map((c) => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
+                      <optgroup key={c._id} label={c.name}>
+                        <option value={c._id}>{c.name} (Main)</option>
+                        {c.children && c.children.map((child) => (
+                          <option key={child._id} value={child._id}>{child.name}</option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                   {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>}

@@ -3,6 +3,7 @@ import Cart from '../models/Cart.model.js'
 import Product from '../models/Product.model.js'
 import Coupon from '../models/Coupon.model.js'
 import User from '../models/User.model.js'
+import Setting from '../models/Setting.model.js'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -10,13 +11,15 @@ import { sendOrderConfirmationEmail, sendOrderStatusEmail } from '../services/em
 import crypto from 'crypto'
 import razorpay from '../config/razorpay.js'
 
-const TAX_RATE              = Number(process.env.TAX_RATE) || 0.18
-const FREE_SHIPPING         = Number(process.env.FREE_SHIPPING_THRESHOLD) || 499
-const SHIPPING_CHARGE       = Number(process.env.SHIPPING_CHARGE) || 99
-
 // POST /api/orders
 export const placeOrder = asyncHandler(async (req, res) => {
   const { shippingAddress, paymentMethod, couponCode } = req.body
+
+  // Load system settings
+  let dbSettings = await Setting.findOne().lean()
+  const taxRateVal = dbSettings?.taxRate !== undefined ? dbSettings.taxRate / 100 : (Number(process.env.TAX_RATE) || 0.18)
+  const freeShippingVal = dbSettings?.freeShippingThreshold !== undefined ? dbSettings.freeShippingThreshold : (Number(process.env.FREE_SHIPPING_THRESHOLD) || 499)
+  const shippingChargeVal = dbSettings?.shippingCharge !== undefined ? dbSettings.shippingCharge : (Number(process.env.SHIPPING_CHARGE) || 99)
 
   const cart = await Cart.findOne({ user: req.user._id }).populate('items.product')
   if (!cart || !cart.items.length) throw new ApiError(400, 'Cart is empty.')
@@ -51,8 +54,8 @@ export const placeOrder = asyncHandler(async (req, res) => {
   }
 
   const taxableAmount  = subtotal - discountAmount
-  const taxAmount      = parseFloat((taxableAmount * TAX_RATE).toFixed(2))
-  const shippingCharge = taxableAmount >= FREE_SHIPPING ? 0 : SHIPPING_CHARGE
+  const taxAmount      = parseFloat((taxableAmount * taxRateVal).toFixed(2))
+  const shippingCharge = taxableAmount >= freeShippingVal ? 0 : shippingChargeVal
   const totalAmount    = parseFloat((taxableAmount + taxAmount + shippingCharge).toFixed(2))
 
   // Estimated delivery = 7 days from now

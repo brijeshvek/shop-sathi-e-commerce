@@ -45,18 +45,18 @@ export function OfferBanner() {
   }
 
   // Custom styled background if an image is provided
-  const bgStyle = offer.image 
-    ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.55)), url(${offer.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
+  const bgStyle = offer.image
+    ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.55)), url(${offer.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : {};
 
-  const gradientClass = offer.image 
-    ? "" 
+  const gradientClass = offer.image
+    ? ""
     : offer.bannerType === 'coupon'
       ? "bg-gradient-to-r from-emerald-600 to-teal-700"
       : "bg-gradient-to-r from-primary-600 to-indigo-700";
 
   return (
-    <section 
+    <section
       style={bgStyle}
       className={`my-16 relative overflow-hidden rounded-2xl text-white shadow-xl ${gradientClass}`}
     >
@@ -66,27 +66,26 @@ export function OfferBanner() {
           backgroundSize: "20px 20px"
         }}></div>
       )}
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
         className="relative max-w-4xl mx-auto px-6 py-12 md:py-16 text-center space-y-6"
       >
-        <motion.span 
+        <motion.span
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider animate-pulse ${
-            offer.bannerType === 'coupon' ? 'bg-amber-400 text-gray-900' : 'bg-accent-500 text-gray-900'
-          }`}
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider animate-pulse ${offer.bannerType === 'coupon' ? 'bg-amber-400 text-gray-900' : 'bg-accent-500 text-gray-900'
+            }`}
         >
           {offer.bannerType === 'coupon' ? 'Coupon Campaign' : 'Special Offer'}
         </motion.span>
-        
-        <motion.h2 
+
+        <motion.h2
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -95,9 +94,9 @@ export function OfferBanner() {
         >
           {offer.title}
         </motion.h2>
-        
+
         {offer.subtitle && (
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -107,9 +106,9 @@ export function OfferBanner() {
             {offer.subtitle}
           </motion.p>
         )}
-        
+
         {offer.discountCode && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -119,8 +118,8 @@ export function OfferBanner() {
             Use Code: {offer.discountCode}
           </motion.div>
         )}
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -128,7 +127,7 @@ export function OfferBanner() {
           className="pt-4 flex justify-center"
         >
           <Link href={offer.link || '/products'}>
-            <Button size="lg" className="px-8 font-bold bg-white text-primary-650 hover:bg-gray-50 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+            <Button size="lg" className="px-8 font-bold bg-black text-white hover:bg-white hover:text-black transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer">
               Claim Offer
             </Button>
           </Link>

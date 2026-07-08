@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
-import { Search, ShoppingCart, Heart, User, Menu, X, ShoppingBag, ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
@@ -36,8 +36,8 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full bg-surface shadow-sm transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
+          {/* Logo & Customer Location */}
+          <div className="flex-shrink-0 flex items-center space-x-3">
             <Link href="/" className="flex items-center space-x-2">
               <div className="bg-primary-600 text-white p-1.5 rounded-lg">
                 <ShoppingBag className="w-5 h-5" />
@@ -46,6 +46,30 @@ export function Navbar() {
                 Shop Shathi
               </span>
             </Link>
+
+            {isAuthenticated ? (
+              <div className="hidden lg:flex items-center space-x-1.5 text-xs text-gray-500 border border-gray-200 dark:border-gray-800 rounded-full px-3 py-1.5 bg-gray-50 dark:bg-gray-900">
+                <MapPin className="w-3.5 h-3.5 text-gray-450" />
+                <span className="font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
+                  {user?.addresses?.length > 0
+                    ? (() => {
+                        const addr = user.addresses.find(a => a.isDefault) || user.addresses[0];
+                        return `${addr.city}, ${addr.pincode}`;
+                      })()
+                    : "Add Address"}
+                </span>
+              </div>
+            ) : (
+              <Link 
+                href="/login"
+                className="hidden lg:flex items-center space-x-1.5 text-xs text-gray-500 border border-gray-200 hover:border-primary-300 hover:text-primary-600 transition-all dark:border-gray-800 rounded-full px-3 py-1.5 bg-gray-50 dark:bg-gray-900 cursor-pointer"
+              >
+                <MapPin className="w-3.5 h-3.5 text-gray-450" />
+                <span className="font-semibold truncate max-w-[120px]">
+                  Select Location
+                </span>
+              </Link>
+            )}
           </div>
 
           {/* Desktop Search */}
@@ -57,10 +81,6 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/" className="text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150">
               Home
-            </Link>
-
-            <Link href="/products" className="text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150">
-              Shop
             </Link>
 
             {/* Categories Dropdown */}
