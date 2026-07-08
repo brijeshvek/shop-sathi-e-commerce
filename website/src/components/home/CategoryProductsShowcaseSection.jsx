@@ -17,8 +17,8 @@ export function CategoryProductsShowcaseSection() {
         const parentCategories = data.data?.filter(c => !c.parent) || [];
         // If there are no categories without parent, take all
         setCategories(parentCategories.length ? parentCategories : data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch categories showcase", error);
+      } catch {
+        // Silently fail
       } finally {
         setIsLoading(false);
       }
@@ -28,7 +28,7 @@ export function CategoryProductsShowcaseSection() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-12" aria-busy="true">
         <div className="h-48 bg-gray-250 dark:bg-gray-800 rounded-2xl w-full"></div>
         <div className="h-64 bg-gray-250 dark:bg-gray-800 rounded-2xl w-full"></div>
       </div>
@@ -42,7 +42,7 @@ export function CategoryProductsShowcaseSection() {
   const secondGroup = categories.slice(2);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-label="Products by category">
       {/* First 2 categories products */}
       {firstGroup.map((cat) => (
         <CategoryProductsShowcase key={cat._id} category={cat} />

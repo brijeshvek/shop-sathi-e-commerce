@@ -27,8 +27,8 @@ export function OfferBanner() {
         if (promoBanners.length > 0) {
           setOffer(promoBanners[0]); // use the latest active promotional banner
         }
-      } catch (error) {
-        console.error("Failed to fetch promotional banners", error);
+      } catch {
+        // Silently fail — default offer will be used
       } finally {
         setLoading(false);
       }
@@ -38,7 +38,7 @@ export function OfferBanner() {
 
   if (loading) {
     return (
-      <div className="my-16 h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse flex items-center justify-center">
+      <div className="my-16 h-48 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse flex items-center justify-center" aria-busy="true">
         <span className="text-gray-400 font-semibold">Loading promotions...</span>
       </div>
     );
@@ -59,9 +59,10 @@ export function OfferBanner() {
     <section
       style={bgStyle}
       className={`my-16 relative overflow-hidden rounded-2xl text-white shadow-xl ${gradientClass}`}
+      aria-label="Promotional offer"
     >
       {!offer.image && (
-        <div className="absolute inset-0 bg-white/5 pointer-events-none" style={{
+        <div className="absolute inset-0 bg-white/5 pointer-events-none" aria-hidden="true" style={{
           backgroundImage: "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 1px, transparent 1px)",
           backgroundSize: "20px 20px"
         }}></div>
@@ -79,7 +80,7 @@ export function OfferBanner() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider animate-pulse ${offer.bannerType === 'coupon' ? 'bg-amber-400 text-gray-900' : 'bg-accent-500 text-gray-900'
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${offer.bannerType === 'coupon' ? 'bg-amber-400 text-gray-900' : 'bg-accent-500 text-gray-900'
             }`}
         >
           {offer.bannerType === 'coupon' ? 'Coupon Campaign' : 'Special Offer'}

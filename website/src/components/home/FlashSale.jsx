@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -21,8 +22,8 @@ export function FlashSale() {
       try {
         const { data } = await api.get('/products?sort=discount&limit=4');
         setProducts(data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch flash sale products", error);
+      } catch {
+        // Silently fail
       } finally {
         setIsLoading(false);
       }
@@ -54,7 +55,7 @@ export function FlashSale() {
     try {
       await addToCart(product, 1);
       toast.success(`${product.name} added to cart`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to add to cart");
     }
   };
@@ -63,7 +64,7 @@ export function FlashSale() {
 
   if (isLoading) {
     return (
-      <section className="py-12 bg-rose-50/30 dark:bg-rose-950/10 border-y border-rose-100/50 dark:border-rose-950/20">
+      <section className="py-12 bg-rose-50/30 dark:bg-rose-950/10 border-y border-rose-100/50 dark:border-rose-950/20" aria-busy="true" aria-label="Loading flash sale">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-8"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -82,20 +83,20 @@ export function FlashSale() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-8 sm:py-12 bg-rose-50/20 dark:bg-rose-950/5 border-y border-rose-100/30 dark:border-rose-950/10">
+    <section className="py-8 sm:py-12 bg-rose-50/20 dark:bg-rose-950/5 border-y border-rose-100/30 dark:border-rose-950/10" aria-label="Flash sale">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title and Countdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <span className="text-xl sm:text-2xl">⚡</span>
+            <span className="text-xl sm:text-2xl" aria-hidden="true">⚡</span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
               Flash Sale
             </h2>
           </div>
           
-          {/* Ticking Clock */}
-          <div className="flex items-center space-x-2 bg-rose-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-md font-mono text-xs sm:text-sm font-bold animate-pulse">
-            <Timer className="w-4 h-4" />
+          {/* Ticking Clock — no animate-pulse for accessibility */}
+          <div className="flex items-center space-x-2 bg-rose-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-md font-mono text-xs sm:text-sm font-bold" role="timer" aria-live="polite" aria-label={`Flash sale ends in ${timeLeft.hours} hours ${timeLeft.minutes} minutes ${timeLeft.seconds} seconds`}>
+            <Timer className="w-4 h-4" aria-hidden="true" />
             <span>Ends In:</span>
             <span>{formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}</span>
           </div>
@@ -130,13 +131,15 @@ export function FlashSale() {
 
               <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-50">
                 {product.images?.[0] ? (
-                  <img 
+                  <Image 
                     src={product.images[0].url} 
                     alt={product.name} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-400" aria-hidden="true">No Image</div>
                 )}
               </Link>
               
@@ -158,9 +161,9 @@ export function FlashSale() {
                   <button 
                     onClick={(e) => handleAddToCart(product, e)}
                     className="text-white bg-rose-600 hover:bg-rose-700 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-                    aria-label="Add to cart"
+                    aria-label={`Add ${product.name} to cart`}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                   </button>

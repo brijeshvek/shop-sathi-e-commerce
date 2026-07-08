@@ -124,6 +124,30 @@ body {
   }
 }
 
+/* Screen reader only - for visually hidden labels */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Page, Modal, and Micro-interaction Transitions */
 @keyframes fadeIn {
   from {
@@ -225,3 +249,18 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Respect reduced motion preference — Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hover-lift {
+    transform: none !important;
+  }
+}

@@ -1,11 +1,28 @@
+import dynamic from "next/dynamic";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { FlashSale } from "@/components/home/FlashSale";
-import { TrendingProducts } from "@/components/home/TrendingProducts";
-import { BestSellers } from "@/components/home/BestSellers";
-import { DealsOffers } from "@/components/home/DealsOffers";
-import { CategoryProductsShowcaseSection } from "@/components/home/CategoryProductsShowcaseSection";
+
+// Dynamic imports for below-the-fold sections — code splitting for performance
+const FlashSale = dynamic(() =>
+  import("@/components/home/FlashSale").then((mod) => ({ default: mod.FlashSale }))
+);
+const FeaturedProducts = dynamic(() =>
+  import("@/components/home/FeaturedProducts").then((mod) => ({ default: mod.FeaturedProducts }))
+);
+const TrendingProducts = dynamic(() =>
+  import("@/components/home/TrendingProducts").then((mod) => ({ default: mod.TrendingProducts }))
+);
+const BestSellers = dynamic(() =>
+  import("@/components/home/BestSellers").then((mod) => ({ default: mod.BestSellers }))
+);
+const DealsOffers = dynamic(() =>
+  import("@/components/home/DealsOffers").then((mod) => ({ default: mod.DealsOffers }))
+);
+const CategoryProductsShowcaseSection = dynamic(() =>
+  import("@/components/home/CategoryProductsShowcaseSection").then(
+    (mod) => ({ default: mod.CategoryProductsShowcaseSection })
+  )
+);
 
 export default function HomePage() {
   return (

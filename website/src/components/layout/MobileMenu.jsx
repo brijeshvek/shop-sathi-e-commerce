@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { X, User, Heart, Settings, LogOut, ShoppingBag, LayoutDashboard } from "lucide-react";
+import { X, User, Heart, LogOut, ShoppingBag, LayoutDashboard } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 
+const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "/admin";
+
 export function MobileMenu({ isOpen, onClose }) {
   const { isAuthenticated, logout, user } = useAuth();
   const [categories, setCategories] = useState([]);
+  const menuRef = useRef(null);
+  const closeButtonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -19,6 +23,54 @@ export function MobileMenu({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
+  // Focus trap & body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Focus close button when menu opens
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 100);
+
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+
+    // Trap focus within menu
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      const menu = menuRef.current;
+      if (!menu) return;
+
+      const focusable = menu.querySelectorAll(
+        'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <>
       {/* Backdrop */}
@@ -26,11 +78,16 @@ export function MobileMenu({ isOpen, onClose }) {
         <div
           className="fixed inset-0 bg-black/50 z-[60] md:hidden"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
       {/* Drawer */}
       <div
+        ref={menuRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
         className={`fixed top-0 left-0 w-4/5 max-w-sm h-full bg-surface shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -39,7 +96,12 @@ export function MobileMenu({ isOpen, onClose }) {
           <Link href="/" onClick={onClose} className="text-xl font-bold text-primary-600 font-heading">
             Shop Shathi
           </Link>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button 
+            ref={closeButtonRef}
+            onClick={onClose} 
+            className="text-gray-500 hover:text-gray-800 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded p-1"
+            aria-label="Close menu"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -49,7 +111,7 @@ export function MobileMenu({ isOpen, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto py-4">
-          <nav className="flex flex-col space-y-2 px-4">
+          <nav className="flex flex-col space-y-2 px-4" aria-label="Mobile navigation">
             <Link href="/" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
               Home
             </Link>
@@ -69,7 +131,7 @@ export function MobileMenu({ isOpen, onClose }) {
             {isAuthenticated ? (
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 text-gray-700">
-                  <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold" aria-hidden="true">
                     {user?.name?.charAt(0) || "U"}
                   </div>
                   <div>
@@ -77,25 +139,25 @@ export function MobileMenu({ isOpen, onClose }) {
                     <p className="text-sm text-gray-500">{user?.email}</p>
                   </div>
                 </div>
-                <nav className="flex flex-col space-y-2 pt-4">
+                <nav className="flex flex-col space-y-2 pt-4" aria-label="User account navigation">
                   <Link href="/profile" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <User className="w-5 h-5 text-gray-400" /> <span>My Profile</span>
+                    <User className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>My Profile</span>
                   </Link>
                   <Link href="/profile/orders" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <ShoppingBag className="w-5 h-5 text-gray-400" /> <span>My Orders</span>
+                    <ShoppingBag className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>My Orders</span>
                   </Link>
                   <Link href="/profile/wishlist" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <Heart className="w-5 h-5 text-gray-400" /> <span>Wishlist</span>
+                    <Heart className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>Wishlist</span>
                   </Link>
                   {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'seller') && (
                     <a 
-                      href="http://localhost:3001" 
+                      href={ADMIN_URL}
                       target="_blank" 
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       onClick={onClose}
                       className="flex items-center space-x-3 text-primary-600 font-semibold py-2"
                     >
-                      <LayoutDashboard className="w-5 h-5 text-primary-650" /> <span>Admin Dashboard</span>
+                      <LayoutDashboard className="w-5 h-5 text-primary-650" aria-hidden="true" /> <span>Admin Dashboard</span>
                     </a>
                   )}
                   <button 
@@ -106,7 +168,7 @@ export function MobileMenu({ isOpen, onClose }) {
                     }} 
                     className="flex items-center space-x-3 text-red-600 py-2 text-left font-medium border-none bg-transparent cursor-pointer"
                   >
-                    <LogOut className="w-5 h-5 text-red-650" /> <span>Sign Out</span>
+                    <LogOut className="w-5 h-5 text-red-650" aria-hidden="true" /> <span>Sign Out</span>
                   </button>
                 </nav>
               </div>

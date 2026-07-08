@@ -6,6 +6,7 @@ import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-fade';
 import 'swiper/css/pagination';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/common/Button';
 import api from '@/lib/axios';
@@ -47,8 +48,7 @@ export function HeroBanner() {
         } else {
           setSlides(DEFAULT_SLIDES);
         }
-      } catch (error) {
-        console.error("Failed to fetch custom hero banners", error);
+      } catch {
         setSlides(DEFAULT_SLIDES);
       } finally {
         setLoading(false);
@@ -66,7 +66,7 @@ export function HeroBanner() {
   }
 
   return (
-    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden">
+    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden" role="region" aria-label="Hero banner slideshow">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"
@@ -75,13 +75,17 @@ export function HeroBanner() {
         loop={slides.length > 1}
         className="w-full h-full"
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <SwiperSlide key={slide._id}>
             <div className="relative w-full h-full">
-              <img 
+              <Image 
                 src={slide.image} 
                 alt={slide.title} 
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority={index === 0}
+                quality={80}
               />
               <div className="absolute inset-0 bg-black/40"></div>
               <div className="absolute inset-0 flex items-center justify-center">

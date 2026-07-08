@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -17,8 +18,8 @@ export function FeaturedProducts() {
       try {
         const { data } = await api.get("/products?limit=8");
         setProducts(data.data || []);
-      } catch (error) {
-        console.error("Failed to fetch featured products", error);
+      } catch {
+        // Silently fail
       } finally {
         setIsLoading(false);
       }
@@ -30,14 +31,14 @@ export function FeaturedProducts() {
     try {
       await addToCart(product, 1);
       toast.success(`${product.name} added to cart`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to add to cart");
     }
   };
 
   if (isLoading) {
     return (
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-busy="true" aria-label="Loading new arrivals">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white mb-8">New Arrivals</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -53,7 +54,7 @@ export function FeaturedProducts() {
   }
 
   return (
-    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="New arrivals">
       <div className="flex justify-between items-end mb-8">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white">New Arrivals</h2>
         <Link href="/products" className="text-primary-600 hover:text-primary-700 font-medium hidden sm:block">
@@ -87,13 +88,15 @@ export function FeaturedProducts() {
           >
             <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
               {product.images?.[0] ? (
-                <img 
+                <Image 
                   src={product.images[0].url} 
                   alt={product.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                <div className="w-full h-full flex items-center justify-center text-gray-400" aria-hidden="true">No Image</div>
               )}
             </Link>
             <div className="p-4 flex flex-col flex-grow">
@@ -108,9 +111,9 @@ export function FeaturedProducts() {
                 <button 
                   onClick={() => handleAddToCart(product)}
                   className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
-                  aria-label="Add to cart"
+                  aria-label={`Add ${product.name} to cart`}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                 </button>

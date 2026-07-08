@@ -16,19 +16,23 @@ export function SearchBar() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full max-w-md">
+    <form onSubmit={handleSearch} className="relative w-full max-w-md" role="search" aria-label="Search products">
+      <label htmlFor="search-input" className="sr-only">Search for products, brands</label>
       <input
-        type="text"
+        id="search-input"
+        type="search"
         placeholder="Search for products, brands..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow"
+        autoComplete="off"
       />
       <button
         type="submit"
         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500"
+        aria-label="Submit search"
       >
-        <Search className="w-5 h-5" />
+        <Search className="w-5 h-5" aria-hidden="true" />
       </button>
     </form>
   );
