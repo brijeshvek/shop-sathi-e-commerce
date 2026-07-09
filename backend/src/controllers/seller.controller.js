@@ -16,7 +16,7 @@ export const getSellerAnalytics = asyncHandler(async (req, res) => {
 
   const orders = await Order.find({
     'items.product': { $in: sellerProductIds },
-    status: { $nin: ['cancelled'] },
+    orderStatus: { $nin: ['cancelled'] },
   }).lean()
 
   const totalOrders = orders.length
@@ -30,7 +30,7 @@ export const getSellerAnalytics = asyncHandler(async (req, res) => {
 
   const pendingOrders = await Order.countDocuments({
     'items.product': { $in: sellerProductIds },
-    status: 'processing',
+    orderStatus: 'processing',
   })
 
   res.status(200).json(new ApiResponse(200, {
@@ -39,6 +39,61 @@ export const getSellerAnalytics = asyncHandler(async (req, res) => {
     totalRevenue: Math.round(totalRevenue),
     pendingOrders,
   }, 'Seller analytics fetched'))
+})
+
+// GET /api/seller/analytics/revenue — seller's revenue chart data
+export const getSellerRevenueChart = asyncHandler(async (req, res) => {
+  const { period = 'monthly', year = new Date().getFullYear() } = req.query
+  const sellerId = req.user._id
+
+  let match
+  if (period === 'monthly') {
+    match = { 
+      createdAt: { $gte: new Date(`${year}-01-01`), $lt: new Date(`${Number(year) + 1}-01-01`) }, 
+      orderStatus: 'delivered' 
+    }
+  } else {
+    match = { orderStatus: 'delivered' }
+  }
+
+  const sellerProductIds = await Product.find({ seller: sellerId }).distinct('_id')
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+  const data = await Order.aggregate([
+    { $match: match },
+    { $unwind: '$items' },
+    { $match: { 'items.product': { $in: sellerProductIds } } },
+    { 
+      $group: { 
+        _id: { 
+          year: { $year: '$createdAt' }, 
+          month: period === 'monthly' ? { $month: '$createdAt' } : null,
+          orderId: '$_id' // Group by order first to count unique orders later if needed, or just sum revenue
+        }, 
+        revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+      } 
+    },
+    {
+      $group: {
+        _id: {
+          year: '$_id.year',
+          month: '$_id.month'
+        },
+        revenue: { $sum: '$revenue' },
+        orders: { $sum: 1 } // Since we grouped by orderId above, this counts unique orders containing seller items
+      }
+    },
+    { $sort: { '_id.year': 1, '_id.month': 1 } }
+  ])
+
+  const result = data.map(d => ({
+    label: period === 'monthly' ? MONTHS[(d._id.month || 1) - 1] : String(d._id.year),
+    revenue: Math.round(d.revenue),
+    orders: d.orders,
+  }))
+
+  res.status(200).json(new ApiResponse(200, result, 'Seller revenue chart fetched'))
 })
 
 // GET /api/seller/products — seller's own products
@@ -90,4 +145,39 @@ export const getSellerOrders = asyncHandler(async (req, res) => {
     totalItems: total,
     itemsPerPage: Number(limit),
   }))
+})
+
+// PATCH /api/seller/orders/:id/status — update order status
+export const updateSellerOrderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { status } = req.body
+
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
+  if (!validStatuses.includes(status)) {
+    throw new ApiError(400, 'Invalid order status')
+  }
+
+  // Ensure this order actually contains a product from this seller
+  const sellerProductIds = await Product.find({ seller: req.user._id }).distinct('_id')
+  
+  const order = await Order.findOne({
+    _id: id,
+    'items.product': { $in: sellerProductIds }
+  })
+
+  if (!order) {
+    throw new ApiError(404, 'Order not found or you do not have permission to modify it.')
+  }
+
+  order.orderStatus = status
+  
+  if (status === 'delivered') {
+    order.deliveredAt = Date.now()
+  } else if (status === 'cancelled') {
+    order.cancelledAt = Date.now()
+  }
+
+  await order.save()
+
+  res.status(200).json(new ApiResponse(200, order, `Order status updated to ${status}`))
 })

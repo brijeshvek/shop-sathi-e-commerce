@@ -9,6 +9,7 @@ import Button from '../../components/common/Button.jsx'
 import Spinner from '../../components/common/Spinner.jsx'
 import Badge from '../../components/common/Badge.jsx'
 import ConfirmDialog from '../../components/common/ConfirmDialog.jsx'
+import Pagination from '../../components/common/Pagination.jsx'
 import { formatCurrency } from '../../utils/formatCurrency.js'
 
 export const SellerProductsPage = () => {
@@ -21,7 +22,7 @@ export const SellerProductsPage = () => {
   const [toggleStatus] = useToggleProductStatusMutation()
 
   const products = res?.data || []
-  const meta = res?.meta || {}
+  const meta = res?.pagination || {}
 
   const handleDelete = async () => {
     try {
@@ -72,10 +73,13 @@ export const SellerProductsPage = () => {
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
       ) : (
         <Table
-          columns={['Product', 'Category', 'Price', 'Stock', 'Status', 'Actions']}
+          columns={['#', 'Product', 'Category', 'Price', 'Stock', 'Status', 'Actions']}
           data={products}
-          renderRow={(product) => (
+          renderRow={(product, index) => (
             <tr key={product._id} className="hover:bg-slate-50 transition-colors">
+              <td className="px-6 py-4 text-sm font-medium text-slate-500">
+                {((meta.currentPage || 1) - 1) * 10 + index + 1}
+              </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
@@ -111,6 +115,14 @@ export const SellerProductsPage = () => {
               </td>
             </tr>
           )}
+        />
+      )}
+
+      {meta.totalPages > 1 && (
+        <Pagination
+          currentPage={meta.currentPage}
+          totalPages={meta.totalPages}
+          onPageChange={setPage}
         />
       )}
 

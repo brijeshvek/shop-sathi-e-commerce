@@ -12,17 +12,22 @@ import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 
-const loginSchema = z.object({
+const emailLoginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
+const phoneLoginSchema = z.object({
+  phone: z.string().min(10, "Please enter a valid phone number"),
+});
+
 export default function LoginPage() {
-  const { login, verifyOtp } = useAuth();
+  const { login, loginWithPhone, verifyPhoneOtp } = useAuth();
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState("phone"); // 'phone' or 'email'
   const [otpRequired, setOtpRequired] = useState(false);
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -46,7 +51,7 @@ export default function LoginPage() {
     setCanResend(false);
     setTimer(15);
     try {
-      await api.post('/auth/resend-otp', { email });
+      await api.post('/auth/login-phone', { phone });
       toast.success("Verification OTP code resent successfully!");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to resend code");
@@ -55,27 +60,42 @@ export default function LoginPage() {
   };
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
+    register: registerEmail,
+    handleSubmit: handleEmailSubmit,
+    formState: { errors: emailErrors, isSubmitting: isEmailSubmitting },
   } = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(emailLoginSchema),
   });
 
-  const onSubmit = async (data) => {
+  const {
+    register: registerPhone,
+    handleSubmit: handlePhoneSubmit,
+    formState: { errors: phoneErrors, isSubmitting: isPhoneSubmitting },
+  } = useForm({
+    resolver: zodResolver(phoneLoginSchema),
+  });
+
+  const onEmailLogin = async (data) => {
     try {
-      const res = await login(data.email, data.password);
-      if (res.data?.otpRequired) {
-        setEmail(data.email);
+      await login(data.email, data.password);
+      toast.success("Welcome back!");
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectPath = urlParams.get('redirect') || "/";
+      router.push(redirectPath);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    }
+  };
+
+  const onPhoneLogin = async (data) => {
+    try {
+      const res = await loginWithPhone(data.phone);
+      if (res?.data?.otpRequired) {
+        setPhone(data.phone);
         setOtpRequired(true);
         setTimer(15);
         setCanResend(false);
-        toast.success("Verification code sent to your email!");
-      } else {
-        toast.success("Welcome back!");
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectPath = urlParams.get('redirect') || "/";
-        router.push(redirectPath);
+        toast.success("Verification code sent to your phone!");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
@@ -90,7 +110,7 @@ export default function LoginPage() {
     }
     setIsVerifying(true);
     try {
-      await verifyOtp(email, otp);
+      await verifyPhoneOtp(phone, otp);
       toast.success("Welcome back!");
       const urlParams = new URLSearchParams(window.location.search);
       const redirectPath = urlParams.get('redirect') || "/";
@@ -112,7 +132,7 @@ export default function LoginPage() {
                 Enter Verification Code
               </h2>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                We have sent a 6-digit OTP to <span className="font-semibold text-gray-900 dark:text-white">{email}</span>.
+                We have sent a 6-digit OTP to <span className="font-semibold text-gray-900 dark:text-white">{phone}</span>.
               </p>
             </div>
 
@@ -174,48 +194,93 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-              <div className="space-y-4">
-                <Input
-                  label="Email Address"
-                  type="email"
-                  placeholder="you@example.com"
-                  {...register("email")}
-                  error={errors.email}
-                />
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="••••••••"
-                  {...register("password")}
-                  error={errors.password}
-                />
-              </div>
+            {/* Tabs */}
+            <div className="mt-6 flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+                  activeTab === "phone"
+                    ? "bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+                onClick={() => setActiveTab("phone")}
+              >
+                Phone Number
+              </button>
+              <button
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+                  activeTab === "email"
+                    ? "bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+                onClick={() => setActiveTab("email")}
+              >
+                Email & Password
+              </button>
+            </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            {/* Phone Login Form */}
+            {activeTab === "phone" && (
+              <form className="mt-8 space-y-6" onSubmit={handlePhoneSubmit(onPhoneLogin)}>
+                <div className="space-y-4">
+                  <Input
+                    label="Phone Number"
+                    type="tel"
+                    placeholder="1234567890"
+                    {...registerPhone("phone")}
+                    error={phoneErrors.phone}
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                    Remember me
-                  </label>
+                </div>
+                <Button type="submit" className="w-full" isLoading={isPhoneSubmitting}>
+                  Send OTP
+                </Button>
+              </form>
+            )}
+
+            {/* Email Login Form */}
+            {activeTab === "email" && (
+              <form className="mt-8 space-y-6" onSubmit={handleEmailSubmit(onEmailLogin)}>
+                <div className="space-y-4">
+                  <Input
+                    label="Email Address"
+                    type="email"
+                    placeholder="you@example.com"
+                    {...registerEmail("email")}
+                    error={emailErrors.email}
+                  />
+                  <Input
+                    label="Password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...registerEmail("password")}
+                    error={emailErrors.password}
+                  />
                 </div>
 
-                <div className="text-sm">
-                  <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
-                    Forgot your password?
-                  </Link>
-                </div>
-              </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                      Remember me
+                    </label>
+                  </div>
 
-              <Button type="submit" className="w-full" isLoading={isSubmitting}>
-                Sign In
-              </Button>
-            </form>
+                  <div className="text-sm">
+                    <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                      Forgot your password?
+                    </Link>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full" isLoading={isEmailSubmitting}>
+                  Sign In
+                </Button>
+              </form>
+            )}
           </>
         )}
       </div>

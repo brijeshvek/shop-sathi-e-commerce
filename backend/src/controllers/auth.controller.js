@@ -6,14 +6,20 @@ import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { generateAccessToken, generateRefreshToken, setCookies, clearCookies } from '../utils/generateToken.js'
 import { sendWelcomeEmail, sendPasswordResetEmail, sendLoginOtpEmail } from '../services/email.service.js'
+import { sendLoginOtpSms } from '../services/sms.service.js'
 
 // POST /api/auth/register
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body
-  const exists = await User.findOne({ email })
-  if (exists) throw new ApiError(409, 'An account with this email already exists.')
+  const { name, email, password, phone } = req.body
+  if (!phone) throw new ApiError(400, 'Phone number is required.')
 
-  const user = await User.create({ name, email, password })
+  const exists = await User.findOne({ $or: [{ email }, { phone }] })
+  if (exists) {
+    if (exists.email === email) throw new ApiError(409, 'An account with this email already exists.')
+    if (exists.phone === phone) throw new ApiError(409, 'An account with this phone number already exists.')
+  }
+
+  const user = await User.create({ name, email, password, phone })
   const accessToken  = generateAccessToken(user._id)
   const refreshToken = generateRefreshToken(user._id)
   setCookies(res, accessToken, refreshToken)
@@ -35,25 +41,30 @@ export const login = asyncHandler(async (req, res) => {
   }
   if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
 
-  // Bypass OTP for administrative and seller roles
-  if (user.role === 'admin' || user.role === 'superadmin' || user.role === 'seller') {
-    const accessToken  = generateAccessToken(user._id)
-    const refreshToken = generateRefreshToken(user._id)
-    setCookies(res, accessToken, refreshToken)
+  const accessToken  = generateAccessToken(user._id)
+  const refreshToken = generateRefreshToken(user._id)
+  setCookies(res, accessToken, refreshToken)
 
-    let roleDoc = await Role.findOne({ name: user.role })
-    if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
-      roleDoc = await Role.create({ name: user.role })
-    }
-    const rolePermissions = roleDoc ? roleDoc.permissions : {}
-
-    const { password: _, ...userData } = user.toObject()
-    userData.permissions = rolePermissions
-    userData.token = accessToken
-    return res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
+  let roleDoc = await Role.findOne({ name: user.role })
+  if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
+    roleDoc = await Role.create({ name: user.role })
   }
+  const rolePermissions = roleDoc ? roleDoc.permissions : {}
 
-  // Generate 6-digit verification code for customers
+  const { password: _, ...userData } = user.toObject()
+  userData.permissions = rolePermissions
+  userData.token = accessToken
+  return res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
+})
+
+// POST /api/auth/login-phone
+export const loginWithPhone = asyncHandler(async (req, res) => {
+  const { phone } = req.body
+  const user = await User.findOne({ phone })
+  if (!user) throw new ApiError(404, 'Phone number not registered.')
+  if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
+
+  // Generate 6-digit verification code
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   user.loginOtp = otp
   user.loginOtpExpire = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
@@ -61,14 +72,54 @@ export const login = asyncHandler(async (req, res) => {
 
   // Log OTP in development mode
   if (process.env.NODE_ENV === 'development') {
-    console.log(`\n🔑 [DEV ONLY] OTP for ${user.email} is: ${otp}\n`)
+    console.log(`\n📱 [DEV ONLY] OTP for phone ${user.phone} is: ${otp}\n`)
   }
 
-  // Send OTP email (non-blocking)
-  sendLoginOtpEmail(user, otp).catch(err => console.error('OTP email error:', err.message))
-
-  res.status(200).json(new ApiResponse(200, { otpRequired: true, email: user.email }, 'Verification OTP sent to email.'))
+  // Send SMS (non-blocking)
+  sendLoginOtpSms(user, otp).catch(err => console.error('OTP sms error:', err.message))
+  
+  res.status(200).json(new ApiResponse(200, { otpRequired: true, phone: user.phone }, 'Verification OTP sent to phone.'))
 })
+
+// POST /api/auth/verify-phone-otp
+export const verifyPhoneOtp = asyncHandler(async (req, res) => {
+  const { phone, otp } = req.body
+  if (!phone || !otp) {
+    throw new ApiError(400, 'Phone number and OTP code are required.')
+  }
+
+  const user = await User.findOne({ phone }).select('+loginOtp +loginOtpExpire')
+  if (!user) throw new ApiError(404, 'User not found.')
+
+  if (!user.loginOtp || !user.loginOtpExpire || user.loginOtpExpire < Date.now()) {
+    throw new ApiError(400, 'The verification code has expired or is invalid. Please request a new one.')
+  }
+
+  if (user.loginOtp !== otp) {
+    throw new ApiError(400, 'Invalid verification code. Please try again.')
+  }
+
+  // Clear OTP fields
+  user.loginOtp = undefined
+  user.loginOtpExpire = undefined
+  await user.save({ validateBeforeSave: false })
+
+  const accessToken  = generateAccessToken(user._id)
+  const refreshToken = generateRefreshToken(user._id)
+  setCookies(res, accessToken, refreshToken)
+
+  let roleDoc = await Role.findOne({ name: user.role })
+  if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
+    roleDoc = await Role.create({ name: user.role })
+  }
+  const rolePermissions = roleDoc ? roleDoc.permissions : {}
+
+  const { password: _, ...userData } = user.toObject()
+  userData.permissions = rolePermissions
+  userData.token = accessToken
+  res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
+})
+
 
 // POST /api/auth/verify-otp
 export const verifyLoginOtp = asyncHandler(async (req, res) => {

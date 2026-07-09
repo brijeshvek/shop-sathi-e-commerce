@@ -1,6 +1,7 @@
 import Order from '../models/Order.model.js'
 import Product from '../models/Product.model.js'
 import User from '../models/User.model.js'
+import Category from '../models/Category.model.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
@@ -13,7 +14,8 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
   const [
     totalOrders, ordersByStatus, revenueToday, revenueWeek, revenueMonth,
     totalProducts, activeProducts, outOfStock,
-    totalCustomers, newCustomers, lowStock, recentOrders,
+    totalCustomers, totalSellers, newCustomers, lowStock, recentOrders,
+    totalCategories,
   ] = await Promise.all([
     Order.countDocuments(),
     Order.aggregate([{ $group: { _id: '$orderStatus', count: { $sum: 1 } } }]),
@@ -24,9 +26,11 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     Product.countDocuments({ isActive: true }),
     Product.countDocuments({ stock: 0, isActive: true }),
     User.countDocuments({ role: 'customer' }),
+    User.countDocuments({ role: 'seller' }),
     User.countDocuments({ role: 'customer', createdAt: { $gte: today } }),
     Product.find({ stock: { $gt: 0, $lte: Number(process.env.LOW_STOCK_THRESHOLD) || 10 }, isActive: true }).select('name stock').limit(10).lean(),
     Order.find().populate('user', 'name email').sort({ createdAt: -1 }).limit(10).lean(),
+    Category.countDocuments(),
   ])
 
   const statusMap = {}
@@ -48,6 +52,8 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     },
     products: { total: totalProducts, active: activeProducts, outOfStock },
     customers: { total: totalCustomers, newToday: newCustomers },
+    sellers: { total: totalSellers },
+    categories: { total: totalCategories },
     lowStockProducts: lowStock,
     recentOrders,
   }, 'Dashboard stats fetched'))

@@ -42,9 +42,7 @@ export const OrdersPage = () => {
 
   const orders = activeQuery.data?.data || []
   const isLoading = activeQuery.isLoading
-  const pagination = isSeller
-    ? { currentPage: activeQuery.data?.meta?.currentPage || 1, totalPages: activeQuery.data?.meta?.totalPages || 1 }
-    : activeQuery.data?.pagination || { currentPage: 1, totalPages: 1 }
+  const pagination = activeQuery.data?.pagination || { currentPage: 1, totalPages: 1 }
 
   const getStatusVariant = (orderStatus) => {
     switch (orderStatus) {
@@ -156,12 +154,15 @@ export const OrdersPage = () => {
       ) : (
         <div className="space-y-4">
           <Table
-            columns={['Order #', 'Customer', 'Items Count', 'Total', 'Payment', 'Date', 'Status', ...(isAdmin ? ['Actions'] : [])]}
+            columns={['#', 'Order #', 'Customer', 'Items Count', 'Total', 'Payment', 'Date', 'Status', ...(isAdmin ? ['Actions'] : [])]}
             data={orders}
-            renderRow={(order) => {
+            renderRow={(order, index) => {
               const orderStatus = order.orderStatus || order.status
               return (
                 <tr key={order._id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
+                    {(pagination.currentPage - 1) * 10 + index + 1}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-900">
                     #{order.orderNumber || order._id.substring(18).toUpperCase()}
                   </td>

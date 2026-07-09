@@ -130,7 +130,10 @@ export const getAllProductsAdmin = asyncHandler(async (req, res) => {
 
   const skip = (Number(page) - 1) * Number(limit)
   const [products, total] = await Promise.all([
-    Product.find(filter).populate('category', 'name slug').sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
+    Product.find(filter)
+      .populate('category', 'name slug')
+      .populate('seller', 'name email phone sellerInfo')
+      .sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
     Product.countDocuments(filter)
   ])
 
@@ -144,7 +147,10 @@ export const getAllProductsAdmin = asyncHandler(async (req, res) => {
 
 // GET /api/products/admin/:id (Admin)
 export const getProductByIdAdmin = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id).populate('category', 'name').lean()
+  const product = await Product.findById(req.params.id)
+    .populate('category', 'name')
+    .populate('seller', 'name email phone sellerInfo')
+    .lean()
   if (!product) throw new ApiError(404, 'Product not found.')
   res.status(200).json(new ApiResponse(200, product, 'Product fetched for admin'))
 })

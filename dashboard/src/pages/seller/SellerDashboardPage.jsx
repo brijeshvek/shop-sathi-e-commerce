@@ -4,7 +4,13 @@ import {
   Package, ShoppingCart, TrendingUp, Clock,
   ArrowRight, Plus, BarChart2, Star
 } from 'lucide-react'
-import { useGetSellerAnalyticsQuery, useGetSellerProductsQuery, useGetSellerOrdersQuery } from '../../features/seller/sellerApi.js'
+import { 
+  useGetSellerAnalyticsQuery, 
+  useGetSellerProductsQuery, 
+  useGetSellerOrdersQuery,
+  useGetSellerRevenueChartQuery
+} from '../../features/seller/sellerApi.js'
+import RevenueChart from '../../components/charts/RevenueChart.jsx'
 import { useAuth } from '../../hooks/useAuth.js'
 import Spinner from '../../components/common/Spinner.jsx'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -28,10 +34,12 @@ const StatCard = ({ icon: Icon, label, value, color, sub }) => (
 export const SellerDashboardPage = () => {
   const { user } = useAuth()
   const { data: analyticsRes, isLoading: analyticsLoading } = useGetSellerAnalyticsQuery()
+  const { data: chartRes, isLoading: chartLoading } = useGetSellerRevenueChartQuery({ period: 'monthly' })
   const { data: productsRes, isLoading: productsLoading } = useGetSellerProductsQuery({ page: 1, limit: 5 })
   const { data: ordersRes, isLoading: ordersLoading } = useGetSellerOrdersQuery({ page: 1, limit: 5 })
 
   const stats = analyticsRes?.data
+  const chartData = chartRes?.data || []
   const products = productsRes?.data || []
   const orders = ordersRes?.data || []
 
@@ -108,6 +116,21 @@ export const SellerDashboardPage = () => {
           />
         </div>
       )}
+
+      {/* Income Analytics Chart */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-bold text-slate-900">Income Analytics</h3>
+          <span className="text-xs font-semibold text-slate-500">Monthly breakdown</span>
+        </div>
+        {chartLoading ? (
+          <div className="h-[280px] flex items-center justify-center">
+            <Spinner />
+          </div>
+        ) : (
+          <RevenueChart data={chartData} height={280} />
+        )}
+      </div>
 
       {/* Recent Products & Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

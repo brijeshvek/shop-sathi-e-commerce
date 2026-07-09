@@ -124,3 +124,29 @@ export const setDefaultAddress = asyncHandler(async (req, res) => {
   await user.save()
   res.status(200).json(new ApiResponse(200, null, 'Default address updated'))
 })
+
+// POST /api/users/become-seller
+export const becomeSeller = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+  if (!user) throw new ApiError(404, 'User not found.')
+
+  if (user.role === 'seller' || user.role === 'admin' || user.role === 'superadmin') {
+    throw new ApiError(400, 'User is already a seller or admin.')
+  }
+
+  const { storeName, description } = req.body
+  if (!storeName || !description) {
+    throw new ApiError(400, 'Store name and description are required.')
+  }
+
+  user.role = 'seller'
+  user.sellerInfo = {
+    storeName,
+    description,
+    isApproved: true, // Auto-approve for now
+  }
+  
+  await user.save()
+  
+  res.status(200).json(new ApiResponse(200, user, 'Successfully registered as a seller'))
+})

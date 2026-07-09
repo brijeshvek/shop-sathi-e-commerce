@@ -10,6 +10,7 @@ import {
   useGetProductByIdAdminQuery, useUpdateProductMutation 
 } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
+import { useAuth } from '../../hooks/useAuth.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
 import Spinner from '../../components/common/Spinner.jsx'
@@ -31,6 +32,7 @@ const productSchema = z.object({
 export const EditProductPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isSeller } = useAuth()
   const { data: categoriesRes } = useGetCategoriesQuery()
   const { data: productRes, isLoading: isFetching } = useGetProductByIdAdminQuery(id)
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation()
@@ -341,6 +343,28 @@ export const EditProductPage = () => {
                 </label>
               </div>
             </div>
+
+            {/* Seller Info Card (Admin Only) */}
+            {!isSeller && product?.seller && (
+              <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100 rounded-xl p-6 space-y-4 shadow-xs">
+                <h3 className="text-base font-semibold text-violet-900 border-b border-violet-200 pb-3">Seller Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Store Name</p>
+                    <p className="text-sm font-bold text-slate-900">{product.seller.sellerInfo?.storeName || product.seller.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Seller Name</p>
+                    <p className="text-sm font-semibold text-slate-800">{product.seller.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Contact Details</p>
+                    <p className="text-sm text-slate-700">{product.seller.email}</p>
+                    <p className="text-sm text-slate-700">{product.seller.phone || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

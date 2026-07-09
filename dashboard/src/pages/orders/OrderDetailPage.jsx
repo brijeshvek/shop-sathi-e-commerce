@@ -146,9 +146,10 @@ export const OrderDetailPage = () => {
               <span>Order Items ({order.items?.length || 0})</span>
             </h3>
             <div className="divide-y divide-slate-100">
-              {order.items?.map((item) => (
+              {order.items?.map((item, index) => (
                 <div key={item._id} className="py-4 flex items-center justify-between first:pt-0 last:pb-0">
                   <div className="flex items-center space-x-4">
+                    <span className="text-sm font-bold text-slate-400 w-4">{index + 1}.</span>
                     <img 
                       src={item.image || 'https://via.placeholder.com/150'} 
                       alt={item.name} 
@@ -384,6 +385,7 @@ export const OrderDetailPage = () => {
             <table className="w-full text-left border-collapse my-6 text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-705 font-semibold bg-slate-50">
+                  <th className="py-2.5 px-3 w-8 text-center">#</th>
                   <th className="py-2.5 px-3">Item Description</th>
                   <th className="py-2.5 px-3 text-right">Price</th>
                   <th className="py-2.5 px-3 text-center">Qty</th>
@@ -391,8 +393,9 @@ export const OrderDetailPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {order.items?.map((item) => (
+                {order.items?.map((item, index) => (
                   <tr key={item._id} className="text-slate-800">
+                    <td className="py-3 px-3 text-center text-slate-500 font-medium">{index + 1}</td>
                     <td className="py-3 px-3">
                       <span className="font-medium">{item.name}</span>
                       {item.selectedVariants && Object.keys(item.selectedVariants).length > 0 && (

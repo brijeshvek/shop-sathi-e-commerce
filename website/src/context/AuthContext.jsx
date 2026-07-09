@@ -39,6 +39,20 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const loginWithPhone = async (phone) => {
+    const { data } = await api.post('/auth/login-phone', { phone });
+    return data;
+  };
+
+  const verifyPhoneOtp = async (phone, otp) => {
+    const { data } = await api.post('/auth/verify-phone-otp', { phone, otp });
+    if (data.data.token) {
+      localStorage.setItem('accessToken', data.data.token);
+    }
+    setUser(data.data);
+    return data;
+  };
+
   const register = async (userData) => {
     const { data } = await api.post('/auth/register', userData);
     if (data.data.token) {
@@ -55,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, verifyOtp, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, verifyOtp, loginWithPhone, verifyPhoneOtp, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllUsers, getUserById, updateUser, changePassword, blockUser, addAddress, updateAddress, deleteAddress, setDefaultAddress } from '../controllers/user.controller.js'
+import { getAllUsers, getUserById, updateUser, changePassword, blockUser, addAddress, updateAddress, deleteAddress, setDefaultAddress, becomeSeller } from '../controllers/user.controller.js'
 import authMiddleware from '../middleware/auth.middleware.js'
 import adminMiddleware from '../middleware/admin.middleware.js'
 
@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
+router.post  ('/become-seller',                     becomeSeller)
 router.get   ('/',                                  adminMiddleware, getAllUsers)
 router.get   ('/:id',                               getUserById)
 router.put   ('/:id',                               updateUser)

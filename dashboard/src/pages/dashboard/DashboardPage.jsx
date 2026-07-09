@@ -1,7 +1,7 @@
 import React from 'react'
 import { 
   IndianRupee, ShoppingBag, Package, Users, AlertTriangle, 
-  ArrowUpRight, Clock, CheckCircle2, XCircle,
+  ArrowUpRight, Clock, CheckCircle2, XCircle, Store,
   TrendingUp, BarChart2, Plus, ArrowRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -56,6 +56,12 @@ const AdminDashboard = () => {
       icon: Users, 
       color: "bg-slate-100 text-slate-800" 
     },
+    { 
+      name: "Total Sellers", 
+      value: stats?.sellers?.total || 0, 
+      icon: Store, 
+      color: "bg-slate-100 text-slate-800" 
+    },
   ]
 
   const getStatusVariant = (status) => {
@@ -77,7 +83,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
         {statCards.map((card) => {
           const Icon = card.icon
           return (

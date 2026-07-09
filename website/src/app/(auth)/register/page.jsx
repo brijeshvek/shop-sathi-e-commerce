@@ -13,6 +13,7 @@ import { Button } from "@/components/common/Button";
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -34,7 +35,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data) => {
     try {
-      await registerUser({ name: data.name, email: data.email, password: data.password, confirmPassword: data.confirmPassword });
+      await registerUser({ name: data.name, email: data.email, phone: data.phone, password: data.password, confirmPassword: data.confirmPassword });
       toast.success("Account created successfully!");
       router.push("/");
     } catch (error) {
@@ -72,6 +73,13 @@ export default function RegisterPage() {
               placeholder="you@example.com"
               {...register("email")}
               error={errors.email}
+            />
+            <Input
+              label="Phone Number"
+              type="tel"
+              placeholder="1234567890"
+              {...register("phone")}
+              error={errors.phone}
             />
             <Input
               label="Password"

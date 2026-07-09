@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, Edit2, Trash2, Folder, Upload, X } from 'lucide-react'
+import { Plus, Edit2, Trash2, Folder, Upload, X, Tags, LayoutGrid, ArrowLeft, Eye } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -34,6 +34,7 @@ export const CategoriesPage = () => {
   const [deletingId, setDeletingId] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [previewImage, setPreviewImage] = useState(null)
+  const [activeParent, setActiveParent] = useState(null)
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(categorySchema),
@@ -123,27 +124,60 @@ export const CategoriesPage = () => {
   }
 
   // Flattened categories for listing
-  const tableData = categories.reduce((acc, cat) => {
-    acc.push(cat)
-    if (cat.children && cat.children.length > 0) {
-      cat.children.forEach(child => {
-        acc.push({ ...child, parentName: cat.name })
-      })
-    }
-    return acc
-  }, [])
+  const tableData = activeParent
+    ? (activeParent.children || []).map(child => ({ ...child, parentName: activeParent.name }))
+    : categories
+
+  const mainCategoriesCount = categories.length
+  const subCategoriesCount = categories.reduce((acc, cat) => acc + (cat.children ? cat.children.length : 0), 0)
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Categories</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage catalog sections and sub-categories</p>
+          {activeParent ? (
+            <div className="flex items-center space-x-3 mb-1">
+              <button 
+                onClick={() => setActiveParent(null)}
+                className="p-1.5 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shadow-xs"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <h1 className="text-2xl font-bold text-slate-900">{activeParent.name} <span className="text-slate-400 font-medium text-lg">Subcategories</span></h1>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-slate-900">Categories</h1>
+              <p className="text-slate-500 text-sm mt-1">Manage catalog sections and sub-categories</p>
+            </>
+          )}
         </div>
         <Button variant="primary" icon={Plus} onClick={handleOpenAdd}>
           Add Category
         </Button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 border border-slate-200 rounded-xl shadow-xs">
+        <div className="flex items-center space-x-4 p-3 border border-slate-100 rounded-lg bg-slate-50">
+          <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+            <LayoutGrid size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Main Categories</p>
+            <p className="text-xl font-bold text-slate-900">{mainCategoriesCount}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4 p-3 border border-slate-100 rounded-lg bg-slate-50">
+          <div className="p-2 bg-violet-100 text-violet-600 rounded-lg">
+            <Tags size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Sub Categories</p>
+            <p className="text-xl font-bold text-slate-900">{subCategoriesCount}</p>
+          </div>
+        </div>
       </div>
 
       {/* Main Table */}
@@ -153,7 +187,7 @@ export const CategoriesPage = () => {
         </div>
       ) : (
         <Table
-          columns={['Image', 'Name', 'Parent Category', 'Description', 'Actions']}
+          columns={['Image', 'Name', 'Parent Category', 'Subcategories', 'Actions']}
           data={tableData}
           renderRow={(cat) => (
             <tr key={cat._id} className="hover:bg-slate-50/50 transition-colors">
@@ -175,10 +209,19 @@ export const CategoriesPage = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
                 {cat.parentName || '-'}
               </td>
-              <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
-                {cat.description || '-'}
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                {!activeParent && cat.children ? (
+                  <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-semibold">
+                    {cat.children.length} subcategories
+                  </span>
+                ) : '-'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                {!activeParent && (
+                  <Button variant="secondary" size="sm" onClick={() => setActiveParent(cat)} className="!px-2" title="View Subcategories">
+                    <Eye size={14} className="text-slate-600" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(cat)}>
                   <Edit2 size={14} className="text-slate-500" />
                 </Button>

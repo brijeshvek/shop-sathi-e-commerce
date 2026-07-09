@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
-import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin } from "lucide-react";
+import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -225,8 +225,19 @@ export function Navbar() {
                         role="menuitem"
                       >
                         <LayoutDashboard className="w-4 h-4 text-primary-600" aria-hidden="true" />
-                        <span>Admin Dashboard</span>
+                        <span>{user?.role === 'seller' ? 'Seller Dashboard' : 'Admin Dashboard'}</span>
                       </a>
+                    )}
+
+                    {user?.role === 'customer' && (
+                      <Link 
+                        href="/become-seller"
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 font-medium"
+                        role="menuitem"
+                      >
+                        <Store className="w-4 h-4 text-primary-600" aria-hidden="true" />
+                        <span>Become a Seller</span>
+                      </Link>
                     )}
 
                     <div className="border-t border-gray-100 dark:border-gray-800 my-1.5"></div>

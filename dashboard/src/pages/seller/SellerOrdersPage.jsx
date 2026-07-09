@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
-import { useGetSellerOrdersQuery } from '../../features/seller/sellerApi.js'
+import { useGetSellerOrdersQuery, useUpdateSellerOrderStatusMutation } from '../../features/seller/sellerApi.js'
+import toast from 'react-hot-toast'
 import Table from '../../components/common/Table.jsx'
 import Spinner from '../../components/common/Spinner.jsx'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -18,7 +19,18 @@ export const SellerOrdersPage = () => {
   const [page, setPage] = useState(1)
   const { data: res, isLoading } = useGetSellerOrdersQuery({ page, limit: 10 })
   const orders = res?.data || []
-  const meta = res?.meta || {}
+  const meta = res?.pagination || {}
+
+  const [updateStatus, { isLoading: isUpdating }] = useUpdateSellerOrderStatusMutation()
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await updateStatus({ id, status: newStatus }).unwrap()
+      toast.success('Order status updated!')
+    } catch (err) {
+      toast.error('Failed to update order status.')
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -38,10 +50,13 @@ export const SellerOrdersPage = () => {
       ) : (
         <>
           <Table
-            columns={['Order ID', 'Customer', 'Date', 'Amount', 'Status']}
+            columns={['#', 'Order ID', 'Customer', 'Date', 'Amount', 'Status', 'Action']}
             data={orders}
-            renderRow={(order) => (
+            renderRow={(order, index) => (
               <tr key={order._id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-6 py-4 text-sm font-medium text-slate-500">
+                  {((meta.currentPage || 1) - 1) * 10 + index + 1}
+                </td>
                 <td className="px-6 py-4 font-mono font-bold text-sm text-slate-700">
                   #{order._id.slice(-8).toUpperCase()}
                 </td>
@@ -56,9 +71,23 @@ export const SellerOrdersPage = () => {
                   {formatCurrency(order.totalAmount)}
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${STATUS_STYLES[order.status] || 'bg-slate-100 text-slate-600'}`}>
-                    {order.status}
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${STATUS_STYLES[order.orderStatus] || 'bg-slate-100 text-slate-600'}`}>
+                    {order.orderStatus}
                   </span>
+                </td>
+                <td className="px-6 py-4">
+                  <select
+                    value={order.orderStatus}
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    disabled={isUpdating || order.orderStatus === 'cancelled' || order.orderStatus === 'delivered'}
+                    className="text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500 disabled:opacity-50 cursor-pointer"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </td>
               </tr>
             )}

@@ -50,9 +50,7 @@ export const ProductsPage = () => {
 
   const categories = categoriesRes?.data || []
   const products = activeQuery.data?.data || []
-  const pagination = isSeller
-    ? { currentPage: activeQuery.data?.meta?.currentPage || 1, totalPages: activeQuery.data?.meta?.totalPages || 1 }
-    : activeQuery.data?.pagination || { currentPage: 1, totalPages: 1 }
+  const pagination = activeQuery.data?.pagination || { currentPage: 1, totalPages: 1 }
   const isLoading = activeQuery.isLoading
 
   const handleToggle = async (product) => {
@@ -150,10 +148,13 @@ export const ProductsPage = () => {
       ) : (
         <div className="space-y-4">
           <Table
-            columns={['Image', 'Product details / SKU', 'Category', 'Price', 'Stock', 'Status', 'Actions']}
+            columns={['#', 'Image', 'Product details / SKU', 'Category', 'Price', 'Stock', ...(!isSeller ? ['Seller'] : []), 'Status', 'Actions']}
             data={products}
-            renderRow={(product) => (
+            renderRow={(product, index) => (
               <tr key={product._id} className="hover:bg-slate-50/50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
+                  {(pagination.currentPage - 1) * 10 + index + 1}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <img
                     src={product.images?.find(i => i.isMain)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/150'}
@@ -184,6 +185,18 @@ export const ProductsPage = () => {
                     <span className="text-slate-600 font-medium">{product.stock} items</span>
                   )}
                 </td>
+                {!isSeller && (
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.seller ? (
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{product.seller.sellerInfo?.storeName || product.seller.name}</p>
+                        <p className="text-xs text-slate-400">{product.seller.email}</p>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded">Admin</span>
+                    )}
+                  </td>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button onClick={() => handleToggle(product)} className="focus:outline-none">
                     {product.isActive ? (
