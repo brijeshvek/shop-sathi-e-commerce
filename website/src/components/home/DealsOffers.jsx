@@ -41,7 +41,8 @@ export function DealsOffers() {
 
   if (isLoading) {
     return (
-      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-busy="true" aria-label="Loading deals">
+      <section className="py-12" aria-busy="true" aria-label="Loading deals">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-8"></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
@@ -51,6 +52,7 @@ export function DealsOffers() {
             </div>
           ))}
         </div>
+        </div>
       </section>
     );
   }
@@ -58,7 +60,8 @@ export function DealsOffers() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Deals and offers">
+    <section className="py-8 sm:py-12" aria-label="Deals and offers">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-end mb-5 sm:mb-8">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-2xl" aria-hidden="true">💥</span>
@@ -88,7 +91,7 @@ export function DealsOffers() {
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 }
             }}
-            className="group relative flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
+            className="group relative flex flex-col h-full bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
           >
             {/* Tag */}
             {product.discount > 0 && (
@@ -122,7 +125,7 @@ export function DealsOffers() {
               
               <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="font-bold text-sm sm:text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
+                  <span className="font-bold text-sm sm:text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
                   {product.originalPrice && (
                     <span className="text-xs text-gray-400 line-through">₹{product.originalPrice?.toFixed(2)}</span>
                   )}
@@ -141,6 +144,7 @@ export function DealsOffers() {
           </motion.div>
         ))}
       </motion.div>
+      </div>
     </section>
   );
 }

@@ -56,6 +56,8 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpire: { type: Date,   select: false },
   loginOtp:            { type: String, select: false },
   loginOtpExpire:      { type: Date,   select: false },
+  language:            { type: String, default: 'en', enum: ['en', 'hi', 'gu'] },
+  theme:               { type: String, default: 'system', enum: ['light', 'dark', 'system'] },
 }, { timestamps: true })
 
 // Hash password before save

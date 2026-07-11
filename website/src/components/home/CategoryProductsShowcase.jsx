@@ -80,7 +80,7 @@ export function CategoryProductsShowcase({ category, limit = 4 }) {
             }
           }
         }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
       >
         {products.map((product) => (
           <motion.div 
@@ -90,7 +90,7 @@ export function CategoryProductsShowcase({ category, limit = 4 }) {
               visible: { opacity: 1, y: 0 }
             }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
+            className="group flex flex-col h-full bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
           >
             <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
               {product.images?.[0] ? (
@@ -105,14 +105,15 @@ export function CategoryProductsShowcase({ category, limit = 4 }) {
                 <div className="w-full h-full flex items-center justify-center text-gray-400" aria-hidden="true">No Image</div>
               )}
             </Link>
-            <div className="p-4 flex flex-col flex-grow">
+            <div className="p-3 sm:p-4 flex flex-col flex-grow">
+              <div className="text-xs font-semibold text-gray-500 mb-1">{product.brand || category.name}</div>
               <Link href={`/products/${product.slug || product._id}`}>
-                <h4 className="font-medium text-gray-900 dark:text-white text-sm line-clamp-2 hover:text-primary-600 transition-colors">
+                <h4 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 hover:text-primary-600 transition-colors">
                   {product.name}
                 </h4>
               </Link>
-              <div className="mt-auto pt-4 flex items-center justify-between">
-                <span className="font-bold text-base text-primary-600">₹{product.price?.toFixed(2)}</span>
+              <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
+                <span className="font-bold text-sm sm:text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
                 <button 
                   onClick={(e) => handleAddToCart(product, e)}
                   className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"

@@ -13,6 +13,12 @@ const orderSchema = new mongoose.Schema({
     price:    { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
     selectedVariants: { type: Map, of: String },
+    returnStatus: { type: String, enum: ['none', 'requested', 'approved', 'rejected', 'completed'], default: 'none' },
+    exchangeStatus: { type: String, enum: ['none', 'requested', 'approved', 'rejected', 'completed'], default: 'none' },
+    returnReason: { type: String },
+    returnRequestDate: { type: Date },
+    exchangeReason: { type: String },
+    exchangeRequestDate: { type: Date }
   }],
   shippingAddress: {
     fullName: { type: String, required: true },

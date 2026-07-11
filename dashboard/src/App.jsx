@@ -4,10 +4,13 @@ import { useDispatch } from 'react-redux'
 import { useGetMeQuery } from './features/auth/authApi.js'
 import { setCredentials, setLoading } from './features/auth/authSlice.js'
 import AppRoutes from './routes/AppRoutes.jsx'
+import { useTranslation } from 'react-i18next'
 
 export const App = () => {
   const dispatch = useDispatch()
   const { data: meRes, error, isLoading } = useGetMeQuery()
+
+  const { i18n } = useTranslation()
 
   useEffect(() => {
     if (isLoading) {
@@ -16,8 +19,11 @@ export const App = () => {
       dispatch(setCredentials(null))
     } else if (meRes?.success) {
       dispatch(setCredentials(meRes.data))
+      if (meRes.data?.language) {
+        i18n.changeLanguage(meRes.data.language)
+      }
     }
-  }, [meRes, error, isLoading, dispatch])
+  }, [meRes, error, isLoading, dispatch, i18n])
 
   return (
     <>

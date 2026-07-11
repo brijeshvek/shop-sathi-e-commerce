@@ -120,7 +120,7 @@ export function FlashSale() {
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 }
               }}
-              className="group relative flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-rose-100/40 dark:border-rose-900/10"
+              className="group relative flex flex-col h-full bg-surface rounded-xl overflow-hidden hover-lift border border-rose-100/40 dark:border-rose-900/10"
             >
               {/* Discount Tag */}
               {product.discount > 0 && (

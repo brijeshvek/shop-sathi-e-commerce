@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "catalog": "कैटलॉग",
+    "products": "उत्पाद",
+    "categories": "श्रेणियाँ",
+    "sub categories": "उप श्रेणियाँ",
+    "brands": "ब्रांड्स",
+    "attributes": "विशेषताएँ",
+    "product reviews": "उत्पाद समीक्षा",
+    "orders": "ऑर्डर",
+    "returns": "रिटर्न",
+    "refunds": "रिफंड",
+    "customers": "ग्राहक",
+    "sellers": "विक्रेता",
+    "inventory": "इन्वेंटरी",
+    "marketing": "मार्केटिंग",
+    "cms": "सीएमएस",
+    "analytics": "एनालिटिक्स",
+    "reports": "रिपोर्ट्स",
+    "finance": "फाइनेंस",
+    "notifications": "सूचनाएं",
+    "support": "सहयोग",
+    "settings": "सेटिंग्स",
+    "profile": "प्रोफ़ाइल"
+  }
+}

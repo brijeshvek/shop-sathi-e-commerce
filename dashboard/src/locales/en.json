@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "catalog": "Catalog",
+    "products": "Products",
+    "categories": "Categories",
+    "sub categories": "Sub Categories",
+    "brands": "Brands",
+    "attributes": "Attributes",
+    "product reviews": "Product Reviews",
+    "orders": "Orders",
+    "returns": "Returns",
+    "refunds": "Refunds",
+    "customers": "Customers",
+    "sellers": "Sellers",
+    "inventory": "Inventory",
+    "marketing": "Marketing",
+    "cms": "CMS",
+    "analytics": "Analytics",
+    "reports": "Reports",
+    "finance": "Finance",
+    "notifications": "Notifications",
+    "support": "Support",
+    "settings": "Settings",
+    "profile": "Profile"
+  }
+}

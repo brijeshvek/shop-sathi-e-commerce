@@ -21,13 +21,31 @@ import CustomerDetailPage from '../pages/customers/CustomerDetailPage.jsx'
 import CouponsPage from '../pages/coupons/CouponsPage.jsx'
 import AnalyticsPage from '../pages/analytics/AnalyticsPage.jsx'
 import RolePermissionsPage from '../pages/roles/RolePermissionsPage.jsx'
-import SettingsPage from '../pages/settings/SettingsPage.jsx'
 import BannersPage from '../pages/banners/BannersPage.jsx'
 
 // Seller pages
 import SellerDashboardPage from '../pages/seller/SellerDashboardPage.jsx'
 import SellerProductsPage from '../pages/seller/SellerProductsPage.jsx'
 import SellerOrdersPage from '../pages/seller/SellerOrdersPage.jsx'
+
+import SubCategoriesPage from '../pages/categories/SubCategoriesPage.jsx'
+import BrandsPage from '../pages/brands/BrandsPage.jsx'
+import AttributesPage from '../pages/products/AttributesPage.jsx'
+import ProductReviewsPage from '../pages/products/ProductReviewsPage.jsx'
+import ReturnsPage from '../pages/orders/ReturnsPage.jsx'
+import RefundsPage from '../pages/orders/RefundsPage.jsx'
+import SellersPage from '../pages/seller/SellersPage.jsx'
+import InventoryPage from '../pages/inventory/InventoryPage.jsx'
+import FlashSalePage from '../pages/marketing/FlashSalePage.jsx'
+import OffersPage from '../pages/marketing/OffersPage.jsx'
+import BlogsPage from '../pages/cms/BlogsPage.jsx'
+import FaqPage from '../pages/cms/FaqPage.jsx'
+import CmsPagesPage from '../pages/cms/CmsPagesPage.jsx'
+import ReportsPage from '../pages/reports/ReportsPage.jsx'
+import FinancePage from '../pages/finance/FinancePage.jsx'
+import NotificationsPage from '../pages/notifications/NotificationsPage.jsx'
+import SupportPage from '../pages/support/SupportPage.jsx'
+import ProfilePage from '../pages/profile/ProfilePage.jsx'
 
 export const AppRoutes = () => {
   return (
@@ -43,7 +61,7 @@ export const AppRoutes = () => {
           {/* Routes are guarded by AdminRoute which handles role-based redirection */}
           <Route element={<AdminRoute />}>
             {/* Shared Routes (accessible by Admin and Seller) */}
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings" element={<ProfilePage />} />
             <Route path="/products/add" element={<AddProductPage />} />
             <Route path="/products/edit/:id" element={<EditProductPage />} />
 
@@ -59,6 +77,24 @@ export const AppRoutes = () => {
             <Route path="/banners" element={<BannersPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/roles" element={<RolePermissionsPage />} />
+            <Route path="/sub-categories" element={<SubCategoriesPage />} />
+            <Route path="/brands" element={<BrandsPage />} />
+            <Route path="/attributes" element={<AttributesPage />} />
+            <Route path="/reviews" element={<ProductReviewsPage />} />
+            <Route path="/returns" element={<ReturnsPage />} />
+            <Route path="/refunds" element={<RefundsPage />} />
+            <Route path="/sellers" element={<SellersPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/flash-sale" element={<FlashSalePage />} />
+            <Route path="/offers" element={<OffersPage />} />
+            <Route path="/blogs" element={<BlogsPage />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/pages" element={<CmsPagesPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/finance" element={<FinancePage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
 
             {/* ── Seller-only Pages ── */}
             <Route path="/seller" element={<SellerDashboardPage />} />

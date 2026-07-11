@@ -10,7 +10,7 @@ export const AdminRoute = () => {
 
   if (isAdmin) {
     // If admin lands on a seller-specific route, redirect them to the admin equivalent.
-    if (pathname.startsWith('/seller')) {
+    if (pathname === '/seller' || pathname.startsWith('/seller/')) {
       return <Navigate to={pathname.replace('/seller', '') || '/'} replace />
     }
     return <Outlet /> // Admin can access all nested routes.
@@ -19,7 +19,7 @@ export const AdminRoute = () => {
   if (isSeller) {
     // If seller tries to access a non-seller route, redirect to their dashboard.
     // Allow access to their own routes, shared routes, and product management routes.
-    const isAllowed = pathname.startsWith('/seller') ||
+    const isAllowed = pathname === '/seller' || pathname.startsWith('/seller/') ||
       ['/settings', '/products/add'].includes(pathname) ||
       pathname.startsWith('/products/edit');
     if (isAllowed) {

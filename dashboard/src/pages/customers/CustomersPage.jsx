@@ -24,6 +24,7 @@ export const CustomersPage = () => {
     page,
     limit: 10,
     search: debouncedSearch || undefined,
+    role: 'customer'
   })
 
   const [blockCustomer, { isLoading: isBlocking }] = useBlockCustomerMutation()

@@ -60,8 +60,23 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className={`${plusJakartaSans.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
         {/* Preconnect to critical third-party origins */}
         <link
           rel="preconnect"

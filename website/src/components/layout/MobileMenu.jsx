@@ -88,31 +88,31 @@ export function MobileMenu({ isOpen, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
-        className={`fixed top-0 left-0 w-4/5 max-w-sm h-full bg-surface shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
+        className={`fixed top-0 left-0 w-4/5 max-w-sm h-full bg-white dark:bg-gray-950 shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
           <Link href="/" onClick={onClose} className="text-xl font-bold text-primary-600 font-heading">
             Shop Shathi
           </Link>
           <button 
             ref={closeButtonRef}
             onClick={onClose} 
-            className="text-gray-500 hover:text-gray-800 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded p-1"
+            className="text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded p-1"
             aria-label="Close menu"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
           <SearchBar />
         </div>
 
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="flex flex-col space-y-2 px-4" aria-label="Mobile navigation">
-            <Link href="/" onClick={onClose} className="text-lg font-semibold text-gray-800 py-2 border-b border-gray-100">
+            <Link href="/" onClick={onClose} className="text-lg font-semibold text-gray-800 dark:text-white py-2 border-b border-gray-100 dark:border-gray-800">
               Home
             </Link>
             {categories.map((cat) => (
@@ -120,7 +120,7 @@ export function MobileMenu({ isOpen, onClose }) {
                 key={cat._id}
                 href={`/products?category=${cat._id}`}
                 onClick={onClose}
-                className="text-lg font-medium text-gray-650 py-2 border-b border-gray-100 hover:text-primary-600 transition-colors"
+                className="text-lg font-medium text-gray-650 dark:text-gray-300 py-2 border-b border-gray-100 dark:border-gray-800 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               >
                 {cat.name}
               </Link>
@@ -130,24 +130,28 @@ export function MobileMenu({ isOpen, onClose }) {
           <div className="mt-8 px-4">
             {isAuthenticated ? (
               <div className="space-y-4">
-                <div className="flex items-center space-x-3 text-gray-700">
-                  <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold" aria-hidden="true">
-                    {user?.name?.charAt(0) || "U"}
-                  </div>
+                <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-200">
+                  {user?.avatar?.url ? (
+                    <img src={user.avatar.url} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                  ) : (
+                    <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-full flex items-center justify-center font-bold" aria-hidden="true">
+                      {user?.name?.charAt(0) || "U"}
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold">{user?.name}</p>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
                   </div>
                 </div>
                 <nav className="flex flex-col space-y-2 pt-4" aria-label="User account navigation">
-                  <Link href="/profile" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <User className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>My Profile</span>
+                  <Link href="/profile" onClick={onClose} className="flex items-center space-x-3 text-gray-650 dark:text-gray-300 py-2">
+                    <User className="w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" /> <span>My Profile</span>
                   </Link>
-                  <Link href="/profile/orders" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <ShoppingBag className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>My Orders</span>
+                  <Link href="/profile/orders" onClick={onClose} className="flex items-center space-x-3 text-gray-650 dark:text-gray-300 py-2">
+                    <ShoppingBag className="w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" /> <span>My Orders</span>
                   </Link>
-                  <Link href="/profile/wishlist" onClick={onClose} className="flex items-center space-x-3 text-gray-650 py-2">
-                    <Heart className="w-5 h-5 text-gray-400" aria-hidden="true" /> <span>Wishlist</span>
+                  <Link href="/profile/wishlist" onClick={onClose} className="flex items-center space-x-3 text-gray-650 dark:text-gray-300 py-2">
+                    <Heart className="w-5 h-5 text-gray-400 dark:text-gray-300" aria-hidden="true" /> <span>Wishlist</span>
                   </Link>
                   {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'seller') && (
                     <a 

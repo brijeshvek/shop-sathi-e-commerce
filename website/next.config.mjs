@@ -19,6 +19,10 @@ const nextConfig = {
         hostname: "localhost",
         port: "5005",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
     ],
   },
   async headers() {

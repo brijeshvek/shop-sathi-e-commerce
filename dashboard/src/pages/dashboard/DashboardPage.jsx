@@ -5,7 +5,7 @@ import {
   TrendingUp, BarChart2, Plus, ArrowRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useGetDashboardStatsQuery, useGetRevenueChartQuery } from '../../features/analytics/analyticsApi.js'
+import { useGetDashboardStatsQuery, useGetRevenueChartQuery, useGetOrdersChartQuery } from '../../features/analytics/analyticsApi.js'
 import { useGetSellerAnalyticsQuery, useGetSellerProductsQuery, useGetSellerOrdersQuery } from '../../features/seller/sellerApi.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import { formatCurrency } from '../../utils/formatCurrency.js'
@@ -15,15 +15,22 @@ import Spinner from '../../components/common/Spinner.jsx'
 import Badge from '../../components/common/Badge.jsx'
 import Table from '../../components/common/Table.jsx'
 
+import DashboardQuickActions from '../../components/dashboard/DashboardQuickActions.jsx'
+import DashboardKPIs from '../../components/dashboard/DashboardKPIs.jsx'
+import DashboardCharts from '../../components/dashboard/DashboardCharts.jsx'
+import DashboardActivity from '../../components/dashboard/DashboardActivity.jsx'
+
 // ─── Admin Dashboard ─────────────────────────────────────────────────────────
 const AdminDashboard = () => {
   const { data: statsRes, isLoading: statsLoading } = useGetDashboardStatsQuery()
-  const { data: chartRes, isLoading: chartLoading } = useGetRevenueChartQuery({ period: 'monthly' })
-
+  const { data: revenueRes } = useGetRevenueChartQuery({ period: 'monthly' })
+  const { data: ordersRes } = useGetOrdersChartQuery({ year: new Date().getFullYear() })
+  
   const stats = statsRes?.data
-  const chartData = chartRes?.data || []
+  const revenueChartData = revenueRes?.data || []
+  const ordersChartData = ordersRes?.data || []
 
-  if (statsLoading || chartLoading) {
+  if (statsLoading) {
     return (
       <div className="h-96 flex items-center justify-center">
         <Spinner size="lg" />
@@ -31,156 +38,37 @@ const AdminDashboard = () => {
     )
   }
 
-  const statCards = [
-    { 
-      name: "Monthly Revenue", 
-      value: formatCurrency(stats?.revenue?.thisMonth), 
-      icon: IndianRupee, 
-      color: "bg-slate-900 text-white" 
-    },
-    { 
-      name: "Total Orders", 
-      value: stats?.orders?.total || 0, 
-      icon: ShoppingBag, 
-      color: "bg-slate-100 text-slate-800" 
-    },
-    { 
-      name: "Active Products", 
-      value: stats?.products?.active || 0, 
-      icon: Package, 
-      color: "bg-slate-100 text-slate-800" 
-    },
-    { 
-      name: "Total Customers", 
-      value: stats?.customers?.total || 0, 
-      icon: Users, 
-      color: "bg-slate-100 text-slate-800" 
-    },
-    { 
-      name: "Total Sellers", 
-      value: stats?.sellers?.total || 0, 
-      icon: Store, 
-      color: "bg-slate-100 text-slate-800" 
-    },
-  ]
-
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case 'delivered': return 'green'
-      case 'cancelled': return 'red'
-      case 'pending': return 'yellow'
-      case 'processing': return 'blue'
-      default: return 'gray'
-    }
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-8">
       {/* Page Title */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
         <p className="text-slate-500 text-sm mt-1">Real-time metrics and summaries for ShopShathi platform</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-        {statCards.map((card) => {
-          const Icon = card.icon
-          return (
-            <div key={card.name} className="bg-white border border-slate-200 rounded-xl p-6 flex items-center justify-between shadow-xs">
-              <div className="space-y-2">
-                <p className="text-sm text-slate-500 font-medium">{card.name}</p>
-                <p className="text-2xl font-bold text-slate-900 tracking-tight">{card.value}</p>
-              </div>
-              <div className={`p-3.5 rounded-xl ${card.color}`}>
-                <Icon size={20} />
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {/* Quick Actions */}
+      <section>
+        <h2 className="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">Quick Actions</h2>
+        <DashboardQuickActions />
+      </section>
 
-      {/* Charts & Side Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Revenue Chart */}
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900">Revenue Performance</h3>
-            <span className="text-xs font-semibold text-slate-500">Monthly breakdown</span>
-          </div>
-          <RevenueChart data={chartData} height={280} />
-        </div>
+      {/* KPIs Grid */}
+      <section>
+        <h2 className="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">Key Metrics</h2>
+        <DashboardKPIs stats={stats} />
+      </section>
 
-        {/* Low Stock Alerts */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 flex flex-col justify-between">
-          <div className="flex items-center space-x-2 pb-2 border-b border-slate-100">
-            <AlertTriangle className="text-amber-500" size={18} />
-            <h3 className="text-base font-bold text-slate-900">Low Stock Alerts</h3>
-          </div>
-          <div className="flex-1 overflow-y-auto space-y-3 mt-3">
-            {stats?.lowStockProducts?.length === 0 ? (
-              <p className="text-sm text-slate-400 py-6 text-center">All inventory levels healthy.</p>
-            ) : (
-              stats?.lowStockProducts?.map((product) => (
-                <div key={product._id} className="flex items-center justify-between text-sm p-3 bg-amber-50/50 rounded-lg border border-amber-100">
-                  <span className="font-medium text-slate-700 truncate max-w-[150px]">{product.name}</span>
-                  <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
-                    Only {product.stock} left
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-          <Link 
-            to="/products" 
-            className="inline-flex items-center justify-center text-xs font-bold text-slate-700 hover:text-slate-900 pt-4 border-t border-slate-100 space-x-1"
-          >
-            <span>Manage Inventory</span>
-            <ArrowUpRight size={14} />
-          </Link>
-        </div>
-      </div>
+      {/* Charts Grid */}
+      <section>
+        <h2 className="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">Analytics & Trends</h2>
+        <DashboardCharts revenueData={revenueChartData} ordersData={ordersChartData} />
+      </section>
 
-      {/* Recent Orders Table */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-slate-900">Recent Orders</h3>
-          <Link 
-            to="/orders" 
-            className="text-xs font-bold text-slate-700 hover:text-slate-900 inline-flex items-center space-x-1"
-          >
-            <span>View All</span>
-            <ArrowUpRight size={14} />
-          </Link>
-        </div>
-
-        <Table
-          columns={['Order ID', 'Customer', 'Date', 'Total', 'Status']}
-          data={stats?.recentOrders || []}
-          renderRow={(order) => (
-            <tr key={order._id} className="hover:bg-slate-50/50 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-900">
-                #{order.orderNumber || order._id.substring(18).toUpperCase()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-semibold text-slate-800">{order.user?.name || 'Guest User'}</div>
-                <div className="text-xs text-slate-400">{order.user?.email || '-'}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                {formatDate(order.createdAt, 'dd MMM yyyy')}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
-                {formatCurrency(order.totalAmount)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Badge variant={getStatusVariant(order.orderStatus)}>
-                  {order.orderStatus}
-                </Badge>
-              </td>
-            </tr>
-          )}
-        />
-      </div>
+      {/* Recent Activity */}
+      <section>
+        <h2 className="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider">Recent Activity</h2>
+        <DashboardActivity stats={stats} />
+      </section>
     </div>
   )
 }

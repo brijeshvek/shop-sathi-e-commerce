@@ -28,10 +28,12 @@ export function CategoryProductsShowcaseSection() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse space-y-12" aria-busy="true">
+      <section className="py-8 sm:py-12" aria-busy="true">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-pulse space-y-12">
         <div className="h-48 bg-gray-250 dark:bg-gray-800 rounded-2xl w-full"></div>
         <div className="h-64 bg-gray-250 dark:bg-gray-800 rounded-2xl w-full"></div>
-      </div>
+        </div>
+      </section>
     );
   }
 
@@ -42,7 +44,8 @@ export function CategoryProductsShowcaseSection() {
   const secondGroup = categories.slice(2);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" aria-label="Products by category">
+    <section className="py-8 sm:py-12" aria-label="Products by category">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* First 2 categories products */}
       {firstGroup.map((cat) => (
         <CategoryProductsShowcase key={cat._id} category={cat} />
@@ -55,6 +58,7 @@ export function CategoryProductsShowcaseSection() {
       {secondGroup.map((cat) => (
         <CategoryProductsShowcase key={cat._id} category={cat} />
       ))}
+      </div>
     </section>
   );
 }

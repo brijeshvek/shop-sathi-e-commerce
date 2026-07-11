@@ -1,13 +1,32 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth.js'
-import { User, ChevronDown, UserCheck, Menu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import api from '../../services/api.js'
+import toast from 'react-hot-toast'
+import { User, ChevronDown, UserCheck, Menu, Sun, Moon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../../context/ThemeContext'
 
 export const Header = ({ onMenuClick }) => {
   const { user } = useAuth()
+  const { i18n } = useTranslation()
+  const { theme, setTheme } = useTheme()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen)
+
+  const handleLanguageChange = async (e) => {
+    const newLang = e.target.value;
+    try {
+      i18n.changeLanguage(newLang);
+      if (user) {
+        await api.patch(`/users/${user._id}/language`, { language: newLang });
+        toast.success("Language updated");
+      }
+    } catch (error) {
+      toast.error("Failed to update language on server");
+    }
+  }
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20">
@@ -36,8 +55,27 @@ export const Header = ({ onMenuClick }) => {
         </div>
       </div>
 
-      {/* Admin Info Dropdown */}
-      <div className="relative">
+      {/* Language & Admin Info */}
+      <div className="flex items-center space-x-4">
+        <select 
+          value={i18n.language}
+          onChange={handleLanguageChange}
+          className="text-sm border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="en">EN</option>
+          <option value="hi">HI</option>
+          <option value="gu">GU</option>
+        </select>
+
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg focus:outline-none"
+          title="Toggle Dark Mode"
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        <div className="relative">
         <button
           onClick={toggleDropdown}
           className="flex items-center space-x-3 hover:bg-slate-50 p-2 rounded-lg transition-colors focus:outline-none"
@@ -71,6 +109,7 @@ export const Header = ({ onMenuClick }) => {
             </div>
           </>
         )}
+        </div>
       </div>
     </header>
   )

@@ -17,6 +17,26 @@ export default function OrderDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPaying, setIsPaying] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [returnModal, setReturnModal] = useState({ isOpen: false, itemId: null, type: 'return', reason: '' });
+
+  const handleReturnSubmit = async () => {
+    if (!returnModal.reason.trim()) {
+      toast.error("Please provide a reason.");
+      return;
+    }
+    try {
+      await api.post(`/orders/${order._id}/items/${returnModal.itemId}/${returnModal.type}`, {
+        reason: returnModal.reason
+      });
+      toast.success(`${returnModal.type === 'return' ? 'Return' : 'Exchange'} requested successfully.`);
+      setReturnModal({ isOpen: false, itemId: null, type: 'return', reason: '' });
+      // Refresh order
+      const { data } = await api.get(`/orders/${id}`);
+      setOrder(data.data);
+    } catch (err) {
+      toast.error(err.response?.data?.message || `Failed to request ${returnModal.type}`);
+    }
+  };
 
   const handleDownloadInvoice = () => {
     const element = document.getElementById('printable-invoice');
@@ -302,9 +322,42 @@ export default function OrderDetailsPage() {
                     </Link>
                     <p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
                   </div>
-                  <div className="text-right whitespace-nowrap">
+                  <div className="text-right whitespace-nowrap flex flex-col items-end">
                     <p className="text-base font-bold text-gray-900 dark:text-white">₹{(item.price * item.quantity).toFixed(2)}</p>
                     {item.quantity > 1 && <p className="text-xs text-gray-500 mt-1">₹{item.price.toFixed(2)} each</p>}
+                    
+                    {order.orderStatus === 'delivered' && (
+                      <div className="mt-2 flex space-x-2">
+                        {item.product?.returnPolicy?.isReturnable && item.returnStatus === 'none' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setReturnModal({ isOpen: true, itemId: item._id, type: 'return', reason: '' })}
+                          >
+                            Return
+                          </Button>
+                        )}
+                        {item.product?.returnPolicy?.isExchangeable && item.exchangeStatus === 'none' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setReturnModal({ isOpen: true, itemId: item._id, type: 'exchange', reason: '' })}
+                          >
+                            Exchange
+                          </Button>
+                        )}
+                        {item.returnStatus !== 'none' && (
+                          <span className="text-xs font-semibold text-warning-600 capitalize bg-warning-50 px-2 py-1 rounded">
+                            Return {item.returnStatus}
+                          </span>
+                        )}
+                        {item.exchangeStatus !== 'none' && (
+                          <span className="text-xs font-semibold text-warning-600 capitalize bg-warning-50 px-2 py-1 rounded">
+                            Exchange {item.exchangeStatus}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </li>
               ))}
@@ -528,6 +581,33 @@ export default function OrderDetailsPage() {
               <Button onClick={() => window.print()} className="flex items-center space-x-2">
                 <Printer className="w-4 h-4" />
                 <span>Print Invoice</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Return/Exchange Modal */}
+      {returnModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-bold mb-4 capitalize">Request {returnModal.type}</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide a reason for your {returnModal.type} request.
+            </p>
+            <textarea
+              className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 focus:ring-2 focus:ring-primary-500 focus:outline-none dark:bg-gray-800"
+              rows="4"
+              placeholder={`Reason for ${returnModal.type}...`}
+              value={returnModal.reason}
+              onChange={(e) => setReturnModal({ ...returnModal, reason: e.target.value })}
+            ></textarea>
+            <div className="flex justify-end space-x-3 mt-6">
+              <Button variant="secondary" onClick={() => setReturnModal({ isOpen: false, itemId: null, type: 'return', reason: '' })}>
+                Cancel
+              </Button>
+              <Button onClick={handleReturnSubmit}>
+                Submit Request
               </Button>
             </div>
           </div>

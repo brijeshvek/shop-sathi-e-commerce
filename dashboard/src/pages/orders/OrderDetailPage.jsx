@@ -10,6 +10,7 @@ import Spinner from '../../components/common/Spinner.jsx'
 import Badge from '../../components/common/Badge.jsx'
 import { formatCurrency } from '../../utils/formatCurrency.js'
 import { formatDate } from '../../utils/formatDate.js'
+import api from '../../services/api.js'
 
 export const OrderDetailPage = () => {
   const { id } = useParams()
@@ -164,9 +165,60 @@ export const OrderDetailPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end">
                     <p className="text-sm font-bold text-slate-900">{formatCurrency(item.price)}</p>
                     <p className="text-xs text-slate-400">Qty: {item.quantity}</p>
+                    
+                    {/* Return/Exchange Admin Controls */}
+                    {item.returnStatus !== 'none' && (
+                      <div className="mt-2 text-xs">
+                        <span className="font-semibold text-amber-600 block mb-1">Return: {item.returnStatus}</span>
+                        {item.returnReason && <span className="text-slate-500 block mb-1 italic">"{item.returnReason}"</span>}
+                        {item.returnStatus === 'requested' && (
+                          <div className="flex space-x-1">
+                            <button 
+                              onClick={async () => {
+                                await api.put(`/orders/${order._id}/items/${item._id}/return-status`, { status: 'approved' })
+                                window.location.reload()
+                              }}
+                              className="px-2 py-1 bg-green-100 text-green-700 rounded"
+                            >Approve</button>
+                            <button 
+                              onClick={async () => {
+                                await api.put(`/orders/${order._id}/items/${item._id}/return-status`, { status: 'rejected' })
+                                window.location.reload()
+                              }}
+                              className="px-2 py-1 bg-red-100 text-red-700 rounded"
+                            >Reject</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {item.exchangeStatus !== 'none' && (
+                      <div className="mt-2 text-xs">
+                        <span className="font-semibold text-amber-600 block mb-1">Exchange: {item.exchangeStatus}</span>
+                        {item.exchangeReason && <span className="text-slate-500 block mb-1 italic">"{item.exchangeReason}"</span>}
+                        {item.exchangeStatus === 'requested' && (
+                          <div className="flex space-x-1">
+                            <button 
+                              onClick={async () => {
+                                await api.put(`/orders/${order._id}/items/${item._id}/exchange-status`, { status: 'approved' })
+                                window.location.reload()
+                              }}
+                              className="px-2 py-1 bg-green-100 text-green-700 rounded"
+                            >Approve</button>
+                            <button 
+                              onClick={async () => {
+                                await api.put(`/orders/${order._id}/items/${item._id}/exchange-status`, { status: 'rejected' })
+                                window.location.reload()
+                              }}
+                              className="px-2 py-1 bg-red-100 text-red-700 rounded"
+                            >Reject</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

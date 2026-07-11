@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "categories": "Categories",
+    "deals": "Deals",
+    "search": "Search products...",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "dashboard": "Dashboard"
+  },
+  "profile": {
+    "title": "My Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "language_pref": "Language Preference",
+    "save": "Save Changes",
+    "logout": "Logout",
+    "orders": "My Orders"
+  },
+  "home": {
+    "flash_sale": "Flash Sale",
+    "new_arrivals": "New Arrivals",
+    "shop_now": "Shop Now"
+  }
+}

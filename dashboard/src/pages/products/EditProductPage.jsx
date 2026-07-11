@@ -27,6 +27,10 @@ const productSchema = z.object({
   description: z.string().min(10, 'Full description should be at least 10 characters'),
   tags: z.string().optional(),
   isFeatured: z.boolean().default(false),
+  isReturnable: z.boolean().default(false),
+  returnDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
+  isExchangeable: z.boolean().default(false),
+  exchangeDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
 })
 
 export const EditProductPage = () => {
@@ -41,9 +45,12 @@ export const EditProductPage = () => {
   const [uploading, setUploading] = useState(false)
   const [manualUrl, setManualUrl] = useState('')
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     resolver: zodResolver(productSchema),
   })
+
+  const isReturnable = watch('isReturnable')
+  const isExchangeable = watch('isExchangeable')
 
   const product = productRes?.data
   const categories = categoriesRes?.data || []
@@ -62,6 +69,10 @@ export const EditProductPage = () => {
         description: product.description || '',
         tags: product.tags?.join(', ') || '',
         isFeatured: product.isFeatured || false,
+        isReturnable: product.returnPolicy?.isReturnable || false,
+        returnDays: product.returnPolicy?.returnDays || 0,
+        isExchangeable: product.returnPolicy?.isExchangeable || false,
+        exchangeDays: product.returnPolicy?.exchangeDays || 0,
       })
       setImages(product.images || [])
     }
@@ -137,7 +148,13 @@ export const EditProductPage = () => {
         id,
         ...data,
         tags: formattedTags,
-        images
+        images,
+        returnPolicy: {
+          isReturnable: data.isReturnable,
+          returnDays: data.isReturnable ? data.returnDays : 0,
+          isExchangeable: data.isExchangeable,
+          exchangeDays: data.isExchangeable ? data.exchangeDays : 0
+        }
       }
 
       await updateProduct(payload).unwrap()
@@ -252,6 +269,57 @@ export const EditProductPage = () => {
                   </select>
                   {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>}
                 </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Return & Exchange Policy</h3>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <input
+                    id="isReturnable"
+                    type="checkbox"
+                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
+                    {...register('isReturnable')}
+                  />
+                  <label htmlFor="isReturnable" className="text-sm font-semibold text-slate-700">
+                    Product is Returnable
+                  </label>
+                </div>
+                {isReturnable && (
+                  <div className="pl-7">
+                    <Input
+                      label="Return Window (Days)"
+                      type="number"
+                      placeholder="e.g. 7"
+                      error={errors.returnDays}
+                      {...register('returnDays')}
+                    />
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-3 pt-2">
+                  <input
+                    id="isExchangeable"
+                    type="checkbox"
+                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
+                    {...register('isExchangeable')}
+                  />
+                  <label htmlFor="isExchangeable" className="text-sm font-semibold text-slate-700">
+                    Product is Exchangeable
+                  </label>
+                </div>
+                {isExchangeable && (
+                  <div className="pl-7">
+                    <Input
+                      label="Exchange Window (Days)"
+                      type="number"
+                      placeholder="e.g. 7"
+                      error={errors.exchangeDays}
+                      {...register('exchangeDays')}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

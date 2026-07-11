@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllUsers, getUserById, updateUser, changePassword, blockUser, addAddress, updateAddress, deleteAddress, setDefaultAddress, becomeSeller } from '../controllers/user.controller.js'
+import { getAllUsers, getUserById, updateUser, changePassword, blockUser, addAddress, updateAddress, deleteAddress, setDefaultAddress, becomeSeller, updateLanguage, updateTheme } from '../controllers/user.controller.js'
 import authMiddleware from '../middleware/auth.middleware.js'
 import adminMiddleware from '../middleware/admin.middleware.js'
 
@@ -17,5 +17,7 @@ router.post  ('/:id/addresses',                     addAddress)
 router.put   ('/:id/addresses/:addressId',          updateAddress)
 router.delete('/:id/addresses/:addressId',          deleteAddress)
 router.patch ('/:id/addresses/:addressId/default',  setDefaultAddress)
+router.patch ('/:id/language',                      updateLanguage)
+router.patch ('/:id/theme',                         updateTheme)
 
 export default router

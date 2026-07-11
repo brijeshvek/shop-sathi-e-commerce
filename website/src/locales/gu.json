@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "હોમ",
+    "shop": "દુકાન",
+    "categories": "શ્રેણીઓ",
+    "deals": "ઑફર્સ",
+    "search": "ઉત્પાદનો શોધો...",
+    "cart": "કાર્ટ",
+    "wishlist": "વિશલિસ્ટ",
+    "profile": "પ્રોફાઇલ",
+    "dashboard": "ડેશબોર્ડ"
+  },
+  "profile": {
+    "title": "મારી પ્રોફાઇલ",
+    "settings": "સેટિંગ્સ",
+    "language": "ભાષા",
+    "language_pref": "ભાષા પસંદગી",
+    "save": "ફેરફારો સાચવો",
+    "logout": "લોગ આઉટ",
+    "orders": "મારા ઓર્ડર"
+  },
+  "home": {
+    "flash_sale": "ફ્લેશ સેલ",
+    "new_arrivals": "નવા ઉત્પાદનો",
+    "shop_now": "હમણાં જ ખરીદો"
+  }
+}

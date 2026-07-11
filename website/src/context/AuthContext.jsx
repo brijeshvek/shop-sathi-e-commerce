@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '@/lib/axios';
 
 const AuthContext = createContext();
@@ -11,11 +12,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { i18n } = useTranslation();
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const { data } = await api.get('/auth/me');
         setUser(data.data);
+        if (data.data.language) {
+          i18n.changeLanguage(data.data.language);
+        }
       } catch (error) {
         setUser(null);
       } finally {
@@ -27,6 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
+    if (data.data?.language) i18n.changeLanguage(data.data.language);
     return data;
   };
 
@@ -36,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('accessToken', data.data.token);
     }
     setUser(data.data);
+    if (data.data.language) i18n.changeLanguage(data.data.language);
     return data;
   };
 
@@ -50,6 +58,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('accessToken', data.data.token);
     }
     setUser(data.data);
+    if (data.data.language) i18n.changeLanguage(data.data.language);
     return data;
   };
 

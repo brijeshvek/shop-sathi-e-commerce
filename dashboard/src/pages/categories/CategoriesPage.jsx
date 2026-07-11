@@ -36,9 +36,11 @@ export const CategoriesPage = () => {
   const [previewImage, setPreviewImage] = useState(null)
   const [activeParent, setActiveParent] = useState(null)
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(categorySchema),
   })
+
+  const selectedParent = watch('parent')
 
   const categories = categoriesRes?.data || []
 
@@ -263,67 +265,69 @@ export const CategoriesPage = () => {
             </select>
           </div>
 
-          {/* Category Image Upload */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700">Category Image</label>
-            
-            {/* Preview */}
-            {previewImage && (
-              <div className="relative inline-block">
-                <img 
-                  src={previewImage} 
-                  alt="Category preview" 
-                  className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-xs"
-                />
-                <button 
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            )}
+          {/* Category Image Upload (Only for Main Categories) */}
+          {!selectedParent && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">Category Image</label>
+              
+              {/* Preview */}
+              {previewImage && (
+                <div className="relative inline-block">
+                  <img 
+                    src={previewImage} 
+                    alt="Category preview" 
+                    className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-xs"
+                  />
+                  <button 
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
 
-            {/* Upload Box */}
-            {!previewImage && (
-              <div className="border-2 border-dashed border-slate-200 hover:border-slate-400 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  disabled={uploading}
-                />
-                {uploading ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <>
-                    <Upload size={22} className="text-slate-400 mb-1" />
-                    <p className="text-xs text-slate-500 font-medium">Click to upload image</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP under 5MB</p>
-                  </>
-                )}
-              </div>
-            )}
+              {/* Upload Box */}
+              {!previewImage && (
+                <div className="border-2 border-dashed border-slate-200 hover:border-slate-400 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <>
+                      <Upload size={22} className="text-slate-400 mb-1" />
+                      <p className="text-xs text-slate-500 font-medium">Click to upload image</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP under 5MB</p>
+                    </>
+                  )}
+                </div>
+              )}
 
-            {/* Or paste URL */}
-            <Input
-              label="Or paste Image URL"
-              placeholder="https://images.unsplash.com/..."
-              error={errors.imageUrl}
-              {...register('imageUrl', {
-                onChange: (e) => {
-                  const url = e.target.value
-                  if (url && (url.startsWith('http') || url.startsWith('data:'))) {
-                    setPreviewImage(url)
-                  } else if (!url) {
-                    setPreviewImage(null)
+              {/* Or paste URL */}
+              <Input
+                label="Or paste Image URL"
+                placeholder="https://images.unsplash.com/..."
+                error={errors.imageUrl}
+                {...register('imageUrl', {
+                  onChange: (e) => {
+                    const url = e.target.value
+                    if (url && (url.startsWith('http') || url.startsWith('data:'))) {
+                      setPreviewImage(url)
+                    } else if (!url) {
+                      setPreviewImage(null)
+                    }
                   }
-                }
-              })}
-            />
-          </div>
+                })}
+              />
+            </div>
+          )}
 
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">Description</label>

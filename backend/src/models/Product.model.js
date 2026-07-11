@@ -39,6 +39,12 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, required: [true, 'Stock is required'], min: 0, default: 0 },
   isActive:   { type: Boolean, default: true,  index: true },
   isFeatured: { type: Boolean, default: false },
+  returnPolicy: {
+    isReturnable: { type: Boolean, default: false },
+    returnDays: { type: Number, default: 0 }, // e.g., 7 days
+    isExchangeable: { type: Boolean, default: false },
+    exchangeDays: { type: Number, default: 0 }
+  },
   ratings: {
     average: { type: Number, default: 0, min: 0, max: 5 },
     count:   { type: Number, default: 0, min: 0 },

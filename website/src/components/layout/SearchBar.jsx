@@ -24,7 +24,7 @@ export function SearchBar() {
         placeholder="Search for products, brands..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow"
+        className="w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-400 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow"
         autoComplete="off"
       />
       <button

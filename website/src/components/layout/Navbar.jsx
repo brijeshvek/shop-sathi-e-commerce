@@ -2,18 +2,22 @@
 
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
-import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin, Store } from "lucide-react";
+import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin, Store, Sun, Moon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { MobileMenu } from "./MobileMenu";
 import api from "@/lib/axios";
 
 const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "/admin";
 
 export function Navbar() {
+  const { t } = useTranslation();
   const { itemCount } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
@@ -33,7 +37,7 @@ export function Navbar() {
   useEffect(() => {
     api.get("/categories")
       .then(({ data }) => setCategories(data.data || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Keyboard support for dropdowns
@@ -56,7 +60,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface shadow-sm transition-all duration-200">
+    <header className="sticky top-0 z-50 w-full bg-white dark:!bg-[#0f172a] shadow-sm dark:shadow-[#0f172a]/50 transition-all duration-200">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
         <div className="flex justify-between items-center h-16">
           {/* Logo & Customer Location */}
@@ -76,14 +80,14 @@ export function Navbar() {
                 <span className="font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
                   {user?.addresses?.length > 0
                     ? (() => {
-                        const addr = user.addresses.find(a => a.isDefault) || user.addresses[0];
-                        return `${addr.city}, ${addr.pincode}`;
-                      })()
+                      const addr = user.addresses.find(a => a.isDefault) || user.addresses[0];
+                      return `${addr.city}, ${addr.pincode}`;
+                    })()
                     : "Add Address"}
                 </span>
               </div>
             ) : (
-              <Link 
+              <Link
                 href="/login"
                 className="hidden lg:flex items-center space-x-1.5 text-xs text-gray-500 border border-gray-200 hover:border-primary-300 hover:text-primary-600 transition-all dark:border-gray-800 rounded-full px-3 py-1.5 bg-gray-50 dark:bg-gray-900 cursor-pointer"
               >
@@ -102,57 +106,64 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150">
-              Home
+            <Link href="/" className="text-gray-600 dark:text-white dark:hover:text-primary-400 hover:text-primary-600 font-semibold transition-colors duration-150">
+              {t('nav.home')}
             </Link>
 
             {/* Categories Dropdown */}
-            <div 
+            <div
               className="relative"
               ref={categoriesRef}
               onMouseEnter={() => setIsCategoriesDropdownOpen(true)}
               onMouseLeave={() => setIsCategoriesDropdownOpen(false)}
             >
-              <button 
-                className="flex items-center space-x-1 text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded py-2"
+              <button
+                className="flex items-center space-x-1 text-gray-600 dark:text-white dark:hover:text-primary-400 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded py-2"
                 aria-expanded={isCategoriesDropdownOpen}
                 aria-haspopup="true"
                 onKeyDown={handleCategoriesKeyDown}
               >
-                <span>Categories</span>
+                <span>{t('nav.categories')}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCategoriesDropdownOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
               </button>
-              
+
               {isCategoriesDropdownOpen && (
-                <div className="absolute left-0 mt-0 w-56 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-dropdown-open" role="menu">
-                  <Link 
-                    href="/products"
-                    className="block px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    role="menuitem"
-                  >
-                    All Products
-                  </Link>
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat._id}
-                      href={`/products?category=${cat._id}`}
-                      className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                      role="menuitem"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
+                <div className="absolute left-1/2 -translate-x-1/4 mt-0 w-[500px] lg:w-[600px] bg-white dark:!bg-[#1e293b] border border-gray-100 dark:!border-[#334155] rounded-2xl shadow-2xl z-50 animate-dropdown-open overflow-hidden" role="menu">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:!border-[#334155]">
+                      <h3 className="text-sm font-bold text-gray-900 dark:!text-white uppercase tracking-wider">Top Categories</h3>
+                      <Link
+                        href="/products"
+                        className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+                        role="menuitem"
+                      >
+                        View All Products &rarr;
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                      {categories.slice(0, 12).map((cat) => (
+                        <Link
+                          key={cat._id}
+                          href={`/products?category=${cat._id}`}
+                          className="group flex items-center space-x-3 text-sm text-gray-900 dark:text-dark! hover:text-primary-600 transition-colors"
+                          role="menuitem"
+                        >
+                          <div className="w-2 h-2 rounded-full bg-gray-300 dark:!bg-[#64748b] group-hover:bg-primary-500 transition-colors" />
+                          <span className="font-medium truncate">{cat.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {isAuthenticated && (
-              <Link href="/profile/wishlist" className="text-gray-600 hover:text-primary-600 relative" aria-label="Wishlist">
-                <Heart className="w-6 h-6" />
-              </Link>
-            )}
+            <Link href={isAuthenticated ? "/profile/wishlist" : "/login"} className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 relative" aria-label="Wishlist">
+              <Heart className="w-6 h-6" />
+            </Link>
 
-            <Link href="/cart" className="relative text-gray-600 hover:text-primary-600" aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}>
+            <Link href="/cart" className="relative text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400" aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}>
               <ShoppingCart className="w-6 h-6" />
               {itemCount > 0 && (
                 <span className={`absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ${animateCart ? 'animate-cart-bounce' : ''}`} aria-hidden="true">
@@ -161,76 +172,89 @@ export function Navbar() {
               )}
             </Link>
 
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none"
+              aria-label="Toggle Dark Mode"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             {isAuthenticated ? (
-              <div 
+              <div
                 className="relative"
                 ref={profileRef}
                 onMouseEnter={() => setIsProfileDropdownOpen(true)}
                 onMouseLeave={() => setIsProfileDropdownOpen(false)}
               >
-                <button 
-                  className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded py-2"
+                <button
+                  className="flex items-center space-x-2 text-gray-600 dark:text-white dark:hover:text-primary-400 hover:text-primary-600 font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded py-2"
                   aria-expanded={isProfileDropdownOpen}
                   aria-haspopup="true"
                   aria-label="User menu"
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                   onKeyDown={handleProfileKeyDown}
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center font-bold text-primary-750 text-xs" aria-hidden="true">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
+                  {user?.avatar?.url ? (
+                    <img src={user.avatar.url} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center font-bold text-primary-750 text-xs" aria-hidden="true">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <span className="text-sm font-medium">{user?.name?.split(" ")[0]}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
 
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-0 w-60 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 animate-dropdown-open" role="menu">
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 mb-2">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  <div className="absolute right-0 mt-0 w-60 bg-white dark:!bg-[#1e293b] border border-gray-100 dark:!border-[#334155] rounded-xl shadow-xl py-2 z-50 animate-dropdown-open" role="menu">
+                    <div className="px-4 py-2 border-b border-gray-100 dark:!border-[#334155] mb-2">
+                      <p className="text-sm font-semibold text-gray-900 dark:!text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-500 dark:!text-[#94a3b8] truncate">{user?.email}</p>
                     </div>
 
-                    <Link 
+                    <Link
                       href="/profile"
-                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:!text-[#cbd5e1] hover:bg-gray-50 dark:hover:!bg-[#334155]"
                       role="menuitem"
                     >
-                      <User className="w-4 h-4 text-gray-400" aria-hidden="true" />
-                      <span>My Profile</span>
+                      <User className="w-4 h-4 text-gray-400 dark:!text-[#94a3b8]" aria-hidden="true" />
+                      <span>{t('nav.profile')}</span>
                     </Link>
 
-                    <Link 
+                    <Link
                       href="/profile/orders"
-                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:!text-[#cbd5e1] hover:bg-gray-50 dark:hover:!bg-[#334155]"
                       role="menuitem"
                     >
-                      <ShoppingBag className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                      <ShoppingBag className="w-4 h-4 text-gray-400 dark:!text-[#94a3b8]" aria-hidden="true" />
                       <span>My Orders</span>
                     </Link>
 
-                    <Link 
+                    <Link
                       href="/profile/wishlist"
-                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-gray-700 dark:!text-[#cbd5e1] hover:bg-gray-50 dark:hover:!bg-[#334155]"
                       role="menuitem"
                     >
-                      <Heart className="w-4 h-4 text-gray-400" aria-hidden="true" />
-                      <span>Wishlist</span>
+                      <Heart className="w-4 h-4 text-gray-400 dark:!text-[#94a3b8]" aria-hidden="true" />
+                      <span>{t('nav.wishlist')}</span>
                     </Link>
 
                     {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'seller') && (
-                      <a 
+                      <a
                         href={ADMIN_URL}
-                        target="_blank" 
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2.5 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 font-medium"
                         role="menuitem"
                       >
                         <LayoutDashboard className="w-4 h-4 text-primary-600" aria-hidden="true" />
-                        <span>{user?.role === 'seller' ? 'Seller Dashboard' : 'Admin Dashboard'}</span>
+                        <span>{user?.role === 'seller' ? 'Seller Dashboard' : t('nav.dashboard')}</span>
                       </a>
                     )}
 
                     {user?.role === 'customer' && (
-                      <Link 
+                      <Link
                         href="/become-seller"
                         className="flex items-center space-x-2.5 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 font-medium"
                         role="menuitem"
@@ -240,7 +264,7 @@ export function Navbar() {
                       </Link>
                     )}
 
-                    <div className="border-t border-gray-100 dark:border-gray-800 my-1.5"></div>
+                    <div className="border-t border-gray-100 dark:!border-[#334155] my-1.5"></div>
 
                     <button
                       onClick={() => {
@@ -249,7 +273,7 @@ export function Navbar() {
                           window.location.href = '/login';
                         });
                       }}
-                      className="flex w-full items-center space-x-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-left font-medium border-none bg-transparent cursor-pointer"
+                      className="flex w-full items-center space-x-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:!bg-red-950/20 text-left font-medium border-none bg-transparent cursor-pointer"
                       role="menuitem"
                     >
                       <LogOut className="w-4 h-4 text-red-600" aria-hidden="true" />
@@ -267,7 +291,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <div className="flex md:hidden items-center space-x-4">
-            <Link href="/cart" className="relative text-gray-600" aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}>
+            <Link href="/cart" className="relative text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400" aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}>
               <ShoppingCart className="w-6 h-6" />
               {itemCount > 0 && (
                 <span className={`absolute -top-2 -right-2 bg-accent-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ${animateCart ? 'animate-cart-bounce' : ''}`} aria-hidden="true">
@@ -275,9 +299,18 @@ export function Navbar() {
                 </span>
               )}
             </Link>
+
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none"
+              aria-label="Toggle Dark Mode"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-gray-600 hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded"
+              className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded"
               aria-label="Open menu"
               aria-expanded={isMobileMenuOpen}
             >

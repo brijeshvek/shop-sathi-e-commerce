@@ -114,10 +114,13 @@ export const placeOrder = asyncHandler(async (req, res) => {
 
 // GET /api/orders  (Admin)
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, status, paymentStatus, startDate, endDate, search } = req.query
+  const { page = 1, limit = 20, status, paymentStatus, startDate, endDate, search, hasReturns } = req.query
   const filter = {}
   if (status)        filter.orderStatus  = status
   if (paymentStatus) filter.paymentStatus = paymentStatus
+  if (hasReturns === 'true') {
+    filter['items.returnStatus'] = { $in: ['requested', 'approved', 'completed', 'rejected'] }
+  }
   if (startDate || endDate) {
     filter.createdAt = {}
     if (startDate) filter.createdAt.$gte = new Date(startDate)
@@ -157,7 +160,9 @@ export const getMyOrders = asyncHandler(async (req, res) => {
 // GET /api/orders/:id
 export const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id)
-    .populate('user', 'name email phone').lean()
+    .populate('user', 'name email phone')
+    .populate('items.product')
+    .lean()
   if (!order) throw new ApiError(404, 'Order not found.')
   if (req.user.role === 'customer' && order.user._id.toString() !== req.user._id.toString()) {
     throw new ApiError(403, 'Not authorized to view this order.')
@@ -271,4 +276,89 @@ export const payPendingOrder = asyncHandler(async (req, res) => {
   await order.save()
 
   res.status(200).json(new ApiResponse(200, { order, razorpayOrder }, 'Razorpay payment re-initiated'))
+})
+
+// POST /api/orders/:id/items/:itemId/return
+export const requestReturn = asyncHandler(async (req, res) => {
+  const { reason } = req.body
+  const order = await Order.findById(req.params.id).populate('items.product')
+  
+  if (!order) throw new ApiError(404, 'Order not found.')
+  if (order.user.toString() !== req.user._id.toString()) throw new ApiError(403, 'Not authorized.')
+  if (order.orderStatus !== 'delivered') throw new ApiError(400, 'Only delivered orders can be returned.')
+
+  const item = order.items.id(req.params.itemId)
+  if (!item) throw new ApiError(404, 'Item not found in order.')
+
+  const product = item.product
+  if (!product.returnPolicy?.isReturnable) {
+    throw new ApiError(400, 'This product is not returnable.')
+  }
+
+  // Check window
+  const daysSinceDelivery = Math.floor((Date.now() - new Date(order.deliveredAt).getTime()) / (1000 * 60 * 60 * 24))
+  if (daysSinceDelivery > product.returnPolicy.returnDays) {
+    throw new ApiError(400, `Return window of ${product.returnPolicy.returnDays} days has expired.`)
+  }
+
+  if (item.returnStatus !== 'none') {
+    throw new ApiError(400, 'Return already requested for this item.')
+  }
+
+  item.returnStatus = 'requested'
+  item.returnReason = reason
+  item.returnRequestDate = new Date()
+
+  await order.save()
+
+  res.status(200).json(new ApiResponse(200, order, 'Return requested successfully'))
+})
+
+// POST /api/orders/:id/items/:itemId/exchange
+export const requestExchange = asyncHandler(async (req, res) => {
+  const { id, itemId } = req.params
+  const { reason } = req.body
+  const order = await Order.findById(id).populate('items.product')
+  if (!order) throw new ApiError(404, 'Order not found')
+  if (req.user.role === 'customer' && order.user.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, 'Not authorized')
+  }
+  const item = order.items.id(itemId)
+  if (!item) throw new ApiError(404, 'Item not found in order')
+  if (order.orderStatus !== 'delivered') throw new ApiError(400, 'Order not delivered')
+  const product = item.product
+  if (!product.returnPolicy?.isExchangeable) throw new ApiError(400, 'Item not exchangeable')
+  const daysSinceDelivery = (new Date() - new Date(order.deliveredAt)) / (1000 * 60 * 60 * 24)
+  if (daysSinceDelivery > product.returnPolicy.exchangeDays) {
+    throw new ApiError(400, 'Exchange window closed')
+  }
+  if (item.exchangeStatus !== 'none') throw new ApiError(400, 'Exchange already requested')
+  item.exchangeStatus = 'requested'
+  item.exchangeReason = reason
+  await order.save()
+  res.json(new ApiResponse(200, order, 'Exchange requested'))
+})
+
+export const updateItemReturnStatus = asyncHandler(async (req, res) => {
+  const { id, itemId } = req.params
+  const { status } = req.body
+  const order = await Order.findById(id)
+  if (!order) throw new ApiError(404, 'Order not found')
+  const item = order.items.id(itemId)
+  if (!item) throw new ApiError(404, 'Item not found')
+  item.returnStatus = status
+  await order.save()
+  res.json(new ApiResponse(200, order, 'Return status updated'))
+})
+
+export const updateItemExchangeStatus = asyncHandler(async (req, res) => {
+  const { id, itemId } = req.params
+  const { status } = req.body
+  const order = await Order.findById(id)
+  if (!order) throw new ApiError(404, 'Order not found')
+  const item = order.items.id(itemId)
+  if (!item) throw new ApiError(404, 'Item not found')
+  item.exchangeStatus = status
+  await order.save()
+  res.json(new ApiResponse(200, order, 'Exchange status updated'))
 })

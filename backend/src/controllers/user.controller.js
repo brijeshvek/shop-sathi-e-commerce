@@ -43,8 +43,11 @@ export const updateUser = asyncHandler(async (req, res) => {
   if (req.user.role === 'customer' && req.user._id.toString() !== id) {
     throw new ApiError(403, 'Not authorized.')
   }
-  const { name, phone } = req.body
-  const user = await User.findByIdAndUpdate(id, { name, phone }, { new: true, runValidators: true }).lean()
+  const { name, phone, avatar } = req.body
+  const updateData = { name, phone }
+  if (avatar) updateData.avatar = avatar
+  
+  const user = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).lean()
   if (!user) throw new ApiError(404, 'User not found.')
   res.status(200).json(new ApiResponse(200, user, 'Profile updated successfully'))
 })
@@ -149,4 +152,40 @@ export const becomeSeller = asyncHandler(async (req, res) => {
   await user.save()
   
   res.status(200).json(new ApiResponse(200, user, 'Successfully registered as a seller'))
+})
+
+// PATCH /api/users/:id/language
+export const updateLanguage = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { language } = req.body
+  
+  if (req.user.role === 'customer' && req.user._id.toString() !== id) {
+    throw new ApiError(403, 'Not authorized.')
+  }
+  if (!['en', 'hi', 'gu'].includes(language)) {
+    throw new ApiError(400, 'Invalid language selected.')
+  }
+  
+  const user = await User.findByIdAndUpdate(id, { language }, { new: true }).lean()
+  if (!user) throw new ApiError(404, 'User not found.')
+  
+  res.status(200).json(new ApiResponse(200, user, 'Language updated successfully'))
+})
+
+// PATCH /api/users/:id/theme
+export const updateTheme = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { theme } = req.body
+  
+  if (req.user.role === 'customer' && req.user._id.toString() !== id) {
+    throw new ApiError(403, 'Not authorized.')
+  }
+  if (!['light', 'dark', 'system'].includes(theme)) {
+    throw new ApiError(400, 'Invalid theme selected.')
+  }
+  
+  const user = await User.findByIdAndUpdate(id, { theme }, { new: true }).lean()
+  if (!user) throw new ApiError(404, 'User not found.')
+  
+  res.status(200).json(new ApiResponse(200, user, 'Theme updated successfully'))
 })

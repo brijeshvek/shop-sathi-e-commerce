@@ -16,7 +16,7 @@ export function FeaturedProducts() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const { data } = await api.get("/products?limit=8");
+        const { data } = await api.get("/products?limit=4");
         setProducts(data.data || []);
       } catch {
         // Silently fail
@@ -38,10 +38,11 @@ export function FeaturedProducts() {
 
   if (isLoading) {
     return (
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-busy="true" aria-label="Loading new arrivals">
-        <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white mb-8">New Arrivals</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+      <section className="py-8 sm:py-12" aria-busy="true" aria-label="Loading new arrivals">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white mb-8">New Arrivals</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse flex flex-col space-y-4">
               <div className="bg-gray-200 dark:bg-gray-800 aspect-[4/5] rounded-xl"></div>
               <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
@@ -49,12 +50,14 @@ export function FeaturedProducts() {
             </div>
           ))}
         </div>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="New arrivals">
+    <section className="py-8 sm:py-12" aria-label="New arrivals">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-end mb-8">
         <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white">New Arrivals</h2>
         <Link href="/products" className="text-primary-600 hover:text-primary-700 font-medium hidden sm:block">
@@ -74,7 +77,7 @@ export function FeaturedProducts() {
             }
           }
         }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6"
       >
         {products.map((product) => (
           <motion.div 
@@ -84,7 +87,7 @@ export function FeaturedProducts() {
               visible: { opacity: 1, y: 0 }
             }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
+            className="group flex flex-col h-full bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100 dark:border-gray-800"
           >
             <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
               {product.images?.[0] ? (
@@ -99,15 +102,15 @@ export function FeaturedProducts() {
                 <div className="w-full h-full flex items-center justify-center text-gray-400" aria-hidden="true">No Image</div>
               )}
             </Link>
-            <div className="p-4 flex flex-col flex-grow">
-              <div className="text-xs text-gray-500 mb-1">{product.category?.name || "Product"}</div>
+            <div className="p-3 sm:p-4 flex flex-col flex-grow">
+              <div className="text-xs font-semibold text-gray-500 mb-1">{product.category?.name || "Product"}</div>
               <Link href={`/products/${product.slug || product._id}`}>
-                <h3 className="font-medium text-gray-900 dark:text-white line-clamp-2 hover:text-primary-600 transition-colors">
+                <h3 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 hover:text-primary-600 transition-colors">
                   {product.name}
                 </h3>
               </Link>
-              <div className="mt-auto pt-4 flex items-center justify-between">
-                <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
+              <div className="mt-auto pt-3 sm:pt-4 flex items-center justify-between">
+                <span className="font-bold text-sm sm:text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
                 <button 
                   onClick={() => handleAddToCart(product)}
                   className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
@@ -126,6 +129,7 @@ export function FeaturedProducts() {
         <Link href="/products" className="inline-block text-primary-600 font-medium py-2 px-4 border border-primary-200 rounded-full">
           View All Products
         </Link>
+      </div>
       </div>
     </section>
   );

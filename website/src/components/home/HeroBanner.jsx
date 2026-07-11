@@ -78,9 +78,9 @@ export function HeroBanner() {
         {slides.map((slide, index) => (
           <SwiperSlide key={slide._id}>
             <div className="relative w-full h-full">
-              <Image 
-                src={slide.image} 
-                alt={slide.title} 
+              <Image
+                src={slide.image}
+                alt={slide.title}
                 fill
                 sizes="100vw"
                 className="object-cover"
@@ -94,7 +94,7 @@ export function HeroBanner() {
                     {slide.title}
                   </h2>
                   {slide.subtitle && (
-                    <p className="mt-3 sm:mt-4 text-lg sm:text-xl md:text-2xl text-gray-200 drop-shadow-md">
+                    <p className="mt-3 sm:mt-4 text-lg sm:text-xl md:text-2xl text-gray-200 drop-shadow-md dark:text-gray-500">
                       {slide.subtitle}
                     </p>
                   )}
