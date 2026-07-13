@@ -28,6 +28,8 @@ function ProductsContent() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");
+  const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") || "");
+  const [brands, setBrands] = useState([]);
 
   const { addToCart } = useCart();
 
@@ -37,12 +39,30 @@ function ProductsContent() {
 
   useEffect(() => {
     fetchProducts();
-  }, [category, search, minPrice, maxPrice, sort]);
+  }, [category, search, minPrice, maxPrice, sort, selectedBrand]);
 
   useEffect(() => {
     setSearch(searchParams.get("search") || "");
     setCategory(searchParams.get("category") || "");
+    setSelectedBrand(searchParams.get("brand") || "");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (category) {
+      fetchBrands(category);
+    } else {
+      setBrands([]);
+    }
+  }, [category]);
+
+  const fetchBrands = async (catId) => {
+    try {
+      const { data } = await api.get(`/products/brands/distinct?category=${catId}`);
+      setBrands(data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch brands");
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -72,6 +92,7 @@ function ProductsContent() {
       if (search) url += `&search=${search}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
       if (maxPrice) url += `&maxPrice=${maxPrice}`;
+      if (selectedBrand) url += `&brand=${selectedBrand}`;
 
       const { data } = await api.get(url);
       setProducts(data.data || []);
@@ -83,10 +104,13 @@ function ProductsContent() {
   };
 
   const clearFilters = () => {
-    setCategory("");
-    setSearch("");
-    setMinPrice("");
-    setMaxPrice("");
+    const params = new URLSearchParams(window.location.search);
+    params.delete("category");
+    params.delete("search");
+    params.delete("minPrice");
+    params.delete("maxPrice");
+    params.delete("brand");
+    router.push(`/products?${params.toString()}`);
   };
 
   const handleAddToCart = async (product, e) => {
@@ -131,6 +155,7 @@ function ProductsContent() {
                     onClick={() => {
                       const params = new URLSearchParams(window.location.search);
                       params.delete("category");
+                      params.delete("brand");
                       router.push(`/products?${params.toString()}`);
                     }}
                     className={`text-sm ${category === "" ? "font-bold text-primary-600" : "text-gray-600 hover:text-primary-600"}`}
@@ -138,22 +163,71 @@ function ProductsContent() {
                     All Categories
                   </button>
                 </li>
-                {categories.map(c => (
-                  <li key={c._id}>
+                {categories.map(c => {
+                  const isActiveMain = category === c._id || c.children?.some(child => child._id === category);
+                  return (
+                  <li key={c._id} className="space-y-1">
                     <button
                       onClick={() => {
                         const params = new URLSearchParams(window.location.search);
                         params.set("category", c._id);
+                        params.delete("brand");
                         router.push(`/products?${params.toString()}`);
                       }}
-                      className={`text-sm text-left ${category === c._id ? "font-bold text-primary-600" : "text-gray-600 hover:text-primary-600"}`}
+                      className={`text-sm text-left block w-full ${category === c._id ? "font-bold text-primary-600" : "text-gray-600 hover:text-primary-600"}`}
                     >
                       {c.name}
                     </button>
+                    {isActiveMain && c.children && c.children.length > 0 && (
+                      <ul className="pl-4 border-l-2 border-gray-100 space-y-1 mt-1 mb-2">
+                        {c.children.map(child => (
+                          <li key={child._id}>
+                            <button
+                              onClick={() => {
+                                const params = new URLSearchParams(window.location.search);
+                                params.set("category", child._id);
+                                params.delete("brand");
+                                router.push(`/products?${params.toString()}`);
+                              }}
+                              className={`text-sm text-left block w-full ${category === child._id ? "font-bold text-primary-600" : "text-gray-500 hover:text-primary-600"}`}
+                            >
+                              {child.name}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
-                ))}
+                )})}
               </ul>
             </div>
+
+            {brands.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-4">Brands</h3>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                  {brands.map(b => (
+                    <label key={b.name} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedBrand === b.name}
+                        onChange={() => {
+                          const params = new URLSearchParams(window.location.search);
+                          if (selectedBrand === b.name) {
+                            params.delete("brand");
+                          } else {
+                            params.set("brand", b.name);
+                          }
+                          router.push(`/products?${params.toString()}`);
+                        }}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 w-4 h-4"
+                      />
+                      <span className="text-sm text-gray-600">{b.name} ({b.count})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <h3 className="font-semibold text-gray-900 mb-4">Price Range</h3>

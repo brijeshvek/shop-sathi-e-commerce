@@ -2,7 +2,7 @@ import express from 'express'
 import { 
   getAllProducts, getFeaturedProducts, getProductBySlug, 
   createProduct, updateProduct, deleteProduct, toggleProductStatus,
-  getAllProductsAdmin, getProductByIdAdmin
+  getAllProductsAdmin, getProductByIdAdmin, getDistinctBrands
 } from '../controllers/product.controller.js'
 import authMiddleware from '../middleware/auth.middleware.js'
 import adminMiddleware from '../middleware/admin.middleware.js'
@@ -11,6 +11,7 @@ import { requirePermission } from '../middleware/role.middleware.js'
 const router = express.Router()
 
 router.get('/featured',   getFeaturedProducts)
+router.get('/brands/distinct', getDistinctBrands)
 router.get('/',           getAllProducts)
 router.get('/:slug',      getProductBySlug)
 

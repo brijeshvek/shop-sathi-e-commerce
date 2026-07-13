@@ -44,6 +44,13 @@ export const productsApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Product', 'Analytics'],
     }),
+    getDistinctBrands: builder.query({
+      query: (params) => ({
+        url: '/products/brands/distinct',
+        params,
+      }),
+      providesTags: ['Product'],
+    }),
   }),
 })
 
@@ -54,4 +61,6 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useToggleProductStatusMutation,
+  useGetDistinctBrandsQuery,
 } = productsApi
+

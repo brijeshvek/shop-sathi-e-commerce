@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { ArrowLeft, Upload, X, Check, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api.js'
-import { useCreateProductMutation } from '../../features/products/productsApi.js'
+import { useCreateProductMutation, useGetDistinctBrandsQuery } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
@@ -19,7 +19,8 @@ const productSchema = z.object({
   price: z.preprocess((val) => Number(val), z.number().min(1, 'Price must be positive')),
   originalPrice: z.preprocess((val) => Number(val), z.number().min(1, 'Original price must be positive')),
   stock: z.preprocess((val) => Number(val), z.number().min(0, 'Stock cannot be negative')),
-  category: z.string().min(1, 'Category is required'),
+  mainCategory: z.string().min(1, 'Main Category is required'),
+  subCategory: z.string().optional(),
   shortDescription: z.string().min(10, 'Short description should be at least 10 characters'),
   description: z.string().min(10, 'Full description should be at least 10 characters'),
   tags: z.string().optional(),
@@ -38,8 +39,9 @@ export const AddProductPage = () => {
   const [images, setImages] = useState([]) // Array of { url, isMain }
   const [uploading, setUploading] = useState(false)
   const [manualUrl, setManualUrl] = useState('')
+  const [showCustomBrand, setShowCustomBrand] = useState(false)
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: { isFeatured: false, stock: 10, isReturnable: false, returnDays: 0, isExchangeable: false, exchangeDays: 0 }
   })
@@ -48,10 +50,36 @@ export const AddProductPage = () => {
   const isExchangeable = watch('isExchangeable')
 
   const categories = categoriesRes?.data || []
-  const selectedCategoryId = watch('category')
+  const selectedMainCategory = watch('mainCategory')
+  const selectedSubCategory = watch('subCategory')
 
-  const selectedCategory = categories.find(c => c._id === selectedCategoryId) || 
-                           categories.flatMap(c => c.children || []).find(child => child._id === selectedCategoryId);
+  // The category used to fetch brands should be the sub category if it exists, otherwise main category
+  const categoryForBrands = selectedSubCategory || selectedMainCategory;
+
+  const { data: brandsRes } = useGetDistinctBrandsQuery(
+    { category: categoryForBrands }, 
+    { skip: !categoryForBrands }
+  )
+  const categoryBrands = brandsRes?.data || []
+
+  const activeMainCatObj = categories.find(c => c._id === selectedMainCategory);
+  const subCategories = activeMainCatObj?.children || [];
+
+  const selectedCategoryObj = subCategories.find(c => c._id === selectedSubCategory) || activeMainCatObj;
+  const selectedBrand = watch('brand');
+
+  useEffect(() => {
+    if (selectedSubCategory && !subCategories.find(c => c._id === selectedSubCategory)) {
+      setValue('subCategory', '');
+    }
+  }, [selectedMainCategory, selectedSubCategory, subCategories, setValue]);
+
+  useEffect(() => {
+    if (selectedBrand === '__custom__') {
+      setShowCustomBrand(true);
+      setValue('brand', '');
+    }
+  }, [selectedBrand, setValue]);
 
   const getSchemaKey = (catName) => {
     if (!catName) return "";
@@ -73,7 +101,7 @@ export const AddProductPage = () => {
     return "";
   };
 
-  const schemaKey = selectedCategory ? getSchemaKey(selectedCategory.name) : "";
+  const schemaKey = selectedCategoryObj ? getSchemaKey(selectedCategoryObj.name) : "";
   const dynamicFields = CATEGORY_SCHEMAS[schemaKey] || [];
 
   const handleFileUpload = async (e) => {
@@ -149,6 +177,8 @@ export const AddProductPage = () => {
 
       const payload = {
         ...data,
+        category: data.mainCategory,
+        subcategory: data.subCategory,
         tags: formattedTags,
         images,
         dimensions: {
@@ -205,13 +235,7 @@ export const AddProductPage = () => {
                 error={errors.name}
                 {...register('name')}
               />
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Brand Name"
-                  placeholder="e.g. Apple"
-                  error={errors.brand}
-                  {...register('brand')}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="SKU Code"
                   placeholder="e.g. AAPL-IP15PM"
@@ -262,23 +286,65 @@ export const AddProductPage = () => {
                   error={errors.stock}
                   {...register('stock')}
                 />
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Product Category</label>
-                  <select
-                    {...register('category')}
-                    className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((c) => (
-                      <optgroup key={c._id} label={c.name}>
-                        <option value={c._id}>{c.name} (Main)</option>
-                        {c.children && c.children.map((child) => (
-                          <option key={child._id} value={child._id}>{child.name}</option>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Main Category</label>
+                    <select
+                      {...register('mainCategory')}
+                      className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    >
+                      <option value="">Select Main Category</option>
+                      {categories.map((c) => (
+                        <option key={c._id} value={c._id}>{c.name}</option>
+                      ))}
+                    </select>
+                    {errors.mainCategory && <p className="text-xs text-red-500 mt-1">{errors.mainCategory.message}</p>}
+                  </div>
+                  {subCategories.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Sub Category</label>
+                      <select
+                        {...register('subCategory')}
+                        className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      >
+                        <option value="">Select Sub Category</option>
+                        {subCategories.map((c) => (
+                          <option key={c._id} value={c._id}>{c.name}</option>
                         ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>}
+                      </select>
+                      {errors.subCategory && <p className="text-xs text-red-500 mt-1">{errors.subCategory.message}</p>}
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Brand Name</label>
+                    {categoryBrands.length > 0 && !showCustomBrand ? (
+                      <select
+                        className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                        {...register('brand')}
+                      >
+                        <option value="">Select Brand</option>
+                        {categoryBrands.map(b => (
+                          <option key={b.name} value={b.name}>{b.name}</option>
+                        ))}
+                        <option value="__custom__">+ Add Custom Brand</option>
+                      </select>
+                    ) : (
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          placeholder="Type brand name..."
+                          className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                          {...register('brand')}
+                        />
+                        {categoryBrands.length > 0 && (
+                          <button type="button" onClick={() => { setShowCustomBrand(false); setValue('brand', ''); }} className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50 hover:bg-slate-100">
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {errors.brand && <p className="text-xs text-red-500 mt-1">{errors.brand.message}</p>}
+                  </div>
                 </div>
               </div>
             </div>

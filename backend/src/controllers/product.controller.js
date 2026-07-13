@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import Product from '../models/Product.model.js'
 import Category from '../models/Category.model.js'
 import ApiError from '../utils/ApiError.js'
@@ -162,4 +163,28 @@ export const getProductByIdAdmin = asyncHandler(async (req, res) => {
     .lean()
   if (!product) throw new ApiError(404, 'Product not found.')
   res.status(200).json(new ApiResponse(200, product, 'Product fetched for admin'))
+})
+
+// GET /api/products/brands/distinct
+export const getDistinctBrands = asyncHandler(async (req, res) => {
+  const { category, subcategory } = req.query
+  const filter = { brand: { $ne: null, $ne: '' } }
+
+  // Use the most specific category available
+  const activeCategory = subcategory || category
+  if (activeCategory) {
+    const childCats = await Category.find({ parent: activeCategory }).select('_id').lean()
+    const catIds = [activeCategory, ...childCats.map(c => c._id)]
+    // In our model, we store category, subcategory, childCategory. Let's just match against any of them using $or, or just category since parent IDs are expanded.
+    filter.category = { $in: catIds.map(id => new mongoose.Types.ObjectId(id)) }
+  }
+
+  const brands = await Product.aggregate([
+    { $match: filter },
+    { $group: { _id: '$brand', count: { $sum: 1 } } },
+    { $project: { _id: 0, name: '$_id', count: 1 } },
+    { $sort: { name: 1 } }
+  ])
+
+  res.status(200).json(new ApiResponse(200, brands, 'Distinct brands fetched'))
 })
