@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Spinner } from "@/components/common/Spinner";
+import Modal from "@/components/common/Modal";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 
@@ -18,6 +19,11 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [isCouponsModalOpen, setIsCouponsModalOpen] = useState(false);
   const [address, setAddress] = useState({
     fullName: "", phone: "", street: "", city: "", state: "", pincode: "", country: "India"
   });
@@ -34,12 +40,26 @@ export default function CheckoutPage() {
         console.error("Failed to load settings", err);
       }
     };
+    
+    const fetchCoupons = async () => {
+      try {
+        const { data } = await api.get('/coupons/available');
+        if (data?.success && data.data) {
+          setAvailableCoupons(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load available coupons", err);
+      }
+    };
+
     fetchSettings();
-  }, []);
+    if (isAuthenticated) fetchCoupons();
+  }, [isAuthenticated]);
 
   const taxAmount = parseFloat((subtotal * (settings.taxRate / 100)).toFixed(2));
   const shippingCharge = subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingCharge;
-  const totalAmount = parseFloat((subtotal + taxAmount + shippingCharge).toFixed(2));
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const totalAmount = parseFloat((subtotal + taxAmount + shippingCharge - discountAmount).toFixed(2));
 
   useEffect(() => {
     if (user?.addresses?.length > 0) {
@@ -111,7 +131,8 @@ export default function CheckoutPage() {
     try {
       const { data } = await api.post("/orders", {
         shippingAddress: address,
-        paymentMethod
+        paymentMethod,
+        couponCode: appliedCoupon?.code || undefined
       });
       
       const orderData = data.data.order;
@@ -186,6 +207,26 @@ export default function CheckoutPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsApplyingCoupon(true);
+    try {
+      const { data } = await api.post("/coupons/validate", { code: couponCode });
+      setAppliedCoupon(data.data);
+      toast.success("Coupon applied successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid or expired coupon");
+      setAppliedCoupon(null);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
   };
 
   return (
@@ -289,10 +330,129 @@ export default function CheckoutPage() {
               ))}
             </div>
             
+            {/* Coupon Section */}
+            <div className="border-t border-gray-200 py-4 mt-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Discount Code</h3>
+              {!appliedCoupon ? (
+                <>
+                  <div className="flex gap-2 mb-4">
+                    <Input 
+                      placeholder="Enter coupon code" 
+                      value={couponCode} 
+                      onChange={e => setCouponCode(e.target.value)} 
+                      className="flex-1"
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={handleApplyCoupon} 
+                      isLoading={isApplyingCoupon}
+                      disabled={!couponCode}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                  
+                  {/* Available Coupons Button */}
+                  {availableCoupons.length > 0 && (
+                    <div className="mt-3 text-right">
+                      <button
+                        onClick={() => setIsCouponsModalOpen(true)}
+                        className="text-xs font-semibold text-primary-600 hover:text-primary-700 underline"
+                      >
+                        View all available coupons
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Coupons Modal */}
+                  <Modal
+                    isOpen={isCouponsModalOpen}
+                    onClose={() => setIsCouponsModalOpen(false)}
+                    title="Available Coupons"
+                  >
+                    <div className="space-y-3 mt-2">
+                      {availableCoupons.map(coupon => (
+                        <div 
+                          key={coupon._id} 
+                          className={`p-3 border rounded-xl flex items-start justify-between transition-colors ${
+                            coupon.isApplicable 
+                              ? 'border-primary-200 bg-primary-50/50 hover:bg-primary-50 cursor-pointer' 
+                              : 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                          }`}
+                          onClick={() => {
+                            if (coupon.isApplicable) {
+                              setCouponCode(coupon.code);
+                              const applyDirectly = async (code) => {
+                                setIsApplyingCoupon(true);
+                                try {
+                                  const { data } = await api.post("/coupons/validate", { code });
+                                  setAppliedCoupon(data.data);
+                                  toast.success("Coupon applied successfully!");
+                                  setIsCouponsModalOpen(false); // Close modal on success
+                                } catch (error) {
+                                  toast.error(error.response?.data?.message || "Invalid or expired coupon");
+                                } finally {
+                                  setIsApplyingCoupon(false);
+                                }
+                              };
+                              applyDirectly(coupon.code);
+                            } else if (coupon.reason) {
+                              toast.error(coupon.reason);
+                            }
+                          }}
+                        >
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`font-bold text-sm ${coupon.isApplicable ? 'text-primary-700' : 'text-gray-700'}`}>
+                                {coupon.code}
+                              </span>
+                              {coupon.applicableCategory && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-gray-500 font-medium">
+                                  {coupon.applicableCategory.name}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              {coupon.discountType === 'percentage' 
+                                ? `Get ${coupon.discountValue}% OFF` 
+                                : `Get ₹${coupon.discountValue} OFF`}
+                              {coupon.minOrderAmount > 0 && ` on orders above ₹${coupon.minOrderAmount}`}
+                            </p>
+                            {!coupon.isApplicable && coupon.reason && (
+                              <p className="text-[10px] text-red-500 mt-1 font-medium">{coupon.reason}</p>
+                            )}
+                          </div>
+                          {coupon.isApplicable && (
+                            <span className="text-xs font-semibold text-primary-600 self-center">Apply</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </Modal>
+                </>
+              ) : (
+                <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3 rounded-xl">
+                  <div>
+                    <span className="text-sm font-bold text-green-800 uppercase">{appliedCoupon.code}</span>
+                    <span className="text-xs text-green-600 block">Coupon applied</span>
+                  </div>
+                  <button onClick={handleRemoveCoupon} className="text-xs font-semibold text-red-600 hover:text-red-800 underline">
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="border-t border-gray-200 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
               <div className="flex justify-between text-gray-650"><span>Shipping</span><span>₹{shippingCharge.toFixed(2)}</span></div>
               <div className="flex justify-between text-gray-650"><span>Tax</span><span>₹{taxAmount.toFixed(2)}</span></div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-green-600 font-medium">
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>-₹{appliedCoupon.discountAmount.toFixed(2)}</span>
+                </div>
+              )}
             </div>
             
             <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">

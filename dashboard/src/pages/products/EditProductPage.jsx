@@ -6,8 +6,8 @@ import { z } from 'zod'
 import { ArrowLeft, Upload, X, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api.js'
-import { 
-  useGetProductByIdAdminQuery, useUpdateProductMutation 
+import {
+  useGetProductByIdAdminQuery, useUpdateProductMutation
 } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import { useAuth } from '../../hooks/useAuth.js'
@@ -91,10 +91,10 @@ export const EditProductPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       if (res.data?.success) {
-        const newImg = { 
-          url: res.data.data.url, 
-          publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9), 
-          isMain: images.length === 0 
+        const newImg = {
+          url: res.data.data.url,
+          publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9),
+          isMain: images.length === 0
         }
         setImages([...images, newImg])
         toast.success('Image uploaded successfully!')
@@ -108,10 +108,10 @@ export const EditProductPage = () => {
 
   const handleAddManualUrl = () => {
     if (!manualUrl) return
-    const newImg = { 
-      url: manualUrl, 
-      publicId: 'manual_' + Math.random().toString(36).substring(2, 9), 
-      isMain: images.length === 0 
+    const newImg = {
+      url: manualUrl,
+      publicId: 'manual_' + Math.random().toString(36).substring(2, 9),
+      isMain: images.length === 0
     }
     setImages([...images, newImg])
     setManualUrl('')
@@ -140,7 +140,7 @@ export const EditProductPage = () => {
     }
 
     try {
-      const formattedTags = data.tags 
+      const formattedTags = data.tags
         ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : []
 
@@ -177,7 +177,7 @@ export const EditProductPage = () => {
     <div className="space-y-6 max-w-4xl">
       {/* Breadcrumb Header */}
       <div className="flex items-center space-x-4">
-        <button 
+        <button
           onClick={() => navigate('/products')}
           className="p-2 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shadow-xs"
         >
@@ -297,7 +297,7 @@ export const EditProductPage = () => {
                     />
                   </div>
                 )}
-                
+
                 <div className="flex items-center space-x-3 pt-2">
                   <input
                     id="isExchangeable"
@@ -328,7 +328,7 @@ export const EditProductPage = () => {
           <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
               <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Product Media</h3>
-              
+
               <div className="border-2 border-dashed border-slate-200 hover:border-slate-400 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors relative">
                 <input
                   type="file"
@@ -392,7 +392,7 @@ export const EditProductPage = () => {
 
             <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
               <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Additional Settings</h3>
-              
+
               <Input
                 label="Tags (Comma separated)"
                 error={errors.tags}
@@ -414,21 +414,21 @@ export const EditProductPage = () => {
 
             {/* Seller Info Card (Admin Only) */}
             {!isSeller && product?.seller && (
-              <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100 rounded-xl p-6 space-y-4 shadow-xs">
+              <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100 rounded-xl p-6 space-y-4 shadow-xs ">
                 <h3 className="text-base font-semibold text-violet-900 border-b border-violet-200 pb-3">Seller Information</h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Store Name</p>
-                    <p className="text-sm font-bold text-slate-900">{product.seller.sellerInfo?.storeName || product.seller.name}</p>
+                    <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider ">Store Name</p>
+                    <p className="text-sm font-bold text-black">{product.seller.sellerInfo?.storeName || product.seller.name}</p>
                   </div>
                   <div>
                     <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Seller Name</p>
-                    <p className="text-sm font-semibold text-slate-800">{product.seller.name}</p>
+                    <p className="text-sm font-semibold text-black">{product.seller.name}</p>
                   </div>
                   <div>
                     <p className="text-xs text-violet-500 font-semibold uppercase tracking-wider">Contact Details</p>
-                    <p className="text-sm text-slate-700">{product.seller.email}</p>
-                    <p className="text-sm text-slate-700">{product.seller.phone || 'N/A'}</p>
+                    <p className="text-sm text-black">{product.seller.email}</p>
+                    <p className="text-sm text-black">{product.seller.phone || 'N/A'}</p>
                   </div>
                 </div>
               </div>

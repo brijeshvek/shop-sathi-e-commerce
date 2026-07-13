@@ -1,4 +1,5 @@
 import Coupon from '../models/Coupon.model.js'
+import Cart from '../models/Cart.model.js'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -18,21 +19,82 @@ const mapCouponBody = (body) => {
   return mapped
 }
 
+// GET /api/coupons/available
+export const getAvailableCoupons = asyncHandler(async (req, res) => {
+  const CartModel = (await import('mongoose')).default.model('Cart')
+  const cart = await CartModel.findOne({ user: req.user._id }).populate({
+    path: 'items.product',
+    populate: { path: 'category' }
+  })
+  
+  if (!cart || !cart.items.length) {
+    return res.status(200).json(new ApiResponse(200, [], 'No items in cart'))
+  }
+
+  // Fetch all active and unexpired coupons
+  const now = new Date()
+  const allCoupons = await Coupon.find({
+    isActive: true,
+    expiresAt: { $gt: now }
+  }).populate('applicableCategory', 'name')
+
+  const available = []
+  
+  for (const coupon of allCoupons) {
+    // Check if usage limit reached
+    if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) continue
+    
+    // Check if user has already used it
+    const used = coupon.usedBy.filter(id => id.toString() === req.user._id.toString()).length
+    if (used >= coupon.perUserLimit) continue
+
+    // Validate against cart to get errors if any
+    const errors = coupon.validateForUser(req.user._id, cart.items)
+    
+    available.push({
+      _id: coupon._id,
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      maxDiscount: coupon.maxDiscount,
+      minOrderAmount: coupon.minOrderAmount,
+      applicableCategory: coupon.applicableCategory,
+      isApplicable: errors.length === 0,
+      reason: errors.length > 0 ? errors[0] : null
+    })
+  }
+
+  res.status(200).json(new ApiResponse(200, available, 'Available coupons fetched'))
+})
+
 // POST /api/coupons/validate
 export const validateCoupon = asyncHandler(async (req, res) => {
-  const { code, orderAmount } = req.body
+  const { code } = req.body
   const coupon = await Coupon.findOne({ code: code.toUpperCase() })
   if (!coupon) throw new ApiError(404, 'Coupon not found.')
 
-  const errors = coupon.validateForUser(req.user._id, orderAmount)
+  const cart = await Cart.findOne({ user: req.user._id }).populate({
+    path: 'items.product',
+    populate: { path: 'category' }
+  })
+  
+  if (!cart || !cart.items.length) {
+    throw new ApiError(400, 'Your cart is empty.')
+  }
+
+  const errors = coupon.validateForUser(req.user._id, cart.items)
   if (errors.length) throw new ApiError(400, errors[0])
 
-  const discountAmount = coupon.calculateDiscount(orderAmount)
+  const discountAmount = coupon.calculateDiscount(cart.items)
+  
+  // Calculate total amount to send back as finalAmount
+  const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  
   res.status(200).json(new ApiResponse(200, {
     code: coupon.code, discountType: coupon.discountType,
     discountValue: coupon.discountValue, discountAmount,
     maxDiscount: coupon.maxDiscount,
-    finalAmount: parseFloat((orderAmount - discountAmount).toFixed(2)),
+    finalAmount: parseFloat((subtotal - discountAmount).toFixed(2)),
   }, 'Coupon applied successfully'))
 })
 

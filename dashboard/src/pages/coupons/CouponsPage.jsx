@@ -9,6 +9,7 @@ import {
   useUpdateCouponMutation, useToggleCouponStatusMutation, 
   useDeleteCouponMutation 
 } from '../../features/coupons/couponsApi.js'
+import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
 import Modal from '../../components/common/Modal.jsx'
@@ -28,10 +29,12 @@ const couponSchema = z.object({
   startDate: z.string().min(1, 'Start date is required'),
   expiryDate: z.string().min(1, 'Expiry date is required'),
   usageLimit: z.preprocess((val) => Number(val), z.number().min(1, 'Usage limit must be at least 1')),
+  applicableCategory: z.string().optional().nullable().transform(v => v === '' ? null : v),
 })
 
 export const CouponsPage = () => {
   const { data: couponsRes, isLoading } = useGetCouponsQuery()
+  const { data: categoriesRes } = useGetCategoriesQuery()
   const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation()
   const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation()
   const [toggleStatus] = useToggleCouponStatusMutation()
@@ -47,6 +50,7 @@ export const CouponsPage = () => {
   })
 
   const coupons = couponsRes?.data || []
+  const categories = categoriesRes?.data || []
 
   const handleOpenAdd = () => {
     setEditingCoupon(null)
@@ -55,7 +59,8 @@ export const CouponsPage = () => {
       minOrderAmount: 0, maxDiscount: undefined,
       startDate: new Date().toISOString().split('T')[0],
       expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      usageLimit: 100
+      usageLimit: 100,
+      applicableCategory: ''
     })
     setModalOpen(true)
   }
@@ -71,6 +76,7 @@ export const CouponsPage = () => {
       startDate: new Date(coupon.startDate).toISOString().split('T')[0],
       expiryDate: new Date(coupon.expiryDate).toISOString().split('T')[0],
       usageLimit: coupon.usageLimit,
+      applicableCategory: coupon.applicableCategory || ''
     })
     setModalOpen(true)
   }
@@ -135,6 +141,11 @@ export const CouponsPage = () => {
             <tr key={coupon._id} className="hover:bg-slate-50/50 transition-colors">
               <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-900">
                 {coupon.code}
+                {coupon.applicableCategory && (
+                  <div className="text-[10px] text-primary-600 font-normal mt-0.5 border border-primary-200 bg-primary-50 px-1.5 py-0.5 rounded-full inline-block">
+                    Category Specific
+                  </div>
+                )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-semibold">
                 {coupon.discountType === 'percentage' 
@@ -243,12 +254,26 @@ export const CouponsPage = () => {
             />
           </div>
 
-          <Input
-            label="Total Usage Limit"
-            type="number"
-            error={errors.usageLimit}
-            {...register('usageLimit')}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Total Usage Limit"
+              type="number"
+              error={errors.usageLimit}
+              {...register('usageLimit')}
+            />
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Applicable Category</label>
+              <select
+                {...register('applicableCategory')}
+                className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+              >
+                <option value="">All Categories (Global)</option>
+                {categories.map(c => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           <div className="flex items-center justify-end space-x-3 pt-2">
             <Button variant="secondary" onClick={() => setModalOpen(false)} disabled={isCreating || isUpdating}>

@@ -173,6 +173,10 @@ export const updateSellerOrderStatus = asyncHandler(async (req, res) => {
   
   if (status === 'delivered') {
     order.deliveredAt = Date.now()
+    if (order.paymentMethod === 'COD') {
+      order.paymentStatus = 'paid'
+      order.paymentDetails = { ...order.paymentDetails, paidAt: new Date() }
+    }
   } else if (status === 'cancelled') {
     order.cancelledAt = Date.now()
   }

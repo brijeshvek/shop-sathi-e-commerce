@@ -1,5 +1,5 @@
 import express from 'express'
-import { validateCoupon, getAllCoupons, createCoupon, updateCoupon, toggleCouponStatus, deleteCoupon } from '../controllers/coupon.controller.js'
+import { validateCoupon, getAllCoupons, createCoupon, updateCoupon, toggleCouponStatus, deleteCoupon, getAvailableCoupons } from '../controllers/coupon.controller.js'
 import authMiddleware from '../middleware/auth.middleware.js'
 import adminMiddleware from '../middleware/admin.middleware.js'
 
@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.use(authMiddleware) // All coupon routes require user authentication
 
+router.get('/available', getAvailableCoupons)
 router.post('/validate', validateCoupon)
 
 // Admin-only coupon routes

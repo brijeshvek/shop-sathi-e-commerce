@@ -188,7 +188,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                             }`
                           }
                         >
-                          {t(`nav.${subItem.name.toLowerCase()}`)}
+                          {t(`${subItem.name.toLowerCase()}`)}
                         </NavLink>
                       ))}
                     </div>
@@ -213,7 +213,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                 }
               >
                 <Icon size={18} />
-                <span>{t(`nav.${item.name.toLowerCase()}`)}</span>
+                <span>{t(`${item.name.toLowerCase()}`)}</span>
               </NavLink>
             )
           })}

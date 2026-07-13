@@ -176,8 +176,15 @@ export const OrdersPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
                     {formatCurrency(order.totalAmount)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-medium">
-                    {order.paymentMethod || '-'} | {order.paymentStatus || 'pending'}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-xs text-slate-500 font-medium capitalize">
+                      {order.paymentMethod || '-'} | <span className={order.paymentStatus === 'paid' ? 'text-green-600 font-bold' : ''}>{order.paymentStatus || 'pending'}</span>
+                    </div>
+                    {order.paymentStatus === 'paid' && order.paymentDetails?.razorpayPaymentId && (
+                      <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                        Txn: {order.paymentDetails.razorpayPaymentId}
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {formatDate(order.createdAt, 'dd MMM yyyy')}

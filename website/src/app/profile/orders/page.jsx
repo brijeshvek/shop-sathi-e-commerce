@@ -73,6 +73,15 @@ export default function OrdersPage() {
                 <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">${order.totalAmount?.toFixed(2)}</p>
               </div>
               <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Payment</p>
+                <div className="text-sm font-medium text-gray-900 dark:text-white mt-1 capitalize">
+                  {order.paymentMethod || '-'} | <span className={order.paymentStatus === 'paid' ? 'text-success-600' : ''}>{order.paymentStatus || 'pending'}</span>
+                </div>
+                {order.paymentStatus === 'paid' && order.paymentDetails?.razorpayPaymentId && (
+                  <p className="text-[10px] text-gray-500 font-mono mt-0.5">Txn: {order.paymentDetails.razorpayPaymentId}</p>
+                )}
+              </div>
+              <div>
                 <Link href={`/profile/orders/${order._id}`}>
                   <Button variant="outline" size="sm">View Details</Button>
                 </Link>

@@ -21,7 +21,10 @@ export const placeOrder = asyncHandler(async (req, res) => {
   const freeShippingVal = dbSettings?.freeShippingThreshold !== undefined ? dbSettings.freeShippingThreshold : (Number(process.env.FREE_SHIPPING_THRESHOLD) || 499)
   const shippingChargeVal = dbSettings?.shippingCharge !== undefined ? dbSettings.shippingCharge : (Number(process.env.SHIPPING_CHARGE) || 99)
 
-  const cart = await Cart.findOne({ user: req.user._id }).populate('items.product')
+  const cart = await Cart.findOne({ user: req.user._id }).populate({
+    path: 'items.product',
+    populate: { path: 'category' }
+  })
   if (!cart || !cart.items.length) throw new ApiError(400, 'Cart is empty.')
 
   // Verify stock for each item
@@ -47,9 +50,9 @@ export const placeOrder = asyncHandler(async (req, res) => {
   if (couponCode) {
     couponDoc = await Coupon.findOne({ code: couponCode.toUpperCase() })
     if (couponDoc) {
-      const errors = couponDoc.validateForUser(req.user._id, subtotal)
+      const errors = couponDoc.validateForUser(req.user._id, cart.items)
       if (errors.length) throw new ApiError(400, errors[0])
-      discountAmount = couponDoc.calculateDiscount(subtotal)
+      discountAmount = couponDoc.calculateDiscount(cart.items)
     }
   }
 
@@ -177,7 +180,14 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   if (!order) throw new ApiError(404, 'Order not found.')
 
   order.orderStatus = orderStatus
-  if (orderStatus === 'delivered') order.deliveredAt = new Date()
+  if (orderStatus === 'delivered') {
+    order.deliveredAt = new Date()
+    // For COD orders, when delivered, payment is collected
+    if (order.paymentMethod === 'COD') {
+      order.paymentStatus = 'paid'
+      order.paymentDetails = { ...order.paymentDetails, paidAt: new Date() }
+    }
+  }
   if (orderStatus === 'cancelled') order.cancelledAt = new Date()
   if (note) order.statusHistory[order.statusHistory.length - 1].note = note
 
