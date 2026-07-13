@@ -23,6 +23,7 @@ import sellerRouter    from './routes/seller.routes.js'
 import roleRouter      from './routes/role.routes.js'
 import bannerRouter    from './routes/banner.routes.js'
 import settingRouter   from './routes/setting.routes.js'
+import attributeRouter from './routes/attribute.routes.js'
 
 // Error middleware
 import { errorHandler, notFound } from './middleware/error.middleware.js'
@@ -93,6 +94,7 @@ app.use('/api/seller',   sellerRouter)
 app.use('/api/roles',    roleRouter)
 app.use('/api/banners',  bannerRouter)
 app.use('/api/settings', settingRouter)
+app.use('/api/attributes', attributeRouter)
 
 // ── Error Handling ────────────────────────────────────────────────────────────
 app.use(notFound)

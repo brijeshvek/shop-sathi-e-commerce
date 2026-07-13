@@ -6,14 +6,18 @@ import asyncHandler from '../utils/asyncHandler.js'
 
 // GET /api/categories
 export const getAllCategories = asyncHandler(async (req, res) => {
-  // Manual populate children since Mongoose doesn't support virtual populate in lean easily
-  const parents = await Category.find({ isActive: true, parent: null }).lean()
-  const children = await Category.find({ isActive: true, parent: { $ne: null } }).lean()
+  const allCategories = await Category.find({ isActive: true }).lean()
 
-  const result = parents.map(p => ({
-    ...p,
-    children: children.filter(c => c.parent?.toString() === p._id.toString()),
-  }))
+  const buildTree = (parentId) => {
+    return allCategories
+      .filter(c => (parentId === null ? !c.parent : c.parent?.toString() === parentId.toString()))
+      .map(c => ({
+        ...c,
+        children: buildTree(c._id)
+      }))
+  }
+
+  const result = buildTree(null)
 
   res.status(200).json(new ApiResponse(200, result, 'Categories fetched'))
 })

@@ -10,7 +10,7 @@ import { useCreateProductMutation, useGetDistinctBrandsQuery } from '../../featu
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
-import { CATEGORY_SCHEMAS } from '../../constants/categorySchemas.js'
+import { useGetCategoryAttributesQuery } from '../../features/attributes/attributesApi.js'
 
 const productSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
@@ -81,28 +81,8 @@ export const AddProductPage = () => {
     }
   }, [selectedBrand, setValue]);
 
-  const getSchemaKey = (catName) => {
-    if (!catName) return "";
-    const nameLower = catName.toLowerCase();
-    if (nameLower.includes("accessories") || nameLower.includes("accessory")) return "Mobile Accessories";
-    if (nameLower.includes("electron")) return "Electronics";
-    if (nameLower.includes("fashion") || nameLower.includes("clothing") || nameLower.includes("apparel")) return "Fashion";
-    if (nameLower.includes("beauty") || nameLower.includes("skincare") || nameLower.includes("personal") || nameLower.includes("care")) return "Beauty & Personal Care";
-    if (nameLower.includes("kitchen") || nameLower.includes("home")) return "Home & Kitchen";
-    if (nameLower.includes("grocery") || nameLower.includes("food") || nameLower.includes("essential")) return "Grocery & Essentials";
-    if (nameLower.includes("health") || nameLower.includes("wellness") || nameLower.includes("supplement")) return "Health & Wellness";
-    if (nameLower.includes("sport") || nameLower.includes("fit")) return "Sports & Fitness";
-    if (nameLower.includes("book") || nameLower.includes("stationery")) return "Books & Stationery";
-    if (nameLower.includes("toy") || nameLower.includes("game")) return "Toys & Games";
-    if (nameLower.includes("auto") || nameLower.includes("car")) return "Automotive";
-    if (nameLower.includes("pet")) return "Pet Supplies";
-    if (nameLower.includes("gift")) return "Gift Shop";
-    if (nameLower.includes("season") || nameLower.includes("festival")) return "Seasonal Collections";
-    return "";
-  };
-
-  const schemaKey = selectedCategoryObj ? getSchemaKey(selectedCategoryObj.name) : "";
-  const dynamicFields = CATEGORY_SCHEMAS[schemaKey] || [];
+  const { data: attrRes } = useGetCategoryAttributesQuery(selectedMainCategory, { skip: !selectedMainCategory })
+  const dynamicFields = attrRes?.data?.fields || []
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0]

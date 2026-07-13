@@ -180,21 +180,44 @@ function ProductsContent() {
                     </button>
                     {isActiveMain && c.children && c.children.length > 0 && (
                       <ul className="pl-4 border-l-2 border-gray-100 space-y-1 mt-1 mb-2">
-                        {c.children.map(child => (
-                          <li key={child._id}>
-                            <button
-                              onClick={() => {
-                                const params = new URLSearchParams(window.location.search);
-                                params.set("category", child._id);
-                                params.delete("brand");
-                                router.push(`/products?${params.toString()}`);
-                              }}
-                              className={`text-sm text-left block w-full ${category === child._id ? "font-bold text-primary-600" : "text-gray-500 hover:text-primary-600"}`}
-                            >
-                              {child.name}
-                            </button>
-                          </li>
-                        ))}
+                        {c.children.map(child => {
+                          const isActiveChild = category === child._id || child.children?.some(subChild => subChild._id === category);
+                          return (
+                            <li key={child._id} className="space-y-1">
+                              <button
+                                onClick={() => {
+                                  const params = new URLSearchParams(window.location.search);
+                                  params.set("category", child._id);
+                                  params.delete("brand");
+                                  router.push(`/products?${params.toString()}`);
+                                }}
+                                className={`text-sm text-left block w-full ${category === child._id ? "font-bold text-primary-600" : "text-gray-500 hover:text-primary-600"}`}
+                              >
+                                {child.name}
+                              </button>
+                              
+                              {isActiveChild && child.children && child.children.length > 0 && (
+                                <ul className="pl-4 border-l-2 border-gray-100 space-y-1 mt-1 mb-2">
+                                  {child.children.map(subChild => (
+                                    <li key={subChild._id}>
+                                      <button
+                                        onClick={() => {
+                                          const params = new URLSearchParams(window.location.search);
+                                          params.set("category", subChild._id);
+                                          params.delete("brand");
+                                          router.push(`/products?${params.toString()}`);
+                                        }}
+                                        className={`text-sm text-left block w-full ${category === subChild._id ? "font-bold text-primary-600" : "text-gray-400 hover:text-primary-600"}`}
+                                      >
+                                        {subChild.name}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          )
+                        })}
                       </ul>
                     )}
                   </li>

@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Upload, X, Check } from 'lucide-react'
+import { ArrowLeft, Upload, X, Check, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api.js'
 import {
   useGetProductByIdAdminQuery, useUpdateProductMutation, useGetDistinctBrandsQuery
 } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
+import { useGetCategoryAttributesQuery } from '../../features/attributes/attributesApi.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
@@ -32,7 +33,7 @@ const productSchema = z.object({
   returnDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
   isExchangeable: z.boolean().default(false),
   exchangeDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
-})
+}).passthrough()
 
 export const EditProductPage = () => {
   const { id } = useParams()
@@ -72,6 +73,10 @@ export const EditProductPage = () => {
   const subCategories = activeMainCatObj?.children || [];
   const selectedBrand = watch('brand');
 
+  const { data: attrRes } = useGetCategoryAttributesQuery(selectedMainCategory, { skip: !selectedMainCategory })
+  const dynamicFields = attrRes?.data?.fields || []
+  const schemaKey = activeMainCatObj ? activeMainCatObj.name : ""
+
   useEffect(() => {
     if (selectedSubCategory && !subCategories.find(c => c._id === selectedSubCategory)) {
       setValue('subCategory', '');
@@ -104,6 +109,7 @@ export const EditProductPage = () => {
         returnDays: product.returnPolicy?.returnDays || 0,
         isExchangeable: product.returnPolicy?.isExchangeable || false,
         exchangeDays: product.returnPolicy?.exchangeDays || 0,
+        attributes: product.attributes || {}
       })
       setImages(product.images || [])
     }
@@ -394,8 +400,90 @@ export const EditProductPage = () => {
             </div>
           </div>
 
+          {/* Dynamic Category Attributes */}
+          {dynamicFields.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs lg:col-span-2">
+              <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                <Settings size={18} className="text-indigo-600" />
+                <h3 className="text-base font-semibold text-slate-900">{schemaKey} Attributes</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {dynamicFields.map((field) => {
+                  const inputName = `attributes.${field.key}`;
+                  return (
+                    <div key={field.key} className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        {field.label} {field.required && <span className="text-red-500">*</span>}
+                      </label>
+                      {field.type === 'select' && (
+                        <select
+                          {...register(inputName, { required: field.required })}
+                          className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                        >
+                          <option value="">Select {field.label}</option>
+                          {field.options.map((opt) => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      )}
+                      {field.type === 'multiselect' && (
+                        <div className="border border-slate-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-slate-50">
+                          {field.options.map((opt) => (
+                            <label key={opt} className="flex items-center space-x-2 text-xs font-medium text-slate-600 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                value={opt}
+                                {...register(inputName)}
+                                className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-3.5 w-3.5"
+                              />
+                              <span>{opt}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      {field.type === 'checkbox' && (
+                        <div className="pt-2">
+                          <input
+                            type="checkbox"
+                            {...register(inputName)}
+                            className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
+                          />
+                          <span className="ml-2 text-sm text-slate-600">Enabled</span>
+                        </div>
+                      )}
+                      {field.type === 'date' && (
+                        <input
+                          type="date"
+                          {...register(inputName, { required: field.required })}
+                          className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                        />
+                      )}
+                      {field.type === 'number' && (
+                        <input
+                          type="number"
+                          step="any"
+                          placeholder={`Enter ${field.label.toLowerCase()}...`}
+                          {...register(inputName, { required: field.required })}
+                          className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                        />
+                      )}
+                      {field.type === 'text' && (
+                        <input
+                          type="text"
+                          placeholder={`Enter ${field.label.toLowerCase()}...`}
+                          {...register(inputName, { required: field.required })}
+                          className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Media & Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:col-span-1">
             <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
               <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Product Media</h3>
 

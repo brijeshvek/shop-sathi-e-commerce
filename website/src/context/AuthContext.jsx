@@ -33,6 +33,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
+    if (data.data.token) {
+      localStorage.setItem('accessToken', data.data.token);
+    }
+    setUser(data.data);
     if (data.data?.language) i18n.changeLanguage(data.data.language);
     return data;
   };
