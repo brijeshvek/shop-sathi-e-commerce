@@ -1,4 +1,5 @@
 import Product from '../models/Product.model.js'
+import Category from '../models/Category.model.js'
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -12,7 +13,11 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
   const filter = { isActive: true }
   if (search) filter.$text = { $search: search }
-  if (category) filter.category = category
+  if (category) {
+    const childCats = await Category.find({ parent: category }).select('_id').lean()
+    const catIds = [category, ...childCats.map(c => c._id)]
+    filter.category = { $in: catIds }
+  }
   if (brand) filter.brand = { $regex: brand, $options: 'i' }
   if (tags) filter.tags = { $in: tags.split(',') }
   if (isFeatured === 'true') filter.isFeatured = true
@@ -120,7 +125,11 @@ export const getAllProductsAdmin = asyncHandler(async (req, res) => {
       { brand: { $regex: search, $options: 'i' } }
     ]
   }
-  if (category) filter.category = category
+  if (category) {
+    const childCats = await Category.find({ parent: category }).select('_id').lean()
+    const catIds = [category, ...childCats.map(c => c._id)]
+    filter.category = { $in: catIds }
+  }
   if (isActive !== undefined) filter.isActive = isActive === 'true'
 
   // If the user is a seller, only show their products
