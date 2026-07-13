@@ -108,7 +108,7 @@ export function RecommendedProducts() {
                     className="text-white bg-gray-900 hover:bg-primary-650 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                     aria-label={`Add ${product.name} to cart`}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <svg className="w-4 h-4 dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                   </button>

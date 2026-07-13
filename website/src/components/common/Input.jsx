@@ -10,7 +10,7 @@ export const Input = forwardRef(({ label, type = "text", error, helperText, clas
   return (
     <div className={`w-full flex flex-col ${className}`}>
       {label && (
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="text-sm font-medium text-gray-700 dark:text-white mb-1">
           {label}
         </label>
       )}

@@ -116,7 +116,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 dark:text-white">
-      <Link href="/products" className="inline-flex items-center text-sm text-gray-500 dark:text-white! hover:text-primary-600 dark:hover:text-primary-400 mb-6">
+      <Link href="/products" className="inline-flex items-center text-sm text-gray-500 dark:text-white!-500                                                                                                                                                                                          hover:text-primary-600 dark:hover:text-primary-400 mb-6">
         <ArrowLeft className="w-4 h-4 mr-1 dark:text-white" /> Back to Shop
       </Link>
 
@@ -183,18 +183,9 @@ export default function ProductDetailPage() {
 
           <div className="mb-8">
             <span className="text-3xl font-bold text-gray-900 dark:text-white">₹{product.price?.toFixed(2)}</span>
-            {product.stock > 0 ? (
-              <span className="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
-                In Stock ({product.stock})
-              </span>
-            ) : (
-              <span className="ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800">
-                Out of Stock
-              </span>
-            )}
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 text-base mb-8 leading-relaxed">
+          <p className="text-gray-600 dark:text-white text-base mb-8 leading-relaxed">
             {product.description}
           </p>
 
@@ -202,12 +193,12 @@ export default function ProductDetailPage() {
             <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg h-12 w-full sm:w-32 bg-white dark:bg-gray-800">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                className="px-4 py-2 text-gray-600 dark:text-black hover:text-primary-600 dark:hover:text-primary-400"
               >-</button>
-              <span className="flex-1 text-center font-medium dark:text-white">{quantity}</span>
+              <span className="flex-1 text-center font-medium dark:text-black">{quantity}</span>
               <button
                 onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                className="px-4 py-2 text-gray-600 dark:text-black hover:text-primary-600 dark:hover:text-primary-400"
               >+</button>
             </div>
             <Button
@@ -231,16 +222,16 @@ export default function ProductDetailPage() {
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-              <Truck className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+              <Truck className="w-6 h-6 text-blue-600 dark:text-blue-600" />
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Free Shipping</p>
+                <p className="text-sm font-semibold text-blue-600 dark:text-black">Free Shipping</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">On orders over ₹499</p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-              <ShieldCheck className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+              <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-600" />
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">100% Secure</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-black">100% Secure</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Encrypted Checkout</p>
               </div>
             </div>
@@ -251,7 +242,7 @@ export default function ProductDetailPage() {
                   <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl col-span-1 sm:col-span-2 md:col-span-1">
                     <RefreshCcw className="w-6 h-6 text-primary-500" />
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{product.returnPolicy.returnDays} Days Return Policy</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-black">{product.returnPolicy.returnDays} Days Return Policy</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Hassle-free returns</p>
                     </div>
                   </div>
@@ -260,7 +251,7 @@ export default function ProductDetailPage() {
                   <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl col-span-1 sm:col-span-2 md:col-span-1">
                     <RefreshCcw className="w-6 h-6 text-primary-500" />
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{product.returnPolicy.exchangeDays} Days Exchange</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-black">{product.returnPolicy.exchangeDays} Days Exchange</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Easy replacement</p>
                     </div>
                   </div>
@@ -268,14 +259,109 @@ export default function ProductDetailPage() {
               </>
             ) : (
               <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl col-span-1 sm:col-span-2">
-                <RefreshCcw className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                <RefreshCcw className="w-6 h-6 text-red-400" />
                 <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Non-returnable</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-black">Non-returnable</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Final sale item</p>
                 </div>
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Specifications & Technical Details */}
+      <div className="mt-16 border-t border-gray-200 dark:border-gray-700 pt-10">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Specifications & Product Details</h3>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Dynamic Attributes Grid */}
+          {product.attributes && Object.keys(product.attributes).length > 0 && (
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Key Attributes</h4>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {Object.entries(product.attributes).map(([key, value]) => {
+                      const formattedKey = key
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase());
+                      const displayVal = Array.isArray(value) ? value.join(", ") : String(value);
+                      return (
+                        <tr key={key} className="hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
+                          <td className="px-6 py-4 text-sm font-semibold text-gray-500 dark:text-gray-400 w-1/3">{formattedKey}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-black w-2/3">{displayVal}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Specifications Table */}
+          {product.specifications && product.specifications.length > 0 && (
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Technical Specifications</h4>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {product.specifications.map((spec, idx) => (
+                      <tr key={idx} className="hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-500 dark:text-gray-400 w-1/3">{spec.key}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-black w-2/3">{spec.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Dimensions, Shipping, Compliance & Warranty Info */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Dimensions */}
+          {product.dimensions && (product.dimensions.weight || product.dimensions.height) && (
+            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-black mb-3">Dimensions</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                {product.dimensions.weight && <li><strong>Weight:</strong> {product.dimensions.weight} g</li>}
+                {product.dimensions.height && (
+                  <li><strong>Dimensions (H x W x L):</strong> {product.dimensions.height} x {product.dimensions.width} x {product.dimensions.length} cm</li>
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* Warranty & Shipping */}
+          {product.warranty && (
+            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-black mb-3">Warranty & Shipping</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-900">
+                {product.warranty.period && <li><strong>Warranty Period:</strong> {product.warranty.period} ({product.warranty.type})</li>}
+                {product.shipping?.deliveryTimeDays && <li><strong>Estimated Delivery:</strong> {product.shipping.deliveryTimeDays} Days</li>}
+              </ul>
+            </div>
+          )}
+
+          {/* Certifications */}
+          {product.certifications && (
+            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-black mb-3">Compliance & Certifications</h4>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {Object.entries(product.certifications).map(([cert, val]) => {
+                  if (!val) return null;
+                  return (
+                    <span key={cert} className="px-2.5 py-1 bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300 text-xs font-bold rounded-md uppercase">
+                      {cert}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

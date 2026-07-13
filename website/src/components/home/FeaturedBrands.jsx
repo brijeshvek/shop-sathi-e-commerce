@@ -4,12 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 const BRANDS = [
-  { id: 1, name: "Apple", bg: "bg-gray-100 dark:bg-gray-800" },
-  { id: 2, name: "Samsung", bg: "bg-blue-50 dark:bg-blue-900/20" },
-  { id: 3, name: "Nike", bg: "bg-orange-50 dark:bg-orange-900/20" },
-  { id: 4, name: "Adidas", bg: "bg-slate-100 dark:bg-slate-800" },
-  { id: 5, name: "Sony", bg: "bg-zinc-100 dark:bg-zinc-800" },
-  { id: 6, name: "LG", bg: "bg-red-50 dark:bg-red-900/20" },
+  { id: 1, name: "Apple", bg: "bg-balck dark:bg-balck dark:text-white" },
+  { id: 2, name: "Samsung", bg: "bg-blue-50 dark:bg-blue-900/20 dark:text-white" },
+  { id: 3, name: "Nike", bg: "bg-orange-50 dark:bg-orange-900/20 dark:text-white" },
+  { id: 4, name: "Adidas", bg: "bg-slate-100 dark:bg-slate-800 dark:text-white" },
+  { id: 5, name: "Sony", bg: "bg-zinc-100 dark:bg-zinc-800 dark:text-white" },
+  { id: 6, name: "LG", bg: "bg-red-50 dark:bg-red-900/20 dark:text-white" },
 ];
 
 export function FeaturedBrands() {
@@ -36,7 +36,7 @@ export function FeaturedBrands() {
               className={`group flex items-center justify-center h-24 sm:h-32 rounded-2xl border border-gray-100 dark:border-gray-700 ${brand.bg} cursor-pointer transition-all hover:shadow-md`}
             >
               <Link href={`/products?brand=${brand.name}`} className="w-full h-full flex items-center justify-center p-4 text-center">
-                <span className="font-bold text-gray-800 dark:text-gray-200 text-lg tracking-wider uppercase group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <span className="font-bold text-gray-800 dark:text-white text-lg tracking-wider uppercase group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {brand.name}
                 </span>
               </Link>

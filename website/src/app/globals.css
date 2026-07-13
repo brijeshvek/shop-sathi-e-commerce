@@ -2,14 +2,17 @@
 
 :root {
   /* Website - Primary Palette */
-  --color-primary-50:  #eef2ff;
+  --color-primary-50: #eef2ff;
   --color-primary-100: #e0e7ff;
   --color-primary-200: #c7d2fe;
   --color-primary-300: #a5b4fc;
   --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;   /* Main brand color */
-  --color-primary-600: #4f46e5;   /* Hover state */
-  --color-primary-700: #4338ca;   /* Active/pressed */
+  --color-primary-500: #6366f1;
+  /* Main brand color */
+  --color-primary-600: #4f46e5;
+  /* Hover state */
+  --color-primary-700: #4338ca;
+  /* Active/pressed */
   --color-primary-800: #3730a3;
   --color-primary-900: #312e81;
 
@@ -29,7 +32,7 @@
   --color-warning-500: #f97316;
 
   /* Neutral - Gray scale */
-  --color-gray-50:  #f9fafb;
+  --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
   --color-gray-200: #e5e7eb;
   --color-gray-300: #d1d5db;
@@ -53,7 +56,7 @@
   --background: #0f172a;
   --foreground: #f1f5f9;
   --surface: #1e293b;
-  --color-gray-50:  #111827;
+  --color-gray-50: #111827;
   --color-gray-100: #1f2937;
   --color-gray-200: #374151;
   --color-gray-300: #4b5563;
@@ -66,28 +69,36 @@
 }
 
 @layer base {
+
   /* Global Dark Mode Overrides for Hardcoded Colors */
   .dark .bg-white {
-    @apply !bg-gray-900 !border-gray-800;
+    @apply bg-gray-900 border-gray-800;
   }
+
   .dark .bg-gray-50 {
-    @apply !bg-gray-950;
+    @apply bg-gray-950;
   }
+
   .dark .text-gray-900,
   .dark .text-gray-800,
   .dark .text-gray-700 {
-    @apply !text-white;
+    @apply text-black;
   }
+
   .dark .text-gray-600,
   .dark .text-gray-500 {
-    @apply !text-gray-200;
+    @apply text-gray-200;
   }
+
   .dark .border-gray-200,
   .dark .border-gray-100 {
-    @apply !border-gray-800;
+    @apply border-gray-800;
   }
-  .dark select, .dark input, .dark textarea {
-    @apply !bg-gray-900 !border-gray-800 !text-white;
+
+  .dark select,
+  .dark input,
+  .dark textarea {
+    @apply bg-gray-900 border-gray-800 text-black;
   }
 }
 
@@ -180,6 +191,7 @@ body {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -190,6 +202,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -200,6 +213,7 @@ body {
     transform: scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -207,15 +221,31 @@ body {
 }
 
 @keyframes cartBounce {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.35); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes bounceScale {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.45); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.45);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes drawCheckmark {
@@ -229,6 +259,7 @@ body {
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -270,13 +301,17 @@ body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-none {
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Respect reduced motion preference — Accessibility */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

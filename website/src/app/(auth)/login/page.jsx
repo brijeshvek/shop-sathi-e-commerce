@@ -128,16 +128,17 @@ export default function LoginPage() {
         {otpRequired ? (
           <>
             <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white font-heading">
+              <h2 className="text-3xl font-extrabold text-gray-900 font-heading">
                 Enter Verification Code
               </h2>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                We have sent a 6-digit OTP to <span className="font-semibold text-gray-900 dark:text-white">{phone}</span>.
+              <p className="mt-2 text-sm text-gray-600">
+                We have sent a 6-digit OTP to <span className="font-semibold text-gray-900">{phone}</span>.
               </p>
             </div>
 
             <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
               <div className="space-y-4">
+
                 <Input
                   label="OTP Code"
                   type="text"
@@ -152,7 +153,7 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" isLoading={isVerifying}>
                 Verify & Sign In
               </Button>
-              
+
               <div className="flex flex-col items-center justify-center space-y-3 mt-4 text-sm text-center">
                 <div>
                   {canResend ? (
@@ -170,9 +171,9 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                <button 
+                <button
                   type="button"
-                  onClick={() => setOtpRequired(false)} 
+                  onClick={() => setOtpRequired(false)}
                   className="font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
                 >
                   Back to Sign In
@@ -183,10 +184,10 @@ export default function LoginPage() {
         ) : (
           <>
             <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white font-heading">
+              <h2 className="text-3xl font-extrabold text-gray-900 font-heading">
                 Sign in to your account
               </h2>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-sm text-gray-600">
                 Or{" "}
                 <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
                   create a new account
@@ -197,21 +198,19 @@ export default function LoginPage() {
             {/* Tabs */}
             <div className="mt-6 flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
               <button
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                  activeTab === "phone"
-                    ? "bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                }`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "phone"
+                  ? "bg-white dark:bg-gray-200 shadow text-gray-900 dark:text-white dark:hover:text-blue-300"
+                  : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-black"
+                  }`}
                 onClick={() => setActiveTab("phone")}
               >
                 Phone Number
               </button>
               <button
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                  activeTab === "email"
-                    ? "bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                }`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "email"
+                  ? "bg-white dark:bg-gray-200 shadow text-gray-900 dark:text-white dark:hover:text-blue-300"
+                  : "text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-black"
+                  }`}
                 onClick={() => setActiveTab("email")}
               >
                 Email & Password
@@ -264,7 +263,7 @@ export default function LoginPage() {
                       type="checkbox"
                       className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                     />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-white">
                       Remember me
                     </label>
                   </div>

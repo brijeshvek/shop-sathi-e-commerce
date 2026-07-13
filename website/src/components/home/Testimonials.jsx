@@ -38,7 +38,7 @@ export function Testimonials() {
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold font-heading text-gray-900 dark:text-white mb-4">
             What Our Customers Say
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
+          <p className="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base dark:text-gray-100">
             Don't just take our word for it. Here is what real shoppers have to say about their experience with Shop Shathi.
           </p>
         </div>
@@ -54,23 +54,23 @@ export function Testimonials() {
               className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700 relative"
             >
               <Quote className="absolute top-6 right-6 w-8 h-8 text-primary-100 dark:text-primary-900/30 rotate-180" aria-hidden="true" />
-              
+
               <div className="flex text-amber-400 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className={`w-4 h-4 ${i < testimonial.rating ? 'fill-current' : 'text-gray-300 dark:text-gray-600'}`} />
                 ))}
               </div>
-              
+
               <p className="text-gray-700 dark:text-gray-300 mb-6 text-sm sm:text-base italic relative z-10">
                 "{testimonial.content}"
               </p>
-              
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center font-bold text-primary-700 dark:text-primary-300">
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 dark:text-white text-sm">{testimonial.name}</h4>
+                  <h4 className="font-bold text-gray-900 dark:text-black text-sm">{testimonial.name}</h4>
                   <p className="text-xs text-gray-500">{testimonial.role}</p>
                 </div>
               </div>

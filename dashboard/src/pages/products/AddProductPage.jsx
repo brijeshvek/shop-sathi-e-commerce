@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Upload, X, Check } from 'lucide-react'
+import { ArrowLeft, Upload, X, Check, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api.js'
 import { useCreateProductMutation } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
+import { CATEGORY_SCHEMAS } from '../../constants/categorySchemas.js'
 
 const productSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
@@ -27,7 +28,7 @@ const productSchema = z.object({
   returnDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
   isExchangeable: z.boolean().default(false),
   exchangeDays: z.preprocess((val) => Number(val || 0), z.number().min(0)),
-})
+}).passthrough()
 
 export const AddProductPage = () => {
   const navigate = useNavigate()
@@ -47,6 +48,33 @@ export const AddProductPage = () => {
   const isExchangeable = watch('isExchangeable')
 
   const categories = categoriesRes?.data || []
+  const selectedCategoryId = watch('category')
+
+  const selectedCategory = categories.find(c => c._id === selectedCategoryId) || 
+                           categories.flatMap(c => c.children || []).find(child => child._id === selectedCategoryId);
+
+  const getSchemaKey = (catName) => {
+    if (!catName) return "";
+    const nameLower = catName.toLowerCase();
+    if (nameLower.includes("accessories") || nameLower.includes("accessory")) return "Mobile Accessories";
+    if (nameLower.includes("electron")) return "Electronics";
+    if (nameLower.includes("fashion") || nameLower.includes("clothing") || nameLower.includes("apparel")) return "Fashion";
+    if (nameLower.includes("beauty") || nameLower.includes("skincare") || nameLower.includes("personal") || nameLower.includes("care")) return "Beauty & Personal Care";
+    if (nameLower.includes("kitchen") || nameLower.includes("home")) return "Home & Kitchen";
+    if (nameLower.includes("grocery") || nameLower.includes("food") || nameLower.includes("essential")) return "Grocery & Essentials";
+    if (nameLower.includes("health") || nameLower.includes("wellness") || nameLower.includes("supplement")) return "Health & Wellness";
+    if (nameLower.includes("sport") || nameLower.includes("fit")) return "Sports & Fitness";
+    if (nameLower.includes("book") || nameLower.includes("stationery")) return "Books & Stationery";
+    if (nameLower.includes("toy") || nameLower.includes("game")) return "Toys & Games";
+    if (nameLower.includes("auto") || nameLower.includes("car")) return "Automotive";
+    if (nameLower.includes("pet")) return "Pet Supplies";
+    if (nameLower.includes("gift")) return "Gift Shop";
+    if (nameLower.includes("season") || nameLower.includes("festival")) return "Seasonal Collections";
+    return "";
+  };
+
+  const schemaKey = selectedCategory ? getSchemaKey(selectedCategory.name) : "";
+  const dynamicFields = CATEGORY_SCHEMAS[schemaKey] || [];
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0]
@@ -123,6 +151,16 @@ export const AddProductPage = () => {
         ...data,
         tags: formattedTags,
         images,
+        dimensions: {
+          weight: data.dimensions?.weight ? Number(data.dimensions.weight) : undefined,
+          height: data.dimensions?.height ? Number(data.dimensions.height) : undefined,
+          width: data.dimensions?.width ? Number(data.dimensions.width) : undefined,
+          length: data.dimensions?.length ? Number(data.dimensions.length) : undefined,
+        },
+        shipping: {
+          ...data.shipping,
+          deliveryTimeDays: data.shipping?.deliveryTimeDays ? Number(data.shipping.deliveryTimeDays) : undefined,
+        },
         returnPolicy: {
           isReturnable: data.isReturnable,
           returnDays: data.isReturnable ? data.returnDays : 0,
@@ -245,6 +283,152 @@ export const AddProductPage = () => {
               </div>
             </div>
 
+            {/* Dynamic Category Attributes */}
+            {dynamicFields.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+                <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                  <Settings size={18} className="text-indigo-600" />
+                  <h3 className="text-base font-semibold text-slate-900">{schemaKey} Attributes</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {dynamicFields.map((field) => {
+                    const inputName = `attributes.${field.key}`;
+                    return (
+                      <div key={field.key} className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">
+                          {field.label} {field.required && <span className="text-red-500">*</span>}
+                        </label>
+                        {field.type === 'select' && (
+                          <select
+                            {...register(inputName, { required: field.required })}
+                            className="block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                          >
+                            <option value="">Select {field.label}</option>
+                            {field.options.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        )}
+                        {field.type === 'multiselect' && (
+                          <div className="border border-slate-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-slate-50">
+                            {field.options.map((opt) => (
+                              <label key={opt} className="flex items-center space-x-2 text-xs font-medium text-slate-600 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  value={opt}
+                                  {...register(inputName)}
+                                  className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-3.5 w-3.5"
+                                />
+                                <span>{opt}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                        {field.type === 'checkbox' && (
+                          <div className="pt-2">
+                            <input
+                              type="checkbox"
+                              {...register(inputName)}
+                              className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
+                            />
+                            <span className="ml-2 text-sm text-slate-600">Enabled</span>
+                          </div>
+                        )}
+                        {field.type === 'date' && (
+                          <input
+                            type="date"
+                            {...register(inputName, { required: field.required })}
+                            className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                          />
+                        )}
+                        {field.type === 'number' && (
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder={`Enter ${field.label.toLowerCase()}...`}
+                            {...register(inputName, { required: field.required })}
+                            className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                          />
+                        )}
+                        {field.type === 'text' && (
+                          <input
+                            type="text"
+                            placeholder={`Enter ${field.label.toLowerCase()}...`}
+                            {...register(inputName, { required: field.required })}
+                            className="block w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Dimensions & Shipping */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Dimensions & Shipping</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Input label="Weight (g)" type="number" {...register('dimensions.weight')} />
+                <Input label="Height (cm)" type="number" {...register('dimensions.height')} />
+                <Input label="Width (cm)" type="number" {...register('dimensions.width')} />
+                <Input label="Length (cm)" type="number" {...register('dimensions.length')} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Shipping Delivery Time (Days)" type="number" placeholder="3-5" {...register('shipping.deliveryTimeDays')} />
+                <div className="flex items-center space-x-3 pt-6">
+                  <input
+                    id="freeShipping"
+                    type="checkbox"
+                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900 h-4 w-4"
+                    {...register('shipping.freeShipping')}
+                  />
+                  <label htmlFor="freeShipping" className="text-sm font-semibold text-slate-700">
+                    Free Shipping
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Certifications & Warranty */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Compliance & Warranty</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <label className="flex items-center space-x-2 text-sm text-slate-600">
+                  <input type="checkbox" {...register('certifications.bis')} className="rounded border-slate-300" />
+                  <span>BIS Certified</span>
+                </label>
+                <label className="flex items-center space-x-2 text-sm text-slate-600">
+                  <input type="checkbox" {...register('certifications.isi')} className="rounded border-slate-300" />
+                  <span>ISI Mark</span>
+                </label>
+                <label className="flex items-center space-x-2 text-sm text-slate-600">
+                  <input type="checkbox" {...register('certifications.ce')} className="rounded border-slate-300" />
+                  <span>CE Certified</span>
+                </label>
+                <label className="flex items-center space-x-2 text-sm text-slate-600">
+                  <input type="checkbox" {...register('certifications.rohs')} className="rounded border-slate-300" />
+                  <span>RoHS Compliant</span>
+                </label>
+                <label className="flex items-center space-x-2 text-sm text-slate-600">
+                  <input type="checkbox" {...register('certifications.fssai')} className="rounded border-slate-300" />
+                  <span>FSSAI (Food)</span>
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Warranty Period" placeholder="e.g. 1 Year" {...register('warranty.period')} />
+                <select
+                  {...register('warranty.type')}
+                  className="block w-full mt-6 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                >
+                  <option value="No Warranty">No Warranty</option>
+                  <option value="Brand Warranty">Brand Warranty</option>
+                  <option value="Seller Warranty">Seller Warranty</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Return & Exchange Policy */}
             <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
               <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Return & Exchange Policy</h3>
               <div className="space-y-4">

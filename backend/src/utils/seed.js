@@ -143,6 +143,34 @@ const SEED_PRODUCTS = [
       { key: "RAM", value: "16 GB" },
       { key: "Storage", value: "512 GB" }
     ],
+    attributes: {
+      ram: "16 GB",
+      storage: "512 GB",
+      processor: "Snapdragon 8 Gen 3",
+      os: "Android",
+      connectivity: ["5G", "WiFi 6E", "NFC"]
+    },
+    dimensions: {
+      weight: 220,
+      height: 16,
+      width: 7,
+      length: 1
+    },
+    certifications: {
+      bis: true,
+      isi: true,
+      ce: true,
+      fcc: true,
+      rohs: true
+    },
+    warranty: {
+      period: "1 Year",
+      type: "Brand Warranty"
+    },
+    shipping: {
+      deliveryTimeDays: 3,
+      freeShipping: true
+    },
     categoryName: "Smartphones"
   },
   {
@@ -403,6 +431,11 @@ async function seedData() {
         isFeatured: prodData.isFeatured || false,
         tags: prodData.tags || [],
         specifications: prodData.specifications || [],
+        attributes: prodData.attributes || {},
+        dimensions: prodData.dimensions || {},
+        certifications: prodData.certifications || {},
+        warranty: prodData.warranty || {},
+        shipping: prodData.shipping || {},
         category: categoryId,
         createdBy: user._id,
         seller: user._id

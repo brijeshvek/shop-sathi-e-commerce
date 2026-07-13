@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/common/Button";
@@ -14,20 +14,21 @@ import { Spinner } from "@/components/common/Spinner";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialSearch = searchParams.get("search") || "";
-  
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // Filters state
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(searchParams.get("category") || "");
   const [search, setSearch] = useState(initialSearch);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");
-  
+
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -37,16 +38,10 @@ function ProductsContent() {
   useEffect(() => {
     fetchProducts();
   }, [category, search, minPrice, maxPrice, sort]);
-  
+
   useEffect(() => {
-    const searchParamVal = searchParams.get("search") || "";
-    if (searchParamVal !== search) {
-      setSearch(searchParamVal);
-    }
-    const catParamVal = searchParams.get("category") || "";
-    if (catParamVal !== category) {
-      setCategory(catParamVal);
-    }
+    setSearch(searchParams.get("search") || "");
+    setCategory(searchParams.get("category") || "");
   }, [searchParams]);
 
   const fetchCategories = async () => {
@@ -61,12 +56,23 @@ function ProductsContent() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      let url = `/products?sort=${sort}`;
+      let sortField = "createdAt";
+      let order = "desc";
+
+      if (sort === "price_asc") {
+        sortField = "price";
+        order = "asc";
+      } else if (sort === "price_desc") {
+        sortField = "price";
+        order = "desc";
+      }
+
+      let url = `/products?sort=${sortField}&order=${order}&limit=100`;
       if (category) url += `&category=${category}`;
       if (search) url += `&search=${search}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
       if (maxPrice) url += `&maxPrice=${maxPrice}`;
-      
+
       const { data } = await api.get(url);
       setProducts(data.data || []);
     } catch (error) {
@@ -98,7 +104,7 @@ function ProductsContent() {
       {/* Mobile Filter Toggle */}
       <div className="md:hidden flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold font-heading">Shop All</h1>
-        <button 
+        <button
           onClick={() => setIsFilterOpen(true)}
           className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg"
         >
@@ -108,21 +114,25 @@ function ProductsContent() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        
+
         {/* Sidebar Filters */}
         <aside className={`fixed inset-0 z-50 bg-white md:bg-transparent md:static md:block md:w-64 flex-shrink-0 p-4 md:p-0 transition-transform transform ${isFilterOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
           <div className="flex justify-between items-center mb-6 md:hidden">
             <h2 className="text-xl font-bold">Filters</h2>
             <button onClick={() => setIsFilterOpen(false)}><X className="w-6 h-6" /></button>
           </div>
-          
+
           <div className="space-y-8 h-full overflow-y-auto md:overflow-visible pb-20 md:pb-0">
             <div>
               <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
               <ul className="space-y-2">
                 <li>
-                  <button 
-                    onClick={() => setCategory("")}
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams(window.location.search);
+                      params.delete("category");
+                      router.push(`/products?${params.toString()}`);
+                    }}
                     className={`text-sm ${category === "" ? "font-bold text-primary-600" : "text-gray-600 hover:text-primary-600"}`}
                   >
                     All Categories
@@ -130,8 +140,12 @@ function ProductsContent() {
                 </li>
                 {categories.map(c => (
                   <li key={c._id}>
-                    <button 
-                      onClick={() => setCategory(c._id)}
+                    <button
+                      onClick={() => {
+                        const params = new URLSearchParams(window.location.search);
+                        params.set("category", c._id);
+                        router.push(`/products?${params.toString()}`);
+                      }}
                       className={`text-sm text-left ${category === c._id ? "font-bold text-primary-600" : "text-gray-600 hover:text-primary-600"}`}
                     >
                       {c.name}
@@ -140,21 +154,21 @@ function ProductsContent() {
                 ))}
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-semibold text-gray-900 mb-4">Price Range</h3>
               <div className="flex items-center space-x-2">
-                <input 
-                  type="number" 
-                  placeholder="Min" 
+                <input
+                  type="number"
+                  placeholder="Min"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   className="w-full px-2 py-1 border rounded text-sm"
                 />
                 <span className="text-gray-500">-</span>
-                <input 
-                  type="number" 
-                  placeholder="Max" 
+                <input
+                  type="number"
+                  placeholder="Max"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   className="w-full px-2 py-1 border rounded text-sm"
@@ -176,10 +190,10 @@ function ProductsContent() {
             </h1>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">Sort by:</span>
-              <select 
+              <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="border-none bg-gray-50 rounded-lg text-sm font-medium focus:ring-0 py-2 pl-3 pr-8"
+                className="border-none bg-gray-50 rounded-lg text-sm font-medium focus:ring-0 py-2 pl-3 pr-8 dark:text-white"
               >
                 <option value="newest">Newest Arrivals</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -209,9 +223,9 @@ function ProductsContent() {
                 <div key={product._id} className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100">
                   <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
                     {product.images?.[0] ? (
-                      <img 
-                        src={product.images[0].url} 
-                        alt={product.name} 
+                      <img
+                        src={product.images[0].url}
+                        alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
@@ -227,11 +241,11 @@ function ProductsContent() {
                     </Link>
                     <div className="mt-auto pt-4 flex items-center justify-between">
                       <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
-                      <button 
+                      <button
                         onClick={(e) => handleAddToCart(product, e)}
                         className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
                       >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                       </button>
