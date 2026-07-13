@@ -24,6 +24,8 @@ import roleRouter      from './routes/role.routes.js'
 import bannerRouter    from './routes/banner.routes.js'
 import settingRouter   from './routes/setting.routes.js'
 import attributeRouter from './routes/attribute.routes.js'
+import cmsRouter       from './routes/cms.routes.js'
+import ticketRouter    from './routes/ticket.routes.js'
 
 // Error middleware
 import { errorHandler, notFound } from './middleware/error.middleware.js'
@@ -95,6 +97,8 @@ app.use('/api/roles',    roleRouter)
 app.use('/api/banners',  bannerRouter)
 app.use('/api/settings', settingRouter)
 app.use('/api/attributes', attributeRouter)
+app.use('/api/cms',        cmsRouter)
+app.use('/api/tickets',    ticketRouter)
 
 // ── Error Handling ────────────────────────────────────────────────────────────
 app.use(notFound)

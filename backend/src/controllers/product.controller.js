@@ -9,10 +9,11 @@ import asyncHandler from '../utils/asyncHandler.js'
 export const getAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1, limit = 12, search, category, minPrice, maxPrice,
-    brand, minRating, inStock, isFeatured, sort = 'createdAt', order = 'desc', tags,
+    brand, minRating, inStock, isFeatured, sort = 'createdAt', order = 'desc', tags, isFlashSale,
   } = req.query
 
   const filter = { isActive: true }
+  if (isFlashSale === 'true') filter.isFlashSale = true
   if (search) filter.$text = { $search: search }
   if (category) {
     const childCats = await Category.find({ parent: category }).select('_id').lean()
@@ -118,8 +119,9 @@ export const toggleProductStatus = asyncHandler(async (req, res) => {
 
 // GET /api/products/admin/list (Admin)
 export const getAllProductsAdmin = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, search, category, isActive } = req.query
+  const { page = 1, limit = 10, search, category, isActive, isFlashSale } = req.query
   const filter = {}
+  if (isFlashSale !== undefined) filter.isFlashSale = isFlashSale === 'true'
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: 'i' } },

@@ -20,7 +20,7 @@ export const AdminRoute = () => {
     // If seller tries to access a non-seller route, redirect to their dashboard.
     // Allow access to their own routes, shared routes, and product management routes.
     const isAllowed = pathname === '/seller' || pathname.startsWith('/seller/') ||
-      ['/settings', '/products/add'].includes(pathname) ||
+      ['/settings', '/products/add', '/inventory', '/flash-sale', '/offers', '/finance', '/support', '/reviews', '/refunds'].includes(pathname) ||
       pathname.startsWith('/products/edit');
     if (isAllowed) {
       return <Outlet />

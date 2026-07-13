@@ -4,6 +4,43 @@ import ApiError from '../utils/ApiError.js'
 import ApiResponse from '../utils/ApiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
+// GET /api/reviews
+export const getAllReviews = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10, rating } = req.query
+  const filter = {}
+
+  if (rating) {
+    filter.rating = Number(rating)
+  }
+
+  if (req.user.role === 'seller') {
+    const Product = (await import('../models/Product.model.js')).default
+    const sellerProducts = await Product.find({ createdBy: req.user._id }).select('_id').lean()
+    const productIds = sellerProducts.map(p => p._id)
+    filter.product = { $in: productIds }
+  }
+
+  const skip = (Number(page) - 1) * Number(limit)
+
+  const [reviews, total] = await Promise.all([
+    Review.find(filter)
+      .populate('user', 'name email avatarUrl')
+      .populate('product', 'name images slug')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean(),
+    Review.countDocuments(filter)
+  ])
+
+  res.status(200).json(new ApiResponse(200, reviews, 'Reviews fetched successfully', {
+    currentPage: Number(page),
+    totalPages: Math.ceil(total / limit),
+    totalItems: total,
+    itemsPerPage: Number(limit)
+  }))
+})
+
 // GET /api/reviews/:productId
 export const getProductReviews = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, sort = 'newest' } = req.query

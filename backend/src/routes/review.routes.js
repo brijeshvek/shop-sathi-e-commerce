@@ -1,9 +1,10 @@
 import express from 'express'
-import { getProductReviews, submitReview, editReview, deleteReview } from '../controllers/review.controller.js'
+import { getProductReviews, submitReview, editReview, deleteReview, getAllReviews } from '../controllers/review.controller.js'
 import authMiddleware from '../middleware/auth.middleware.js'
 
 const router = express.Router()
 
+router.get('/', authMiddleware, getAllReviews)
 router.get('/:productId', getProductReviews) // Public route: read product reviews
 
 // Secure review actions requiring user authentication

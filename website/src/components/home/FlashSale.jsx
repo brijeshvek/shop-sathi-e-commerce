@@ -20,7 +20,7 @@ export function FlashSale() {
   useEffect(() => {
     const fetchFlashSaleProducts = async () => {
       try {
-        const { data } = await api.get('/products?sort=discount&limit=4');
+        const { data } = await api.get('/products?isFlashSale=true&limit=4');
         setProducts(data.data || []);
       } catch {
         // Silently fail

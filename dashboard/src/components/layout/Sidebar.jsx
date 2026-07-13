@@ -69,6 +69,19 @@ const SELLER_NAV = [
   { name: 'Dashboard', path: '/seller', icon: LayoutDashboard },
   { name: 'My Products', path: '/seller/products', icon: ShoppingBag },
   { name: 'My Orders', path: '/seller/orders', icon: FileText },
+  { name: 'Inventory', path: '/inventory', icon: ShoppingCart },
+  {
+    name: 'Marketing',
+    icon: Megaphone,
+    subItems: [
+      { name: 'Flash Sale', path: '/flash-sale' },
+      { name: 'Offers', path: '/offers' },
+    ]
+  },
+  { name: 'Product Reviews', path: '/reviews', icon: Layers },
+  { name: 'Refunds', path: '/refunds', icon: FileText },
+  { name: 'Finance', path: '/finance', icon: DollarSign },
+  { name: 'Support', path: '/support', icon: HelpCircle },
   { name: 'Settings', path: '/settings', icon: Settings },
 ]
 
@@ -110,10 +123,12 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
   let navItems = []
   if (isAdmin) {
     navItems = ADMIN_NAV
-  } else if (isSeller && permissions) {
+  } else if (isSeller) {
     navItems = SELLER_NAV.filter(item => {
-      if (item.path.includes('/products')) return permissions.canViewProducts
-      if (item.path.includes('/orders')) return permissions.canViewOrders
+      if (permissions) {
+        if (item.path && item.path.includes('/products')) return permissions.canViewProducts
+        if (item.path && item.path.includes('/orders')) return permissions.canViewOrders
+      }
       return true
     })
   }
@@ -188,7 +203,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                             }`
                           }
                         >
-                          {t(`${subItem.name.toLowerCase()}`)}
+                          {t(`nav.${subItem.name.toLowerCase()}`)}
                         </NavLink>
                       ))}
                     </div>
@@ -196,7 +211,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                 </div>
               )
             }
-
+ 
             return (
               <NavLink
                 key={item.name}
@@ -213,7 +228,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                 }
               >
                 <Icon size={18} />
-                <span>{t(`${item.name.toLowerCase()}`)}</span>
+                <span>{t(`nav.${item.name.toLowerCase()}`)}</span>
               </NavLink>
             )
           })}

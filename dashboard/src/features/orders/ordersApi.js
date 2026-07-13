@@ -21,6 +21,22 @@ export const ordersApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Order', 'Analytics'],
     }),
+    updateItemReturnStatus: builder.mutation({
+      query: ({ orderId, itemId, status }) => ({
+        url: `/orders/${orderId}/items/${itemId}/return-status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: ['Order'],
+    }),
+    updateItemExchangeStatus: builder.mutation({
+      query: ({ orderId, itemId, status }) => ({
+        url: `/orders/${orderId}/items/${itemId}/exchange-status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: ['Order'],
+    }),
   }),
 })
 
@@ -28,4 +44,6 @@ export const {
   useGetAllOrdersQuery,
   useGetOrderByIdQuery,
   useUpdateOrderStatusMutation,
+  useUpdateItemReturnStatusMutation,
+  useUpdateItemExchangeStatusMutation,
 } = ordersApi

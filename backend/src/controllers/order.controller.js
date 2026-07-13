@@ -175,28 +175,36 @@ export const getOrderById = asyncHandler(async (req, res) => {
 
 // PUT /api/orders/:id/status  (Admin)
 export const updateOrderStatus = asyncHandler(async (req, res) => {
-  const { orderStatus, note } = req.body
+  const { orderStatus, note, paymentStatus } = req.body
   const order = await Order.findById(req.params.id)
   if (!order) throw new ApiError(404, 'Order not found.')
 
-  order.orderStatus = orderStatus
-  if (orderStatus === 'delivered') {
-    order.deliveredAt = new Date()
-    // For COD orders, when delivered, payment is collected
-    if (order.paymentMethod === 'COD') {
-      order.paymentStatus = 'paid'
-      order.paymentDetails = { ...order.paymentDetails, paidAt: new Date() }
+  if (orderStatus) {
+    order.orderStatus = orderStatus
+    if (orderStatus === 'delivered') {
+      order.deliveredAt = new Date()
+      if (order.paymentMethod === 'COD') {
+        order.paymentStatus = 'paid'
+        order.paymentDetails = { ...order.paymentDetails, paidAt: new Date() }
+      }
     }
+    if (orderStatus === 'cancelled') order.cancelledAt = new Date()
   }
-  if (orderStatus === 'cancelled') order.cancelledAt = new Date()
-  if (note) order.statusHistory[order.statusHistory.length - 1].note = note
+
+  if (paymentStatus) {
+    order.paymentStatus = paymentStatus
+  }
+
+  if (note && order.statusHistory.length > 0) {
+    order.statusHistory[order.statusHistory.length - 1].note = note
+  }
 
   await order.save()
 
   const user = await User.findById(order.user)
   if (user) sendOrderStatusEmail(user, order).catch(e => console.error('Status email error:', e.message))
 
-  res.status(200).json(new ApiResponse(200, null, `Order status updated to ${orderStatus}`))
+  res.status(200).json(new ApiResponse(200, null, `Order status updated`))
 })
 
 // PUT /api/orders/:id/cancel

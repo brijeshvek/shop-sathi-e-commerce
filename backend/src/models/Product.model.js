@@ -149,6 +149,7 @@ const productSchema = new mongoose.Schema({
   isTrending: { type: Boolean, default: false },
   isBestseller: { type: Boolean, default: false },
   isNewArrival: { type: Boolean, default: false },
+  isFlashSale: { type: Boolean, default: false },
   visibility: { type: String, enum: ['Public', 'Private', 'Hidden'], default: 'Public' },
   status: { type: String, enum: ['Draft', 'Active', 'Scheduled'], default: 'Active' },
   scheduledPublishDate: { type: Date },
