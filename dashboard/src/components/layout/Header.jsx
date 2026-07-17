@@ -3,14 +3,12 @@ import { useAuth } from '../../hooks/useAuth.js'
 import { useTranslation } from 'react-i18next'
 import api from '../../services/api.js'
 import toast from 'react-hot-toast'
-import { User, ChevronDown, UserCheck, Menu, Sun, Moon } from 'lucide-react'
+import { User, ChevronDown, UserCheck, Menu } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useTheme } from '../../context/ThemeContext'
 
 export const Header = ({ onMenuClick }) => {
   const { user } = useAuth()
   const { i18n } = useTranslation()
-  const { theme, setTheme } = useTheme()
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen)
@@ -67,13 +65,7 @@ export const Header = ({ onMenuClick }) => {
           <option value="gu">GU</option>
         </select>
 
-        <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg focus:outline-none"
-          title="Toggle Dark Mode"
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+
 
         <div className="relative">
         <button

@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
-import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin, Store, Sun, Moon } from "lucide-react";
+import { ShoppingCart, Heart, User, Menu, ShoppingBag, ChevronDown, LayoutDashboard, LogOut, MapPin, Store } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { MobileMenu } from "./MobileMenu";
@@ -17,7 +16,6 @@ export function Navbar() {
   const { t } = useTranslation();
   const { itemCount } = useCart();
   const { isAuthenticated, user } = useAuth();
-  const { theme, setTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
@@ -172,13 +170,7 @@ export function Navbar() {
               )}
             </Link>
 
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none"
-              aria-label="Toggle Dark Mode"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+
 
             {isAuthenticated ? (
               <div
@@ -300,13 +292,7 @@ export function Navbar() {
               )}
             </Link>
 
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="text-gray-600 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none"
-              aria-label="Toggle Dark Mode"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+
 
             <button
               onClick={() => setIsMobileMenuOpen(true)}

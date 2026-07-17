@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Camera, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import api from "@/lib/axios";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
@@ -30,7 +29,6 @@ const passwordSchema = z.object({
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
   const { t, i18n } = useTranslation();
-  const { theme, setTheme } = useTheme();
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -210,24 +208,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">Theme Preference</h2>
-        <p className="mt-1 text-sm text-gray-500">Select your preferred theme for the application.</p>
-        <div className="mt-4 max-w-xs">
-          <select 
-            value={theme} 
-            onChange={(e) => {
-              setTheme(e.target.value);
-              setUser({ ...user, theme: e.target.value });
-            }}
-            className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-          >
-            <option value="system">System Default</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-      </div>
+
 
       <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">Change Password</h2>
