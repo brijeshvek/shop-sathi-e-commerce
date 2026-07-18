@@ -39,7 +39,23 @@ export function RecommendedProducts() {
     }
   };
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <section className="py-8 sm:py-12" aria-label="Loading recommended products">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-48 mb-8 animate-pulse"></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="animate-pulse space-y-4">
+                <div className="bg-gray-200 dark:bg-gray-800 aspect-[4/5] rounded-xl"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
   if (products.length === 0) return null;
 
   return (

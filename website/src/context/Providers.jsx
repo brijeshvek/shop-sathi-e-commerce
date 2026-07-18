@@ -2,7 +2,7 @@
 
 import '../i18n';
 
-import { AuthProvider } from './AuthContext';
+import { AuthProvider, useAuth } from './AuthContext';
 import { CartProvider } from './CartContext';
 import { ThemeProvider } from './ThemeContext';
 

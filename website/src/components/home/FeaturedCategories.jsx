@@ -7,6 +7,7 @@ import api from "@/lib/axios";
 
 export function FeaturedCategories() {
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -15,10 +16,30 @@ export function FeaturedCategories() {
         setCategories(data.data || []);
       } catch {
         // Silently fail — categories will remain empty
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchCategories();
   }, []);
+
+  if (isLoading) {
+    return (
+      <section className="py-8 sm:py-12 bg-gray-50 dark:bg-gray-900/50 overflow-hidden" aria-label="Loading categories">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-7 bg-gray-200 dark:bg-gray-800 rounded w-48 mb-6 animate-pulse"></div>
+          <div className="flex space-x-6 pb-4 overflow-x-auto scrollbar-none">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex flex-col items-center space-y-3 animate-pulse flex-shrink-0" style={{ minWidth: '96px' }}>
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-200 dark:bg-gray-800"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-16"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (categories.length === 0) return null;
 
