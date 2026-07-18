@@ -63,11 +63,9 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo & Customer Location */}
           <div className="flex-shrink-0 flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="bg-primary-600 text-white p-1.5 rounded-lg" aria-hidden="true">
-                <ShoppingBag className="w-5 h-5" />
-              </div>
-              <span className="text-2xl font-bold text-primary-600 font-heading tracking-tight">
+            <Link href="/" className="flex items-center">
+              <img src="/logo.png" alt="Shop Shathi Logo" className="h-10 w-10 object-contain" />
+              <span className="text-2xl font-bold text-primary-600 font-heading tracking-tight ">
                 Shop Shathi
               </span>
             </Link>

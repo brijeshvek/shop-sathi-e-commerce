@@ -9,8 +9,10 @@ import { Button } from "@/components/common/Button";
 import { Star, Truck, ShieldCheck, ArrowLeft, Heart, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function ProductDetailPage() {
+  const { t } = useTranslation();
   const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,16 +110,16 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold dark:text-white">Product not found</h2>
-        <Link href="/products" className="text-primary-600 hover:underline mt-4 inline-block">Back to products</Link>
+        <h2 className="text-2xl font-bold dark:text-white">{t('product.not_found') || "Product not found"}</h2>
+        <Link href="/products" className="text-primary-600 hover:underline mt-4 inline-block">{t('product.back_to_shop') || "Back to products"}</Link>
       </div>
     );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 dark:text-white">
-      <Link href="/products" className="inline-flex items-center text-sm text-gray-500 dark:text-white!-500                                                                                                                                                                                          hover:text-primary-600 dark:hover:text-primary-400 mb-6">
-        <ArrowLeft className="w-4 h-4 mr-1 dark:text-white" /> Back to Shop
+      <Link href="/products" className="inline-flex items-center text-sm text-gray-500 dark:text-white!-500 hover:text-primary-600 dark:hover:text-primary-400 mb-6">
+        <ArrowLeft className="w-4 h-4 mr-1 dark:text-white" /> {t('product.back_to_shop') || "Back to Shop"}
       </Link>
 
       <div className="flex flex-col md:flex-row gap-12">
@@ -177,7 +179,7 @@ export default function ProductDetailPage() {
               <Star className="w-5 h-5 fill-current" />
               <Star className="w-5 h-5 fill-current" />
               <Star className="w-5 h-5" />
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">({product.reviews?.length || 0} reviews)</span>
+              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">({product.reviews?.length || 0} {t('product.reviews') || "reviews"})</span>
             </div>
           </div>
 
@@ -191,7 +193,9 @@ export default function ProductDetailPage() {
 
           {product.features && product.features.length > 0 && (
             <div className="mb-8 border-t border-gray-100 dark:border-gray-800 pt-6">
-              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Key Features & Highlights</h3>
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
+                {t('product.key_features') || "Key Features & Highlights"}
+              </h3>
               <ul className="grid grid-cols-1 gap-3">
                 {product.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start text-sm text-gray-600 dark:text-gray-300">
@@ -222,7 +226,7 @@ export default function ProductDetailPage() {
               onClick={handleAddToCart}
               disabled={product.stock === 0}
             >
-              Add to Cart
+              {t('product.add_to_cart') || "Add to Cart"}
             </Button>
             <Button
               size="lg"
@@ -230,7 +234,7 @@ export default function ProductDetailPage() {
               onClick={handleBuyNow}
               disabled={product.stock === 0}
             >
-              Buy Now
+              {t('product.buy_now') || "Buy Now"}
             </Button>
           </div>
 
@@ -238,15 +242,23 @@ export default function ProductDetailPage() {
             <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
               <Truck className="w-6 h-6 text-blue-600 dark:text-blue-600" />
               <div>
-                <p className="text-sm font-semibold text-blue-600 dark:text-black">Free Shipping</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">On orders over ₹499</p>
+                <p className="text-sm font-semibold text-blue-600 dark:text-black">
+                  {t('product.free_shipping') || "Free Shipping"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('product.free_shipping_desc') || "On orders over ₹499"}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
               <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-600" />
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-black">100% Secure</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Encrypted Checkout</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-black">
+                  {t('product.secure_payment') || "100% Secure"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('product.secure_payment_desc') || "Encrypted Checkout"}
+                </p>
               </div>
             </div>
 

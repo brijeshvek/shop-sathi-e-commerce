@@ -106,9 +106,10 @@ export default function ProfilePage() {
 
   const onPasswordUpdate = async (data) => {
     try {
-      await api.put("/auth/update-password", {
+      await api.put(`/users/${user._id}/password`, {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword,
       });
       toast.success("Password changed successfully!");
       resetPassword();
@@ -132,8 +133,12 @@ export default function ProfilePage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-heading">Profile Information</h1>
-        <p className="mt-1 text-sm text-gray-500">Update your account's profile information and email address.</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-heading">
+          {t('profile.title') || "Profile Information"}
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          {t('profile.desc') || "Update your account's profile information and email address."}
+        </p>
       </div>
 
       <div className="flex items-center space-x-6">
@@ -168,20 +173,24 @@ export default function ProfilePage() {
           />
         </div>
         <div>
-          <h3 className="font-medium text-gray-900 dark:text-white">Profile Picture</h3>
-          <p className="text-xs text-gray-500 mt-1">JPG, PNG or WEBP. Max size 5MB.</p>
+          <h3 className="font-medium text-gray-900 dark:text-white">
+            {t('profile.pic') || "Profile Picture"}
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">
+            {t('profile.pic_desc') || "JPG, PNG or WEBP. Max size 5MB."}
+          </p>
         </div>
       </div>
 
       <form onSubmit={handleProfileSubmit(onProfileUpdate)} className="max-w-md space-y-6">
         <div className="space-y-4">
           <Input
-            label="Full Name"
+            label={t('profile.name') || "Full Name"}
             {...registerProfile("name")}
             error={profileErrors.name}
           />
           <Input
-            label="Email Address"
+            label={t('profile.email') || "Email Address"}
             type="email"
             {...registerProfile("email")}
             error={profileErrors.email}
@@ -193,8 +202,12 @@ export default function ProfilePage() {
       </form>
 
       <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">{t('profile.language_pref') || "Language Preference"}</h2>
-        <p className="mt-1 text-sm text-gray-500">Select your preferred language for the application.</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
+          {t('profile.language_pref') || "Language Preference"}
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          {t('profile.lang_pref_desc') || "Select your preferred language for the application."}
+        </p>
         <div className="mt-4 max-w-xs">
           <select 
             value={user?.language || 'en'} 
@@ -208,36 +221,38 @@ export default function ProfilePage() {
         </div>
       </div>
 
-
-
       <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">Change Password</h2>
-        <p className="mt-1 text-sm text-gray-500">Ensure your account is using a long, random password to stay secure.</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
+          {t('profile.password_title') || "Change Password"}
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          {t('profile.password_desc') || "Ensure your account is using a long, random password to stay secure."}
+        </p>
       </div>
 
       <form onSubmit={handlePasswordSubmit(onPasswordUpdate)} className="max-w-md space-y-6">
         <div className="space-y-4">
           <Input
-            label="Current Password"
+            label={t('profile.current_pass') || "Current Password"}
             type="password"
             {...registerPassword("currentPassword")}
             error={passwordErrors.currentPassword}
           />
           <Input
-            label="New Password"
+            label={t('profile.new_pass') || "New Password"}
             type="password"
             {...registerPassword("newPassword")}
             error={passwordErrors.newPassword}
           />
           <Input
-            label="Confirm New Password"
+            label={t('profile.confirm_pass') || "Confirm New Password"}
             type="password"
             {...registerPassword("confirmPassword")}
             error={passwordErrors.confirmPassword}
           />
         </div>
         <Button type="submit" variant="secondary" isLoading={isPasswordSubmitting}>
-          Update Password
+          {t('profile.update_pass') || "Update Password"}
         </Button>
       </form>
     </div>

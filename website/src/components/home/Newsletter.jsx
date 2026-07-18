@@ -1,8 +1,10 @@
 "use client";
 
 import { Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function Newsletter() {
+  const { t } = useTranslation();
   return (
     <section className="py-12 sm:py-16 lg:py-20 bg-primary-600 dark:bg-primary-900 relative overflow-hidden" aria-label="Newsletter Subscription">
       {/* Decorative background elements */}
@@ -13,10 +15,10 @@ export function Newsletter() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative z-10">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-4 font-heading tracking-tight">
-          Join the Shop Shathi Family
+          {t('home.newsletter')}
         </h2>
         <p className="mb-8 text-primary-100 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-          Subscribe to our newsletter to get the latest updates on new products, upcoming sales, and exclusive discount codes directly in your inbox.
+          {t('home.newsletter_desc')}
         </p>
         
         <form 
@@ -39,7 +41,7 @@ export function Newsletter() {
             type="submit" 
             className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white font-bold py-3.5 px-8 rounded-full transition-colors whitespace-nowrap shadow-md"
           >
-            Subscribe Now
+            {t('profile.language') === 'Gujarati' ? 'સબ્સ્ક્રાઇબ કરો' : t('profile.language') === 'Hindi' ? 'सदस्यता लें' : 'Subscribe Now'}
           </button>
         </form>
         <p className="mt-4 text-xs text-primary-200">

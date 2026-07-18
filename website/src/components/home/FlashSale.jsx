@@ -8,8 +8,10 @@ import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { Timer } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function FlashSale() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
@@ -90,14 +92,14 @@ export function FlashSale() {
           <div className="flex items-center space-x-2 sm:space-x-3">
             <span className="text-xl sm:text-2xl" aria-hidden="true">⚡</span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
-              Flash Sale
+              {t('home.flash_sale')}
             </h2>
           </div>
           
           {/* Ticking Clock — no animate-pulse for accessibility */}
           <div className="flex items-center space-x-2 bg-rose-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-md font-mono text-xs sm:text-sm font-bold" role="timer" aria-live="polite" aria-label={`Flash sale ends in ${timeLeft.hours} hours ${timeLeft.minutes} minutes ${timeLeft.seconds} seconds`}>
             <Timer className="w-4 h-4" aria-hidden="true" />
-            <span>Ends In:</span>
+            <span>{t('profile.language') === 'Gujarati' ? 'સમાપ્ત થાય છે:' : t('profile.language') === 'Hindi' ? 'समाप्त होने में:' : 'Ends In:'}</span>
             <span>{formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}</span>
           </div>
         </div>

@@ -8,7 +8,10 @@ import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 
+import { useTranslation } from "react-i18next";
+
 export function FeaturedProducts() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
@@ -59,9 +62,11 @@ export function FeaturedProducts() {
     <section className="py-8 sm:py-12" aria-label="New arrivals">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white">New Arrivals</h2>
+          <h2 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 dark:text-white">
+            {t('home.new_arrivals')}
+          </h2>
           <Link href="/products" className="text-primary-600 hover:text-primary-700 font-medium hidden sm:block">
-            View All &rarr;
+            {t('home.view_all')} &rarr;
           </Link>
         </div>
 

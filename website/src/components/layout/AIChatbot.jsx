@@ -70,26 +70,27 @@ export function AIChatbot() {
   ];
 
   // Client-side local smart search & matching engine
-  const handleLocalResponse = (query) => {
+  const handleLocalResponse = (query, liveMatchedProducts) => {
     const q = query.toLowerCase();
 
-    // 1. Check if user is asking for product suggestions or searching products
-    const isProductSearch = /suggest|recommend|product|show|find|search|buy|item|device|clothing|phone|laptop|watch/i.test(q);
-    
-    // Search products if requested or if query matches product names/categories
-    let matchedProducts = [];
-    if (isProductSearch || q.length > 2) {
-      matchedProducts = products.filter(p => {
-        const nameMatch = p.name?.toLowerCase().includes(q);
-        const descMatch = p.description?.toLowerCase().includes(q);
-        const brandMatch = p.brand?.toLowerCase().includes(q);
-        const categoryMatch = typeof p.category === 'object' && p.category?.name?.toLowerCase().includes(q);
-        return nameMatch || descMatch || brandMatch || categoryMatch;
-      });
+    // Use live matched products from the database search
+    let matchedProducts = liveMatchedProducts || [];
 
-      // If no matching items, but user asked for general suggestions, return featured/top-rated
-      if (matchedProducts.length === 0 && isProductSearch) {
-        matchedProducts = products.slice(0, 4);
+    // If no live matches, fall back to offline search in preloaded list
+    if (matchedProducts.length === 0) {
+      const isProductSearch = /suggest|recommend|product|show|find|search|buy|item|device|clothing|phone|laptop|watch/i.test(q);
+      if (isProductSearch || q.length > 2) {
+        matchedProducts = products.filter(p => {
+          const nameMatch = p.name?.toLowerCase().includes(q);
+          const descMatch = p.description?.toLowerCase().includes(q);
+          const brandMatch = p.brand?.toLowerCase().includes(q);
+          const categoryMatch = typeof p.category === 'object' && p.category?.name?.toLowerCase().includes(q);
+          return nameMatch || descMatch || brandMatch || categoryMatch;
+        });
+
+        if (matchedProducts.length === 0 && isProductSearch) {
+          matchedProducts = products.slice(0, 4);
+        }
       }
     }
 
@@ -100,7 +101,7 @@ export function AIChatbot() {
     faqs.forEach(faq => {
       const question = faq.question.toLowerCase();
       const answer = faq.answer.toLowerCase();
-      
+
       // Calculate a basic matching score
       let score = 0;
       const keywords = q.split(/\s+/);
@@ -158,14 +159,15 @@ export function AIChatbot() {
   };
 
   // Live Gemini API client-side fetch integration
-  const queryGeminiAPI = async (userQuery) => {
+  const queryGeminiAPI = async (userQuery, liveMatchedProducts) => {
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     if (!apiKey) return null;
 
     try {
       // Build context from current products and FAQs
       const faqContext = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
-      const productContext = products.map(p => `- ${p.name} (Brand: ${p.brand || 'N/A'}, Price: ₹${p.price}, Link slug: ${p.slug})`).join("\n");
+      const activeProducts = liveMatchedProducts && liveMatchedProducts.length > 0 ? liveMatchedProducts : products;
+      const productContext = activeProducts.map(p => `- ${p.name} (Brand: ${p.brand || 'N/A'}, Price: ₹${p.price}, Link slug: ${p.slug})`).join("\n");
 
       const systemPrompt = `You are a helpful AI Assistant for Shop Shathi, a premium e-commerce store.
 Your goals:
@@ -181,7 +183,7 @@ Store Policies:
 Frequently Asked Questions (FAQs):
 ${faqContext || "No FAQs loaded."}
 
-Product Catalog:
+Product Catalog (Direct search matches from database):
 ${productContext || "No products loaded."}
 
 User query: "${userQuery}"
@@ -215,10 +217,10 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
 
       const resData = await response.json();
       const answerText = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      
+
       // Parse suggested products from the AI text to render product cards
       const suggestedProds = [];
-      products.forEach(p => {
+      activeProducts.forEach(p => {
         if (answerText.toLowerCase().includes(p.name.toLowerCase())) {
           if (!suggestedProds.find(sp => sp._id === p._id)) {
             suggestedProds.push(p);
@@ -226,9 +228,12 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
         }
       });
 
+      // If AI recommends products but we missed parsing them, use the active search results
+      const finalProds = suggestedProds.length > 0 ? suggestedProds : activeProducts;
+
       return {
         text: answerText,
-        products: suggestedProds.slice(0, 3)
+        products: finalProds.slice(0, 3)
       };
     } catch (err) {
       console.error("Gemini query error, falling back to local search:", err);
@@ -252,15 +257,47 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
     setIsLoading(true);
 
     try {
+      const q = text.toLowerCase();
+      let liveMatchedProducts = [];
+
+      // DYNAMIC LIVE DATABASE SEARCH: Extract keywords and search dynamically from database
+      const stopwords = new Set(["what", "is", "your", "the", "this", "that", "these", "those", "have", "some", "good", "best", "any", "show", "find", "search", "suggest", "recommend", "please", "about", "product", "products", "item", "items", "for", "with", "from", "me"]);
+      const keywords = q.split(/\s+/).map(w => w.replace(/[^a-zA-Z0-9]/g, "")).filter(w => w.length > 2 && !stopwords.has(w));
+
+      if (keywords.length > 0) {
+        try {
+          const searchStr = keywords.join(" ");
+          const { data } = await api.get(`/products?search=${encodeURIComponent(searchStr)}&limit=8`);
+          if (data && data.data) {
+            liveMatchedProducts = data.data;
+          }
+        } catch (err) {
+          console.error("Live DB search failed:", err);
+        }
+      }
+
+      // Fallback to general catalog if no search results match but user asked for suggestions
+      const isProductQuery = /suggest|recommend|product|show|find|search|buy|item|device|clothing|phone|laptop|watch|headphone|shoes|tshirt|shirt|camera|tv/i.test(q);
+      if (liveMatchedProducts.length === 0 && isProductQuery) {
+        try {
+          const { data } = await api.get("/products?limit=8");
+          if (data && data.data) {
+            liveMatchedProducts = data.data;
+          }
+        } catch (err) {
+          console.error("Failed to fetch default products:", err);
+        }
+      }
+
       let responseData = null;
-      // Try Gemini API first if configured
+      // Try Gemini API first if configured, feeding live search products context
       if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-        responseData = await queryGeminiAPI(text);
+        responseData = await queryGeminiAPI(text, liveMatchedProducts);
       }
 
       // Fallback to local matching if Gemini is not set or failed
       if (!responseData) {
-        responseData = handleLocalResponse(text);
+        responseData = handleLocalResponse(text, liveMatchedProducts);
       }
 
       setMessages(prev => [
@@ -307,12 +344,12 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Shop Shathi Assistant</h3>
-                  <div className="flex items-center gap-1.5 mt-0.5">
+                  {/* <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping"></span>
                     <span className="text-[10px] text-primary-100 font-medium uppercase tracking-wider">
                       {process.env.NEXT_PUBLIC_GEMINI_API_KEY ? "Gemini AI Active" : "Smart Matching Active"}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <button
@@ -339,11 +376,10 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
                     )}
                     <div className="space-y-2">
                       <div
-                        className={`p-3 rounded-2xl text-xs leading-relaxed shadow-xs ${
-                          msg.sender === "user"
-                            ? "bg-primary-600 text-white rounded-tr-none"
-                            : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-800"
-                        }`}
+                        className={`p-3 rounded-2xl text-xs leading-relaxed shadow-xs ${msg.sender === "user"
+                          ? "bg-primary-600 text-white rounded-tr-none"
+                          : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-800"
+                          }`}
                       >
                         {msg.text}
                       </div>
@@ -404,7 +440,7 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
 
             {/* Quick Prompts */}
             {messages.length === 1 && (
-              <div className="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+              <div className="p-3 bg-white dark:bg-gray-950/20 border-t border-gray-100 dark:border-gray-800">
                 <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                   <HelpCircle className="w-3.5 h-3.5 text-primary-500" /> Suggested queries:
                 </p>
@@ -454,7 +490,7 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
         aria-label="Toggle AI Assistant"
       >
         <Sparkles className="w-6 h-6 text-amber-300" />
-        
+
         {/* Floating Greeting Badge */}
         {!isOpen && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -462,7 +498,7 @@ Provide a concise, polite, customer-friendly response in plain text. If you sugg
             <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
           </span>
         )}
-        
+
         {/* Hover Tooltip */}
         {!isOpen && (
           <span className="absolute right-16 scale-0 group-hover:scale-100 transition-all origin-right bg-gray-900 text-white text-[10px] font-bold tracking-wide uppercase px-2.5 py-1.5 rounded-lg whitespace-nowrap shadow-md">

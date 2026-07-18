@@ -93,8 +93,9 @@ export function MobileMenu({ isOpen, onClose }) {
         }`}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
-          <Link href="/" onClick={onClose} className="text-xl font-bold text-primary-600 font-heading">
-            Shop Shathi
+          <Link href="/" onClick={onClose} className="flex items-center space-x-2 text-xl font-bold text-primary-600 font-heading">
+            <img src="/logo.png" alt="Shop Shathi Logo" className="h-8 w-8 object-contain" />
+            <span>Shop Shathi</span>
           </Link>
           <button 
             ref={closeButtonRef}

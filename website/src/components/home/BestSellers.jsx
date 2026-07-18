@@ -8,8 +8,10 @@ import { useCart } from "@/context/CartContext";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function BestSellers() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
@@ -65,11 +67,11 @@ export function BestSellers() {
           <div className="flex items-center space-x-2">
             <span className="text-xl sm:text-2xl" aria-hidden="true">⭐</span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
-              Best Sellers
+              {t('home.bestsellers')}
             </h2>
           </div>
           <Link href="/products?sort=ratings.average" className="text-xs sm:text-sm font-semibold text-primary-600 hover:text-primary-700 whitespace-nowrap">
-            View All &rarr;
+            {t('home.view_all')} &rarr;
           </Link>
         </div>
 

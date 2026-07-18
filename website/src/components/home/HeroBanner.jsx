@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/common/Button';
 import api from '@/lib/axios';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_SLIDES = [
   {
@@ -36,6 +37,7 @@ const DEFAULT_SLIDES = [
 ];
 
 export function HeroBanner() {
+  const { t } = useTranslation();
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -101,7 +103,7 @@ export function HeroBanner() {
                   <div className="mt-6 sm:mt-8">
                     <Link href={slide.link || '/products'}>
                       <Button size="lg" className="px-6 py-2.5 sm:px-8 sm:py-3 text-base sm:text-lg rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all">
-                        Shop Now
+                        {t('home.shop_now')}
                       </Button>
                     </Link>
                   </div>
