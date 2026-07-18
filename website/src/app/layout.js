@@ -4,6 +4,7 @@ import { Providers } from "@/context/Providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalLoader } from "@/components/common/GlobalLoader";
+import { AIChatbot } from "@/components/layout/AIChatbot";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -111,6 +112,7 @@ export default function RootLayout({ children }) {
           <GlobalLoader />
           <Navbar />
           <Toaster position="bottom-right" />
+          <AIChatbot />
           <main id="main-content" className="flex-1">
             {children}
           </main>
