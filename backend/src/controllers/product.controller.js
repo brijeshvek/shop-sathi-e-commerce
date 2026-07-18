@@ -60,6 +60,15 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   const product = await Product.findOne({ slug: req.params.slug, isActive: true })
     .populate('category', 'name slug').lean()
   if (!product) throw new ApiError(404, 'Product not found.')
+
+  const ReviewModel = mongoose.model('Review')
+  const reviews = await ReviewModel.find({ product: product._id })
+    .populate('user', 'name')
+    .sort({ createdAt: -1 })
+    .lean()
+
+  product.reviews = reviews
+
   res.status(200).json(new ApiResponse(200, product, 'Product fetched'))
 })
 

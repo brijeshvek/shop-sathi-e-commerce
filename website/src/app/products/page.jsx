@@ -1,8 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
-
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -22,6 +20,12 @@ function ProductsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const observerTarget = useRef(null);
+
   // Filters state
   const [category, setCategory] = useState(searchParams.get("category") || "");
   const [search, setSearch] = useState(initialSearch);
@@ -37,9 +41,39 @@ function ProductsContent() {
     fetchCategories();
   }, []);
 
+  // When filters change, reset pagination
   useEffect(() => {
-    fetchProducts();
+    setPage(1);
+    setHasMore(true);
+    fetchProducts(1, true);
   }, [category, search, minPrice, maxPrice, sort, selectedBrand]);
+
+  // Load next pages
+  useEffect(() => {
+    if (page > 1) {
+      fetchProducts(page, false);
+    }
+  }, [page]);
+
+  // Intersection Observer to trigger next page
+  useEffect(() => {
+    const target = observerTarget.current;
+    if (!target || !hasMore || isLoading || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(target);
+    return () => {
+      if (target) observer.unobserve(target);
+    };
+  }, [hasMore, isLoading, isFetchingNextPage]);
 
   useEffect(() => {
     setSearch(searchParams.get("search") || "");
@@ -73,8 +107,13 @@ function ProductsContent() {
     }
   };
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
+  const fetchProducts = async (pageNum = 1, shouldReset = false) => {
+    if (pageNum === 1) {
+      setIsLoading(true);
+    } else {
+      setIsFetchingNextPage(true);
+    }
+
     try {
       let sortField = "createdAt";
       let order = "desc";
@@ -87,7 +126,7 @@ function ProductsContent() {
         order = "desc";
       }
 
-      let url = `/products?sort=${sortField}&order=${order}&limit=100`;
+      let url = `/products?sort=${sortField}&order=${order}&limit=12&page=${pageNum}`;
       if (category) url += `&category=${category}`;
       if (search) url += `&search=${search}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
@@ -95,11 +134,28 @@ function ProductsContent() {
       if (selectedBrand) url += `&brand=${selectedBrand}`;
 
       const { data } = await api.get(url);
-      setProducts(data.data || []);
+      const newProducts = data.data || [];
+
+      if (shouldReset || pageNum === 1) {
+        setProducts(newProducts);
+      } else {
+        setProducts((prev) => {
+          const existingIds = new Set(prev.map((p) => p._id));
+          const filteredNew = newProducts.filter((p) => !existingIds.has(p._id));
+          return [...prev, ...filteredNew];
+        });
+      }
+
+      if (newProducts.length < 12) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
     } catch (error) {
       console.error("Failed to fetch products");
     } finally {
       setIsLoading(false);
+      setIsFetchingNextPage(false);
     }
   };
 
@@ -315,42 +371,57 @@ function ProductsContent() {
               <Button className="mt-6" onClick={clearFilters}>Clear Filters</Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <div key={product._id} className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100">
-                  <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
-                    {product.images?.[0] ? (
-                      <img
-                        src={product.images[0].url}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                    )}
-                  </Link>
-                  <div className="p-4 flex flex-col flex-grow">
-                    <div className="text-xs text-gray-500 mb-1">{product.category?.name}</div>
-                    <Link href={`/products/${product.slug || product._id}`}>
-                      <h3 className="font-medium text-gray-900 line-clamp-2 hover:text-primary-600 transition-colors">
-                        {product.name}
-                      </h3>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <div key={product._id} className="group flex flex-col bg-surface rounded-xl overflow-hidden hover-lift border border-gray-100">
+                    <Link href={`/products/${product.slug || product._id}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0].url}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                      )}
                     </Link>
-                    <div className="mt-auto pt-4 flex items-center justify-between">
-                      <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
-                      <button
-                        onClick={(e) => handleAddToCart(product, e)}
-                        className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
-                      >
-                        <svg className="w-4 h-4 dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <div className="text-xs text-gray-500 mb-1">{product.category?.name}</div>
+                      <Link href={`/products/${product.slug || product._id}`}>
+                        <h3 className="font-medium text-gray-900 line-clamp-2 hover:text-primary-600 transition-colors">
+                          {product.name}
+                        </h3>
+                      </Link>
+                      <div className="mt-auto pt-4 flex items-center justify-between">
+                        <span className="font-bold text-lg text-primary-600">₹{product.price?.toFixed(2)}</span>
+                        <button
+                          onClick={(e) => handleAddToCart(product, e)}
+                          className="text-white bg-gray-900 hover:bg-primary-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors shadow-sm"
+                        >
+                          <svg className="w-4 h-4 dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {/* Sentinel element for infinite scrolling */}
+              <div ref={observerTarget} className="h-10 w-full flex items-center justify-center mt-6">
+                {isFetchingNextPage && (
+                  <div className="flex items-center space-x-2 py-4">
+                    <Spinner size="sm" />
+                    <span className="text-sm text-gray-500 font-medium animate-pulse">Loading more products...</span>
+                  </div>
+                )}
+                {!hasMore && products.length > 0 && (
+                  <p className="text-sm text-gray-400 font-medium my-4">You have seen all products</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

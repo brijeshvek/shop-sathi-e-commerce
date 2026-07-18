@@ -47,6 +47,8 @@ export const EditProductPage = () => {
   const [uploading, setUploading] = useState(false)
   const [manualUrl, setManualUrl] = useState('')
   const [showCustomBrand, setShowCustomBrand] = useState(false)
+  const [features, setFeatures] = useState([''])
+  const [specifications, setSpecifications] = useState([{ key: '', value: '' }])
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(productSchema),
@@ -112,6 +114,8 @@ export const EditProductPage = () => {
         attributes: product.attributes || {}
       })
       setImages(product.images || [])
+      setFeatures(product.features && product.features.length > 0 ? product.features : [''])
+      setSpecifications(product.specifications && product.specifications.length > 0 ? product.specifications : [{ key: '', value: '' }])
     }
   }, [product, reset])
 
@@ -188,6 +192,8 @@ export const EditProductPage = () => {
         subcategory: data.subCategory,
         tags: formattedTags,
         images,
+        features: features.map(f => f.trim()).filter(Boolean),
+        specifications: specifications.filter(spec => spec.key.trim() && spec.value.trim()),
         returnPolicy: {
           isReturnable: data.isReturnable,
           returnDays: data.isReturnable ? data.returnDays : 0,
@@ -345,6 +351,100 @@ export const EditProductPage = () => {
                     {errors.brand && <p className="text-xs text-red-500 mt-1">{errors.brand.message}</p>}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Features / Highlights */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Product Highlights (Key Features)</h3>
+              <div className="space-y-3">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <span className="text-slate-400 text-sm font-semibold w-6">{index + 1}.</span>
+                    <input
+                      type="text"
+                      value={feature}
+                      onChange={(e) => {
+                        const updated = [...features];
+                        updated[index] = e.target.value;
+                        setFeatures(updated);
+                      }}
+                      placeholder="e.g. 48MP Triple Camera System"
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    />
+                    {features.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFeatures(features.filter((_, idx) => idx !== index));
+                        }}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X size={18} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setFeatures([...features, ''])}
+                >
+                  + Add Highlight
+                </Button>
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
+              <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Technical Specifications</h3>
+              <div className="space-y-3">
+                {specifications.map((spec, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={spec.key}
+                      onChange={(e) => {
+                        const updated = [...specifications];
+                        updated[index].key = e.target.value;
+                        setSpecifications(updated);
+                      }}
+                      placeholder="Name (e.g. RAM)"
+                      className="w-1/3 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    />
+                    <input
+                      type="text"
+                      value={spec.value}
+                      onChange={(e) => {
+                        const updated = [...specifications];
+                        updated[index].value = e.target.value;
+                        setSpecifications(updated);
+                      }}
+                      placeholder="Value (e.g. 8 GB)"
+                      className="w-2/3 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    />
+                    {specifications.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSpecifications(specifications.filter((_, idx) => idx !== index));
+                        }}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X size={18} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSpecifications([...specifications, { key: '', value: '' }])}
+                >
+                  + Add Specification
+                </Button>
               </div>
             </div>
 

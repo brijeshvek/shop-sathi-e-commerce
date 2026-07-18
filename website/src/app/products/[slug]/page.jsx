@@ -189,6 +189,20 @@ export default function ProductDetailPage() {
             {product.description}
           </p>
 
+          {product.features && product.features.length > 0 && (
+            <div className="mb-8 border-t border-gray-100 dark:border-gray-800 pt-6">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Key Features & Highlights</h3>
+              <ul className="grid grid-cols-1 gap-3">
+                {product.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                    <span className="mr-3 mt-2 w-1.5 h-1.5 rounded-full bg-primary-600 flex-shrink-0" />
+                    <span className="leading-relaxed">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="mt-auto border-t border-gray-200 dark:border-gray-700 pt-8 flex flex-col sm:flex-row gap-4 items-center">
             <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg h-12 w-full sm:w-32 bg-white dark:bg-gray-800">
               <button
@@ -320,8 +334,8 @@ export default function ProductDetailPage() {
           )}
         </div>
 
-        {/* Dimensions, Shipping, Compliance & Warranty Info */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Dimensions, Shipping, & Warranty Info */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Dimensions */}
           {product.dimensions && (product.dimensions.weight || product.dimensions.height) && (
             <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
@@ -345,24 +359,74 @@ export default function ProductDetailPage() {
               </ul>
             </div>
           )}
+        </div>
+      </div>
 
-          {/* Certifications */}
-          {product.certifications && (
-            <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-              <h4 className="text-md font-semibold text-gray-900 dark:text-black mb-3">Compliance & Certifications</h4>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {Object.entries(product.certifications).map(([cert, val]) => {
-                  if (!val) return null;
-                  return (
-                    <span key={cert} className="px-2.5 py-1 bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300 text-xs font-bold rounded-md uppercase">
-                      {cert}
-                    </span>
-                  );
-                })}
+      {/* Customer Reviews Section */}
+      <div className="mt-16 border-t border-gray-200 dark:border-gray-700 pt-10">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Customer Reviews</h3>
+        
+        {(!product.reviews || product.reviews.length === 0) ? (
+          <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Rating summary */}
+            <div className="lg:col-span-1 space-y-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-4xl font-extrabold text-gray-900 dark:text-white">
+                  {product.ratings?.average || 0}
+                </span>
+                <span className="text-lg text-gray-500">out of 5</span>
+              </div>
+              <div className="flex items-center text-accent-500">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={`w-5 h-5 ${star <= Math.round(product.ratings?.average || 0) ? 'fill-current text-amber-500' : 'text-gray-300'}`} 
+                  />
+                ))}
+                <span className="ml-2 text-sm text-gray-500">
+                  {product.ratings?.count || 0} global ratings
+                </span>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Reviews List */}
+            <div className="lg:col-span-2 space-y-6 divide-y divide-gray-150 dark:divide-gray-800">
+              {product.reviews.map((review, idx) => (
+                <div key={idx} className={`${idx > 0 ? 'pt-6' : ''} space-y-2`}>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-750 flex items-center justify-center font-bold text-sm">
+                      {review.user?.name ? review.user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {review.user?.name || 'Verified User'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center text-accent-500">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`w-4 h-4 ${star <= review.rating ? 'fill-current text-amber-500' : 'text-gray-350'}`} 
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-gray-950 dark:text-white">
+                      {review.title}
+                    </span>
+                  </div>
+                  {review.isVerifiedPurchase && (
+                    <p className="text-xs font-semibold text-amber-600">Verified Purchase</p>
+                  )}
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {review.comment}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
