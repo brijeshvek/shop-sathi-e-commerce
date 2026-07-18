@@ -5,6 +5,7 @@ import { useGetMeQuery } from './features/auth/authApi.js'
 import { setCredentials, setLoading } from './features/auth/authSlice.js'
 import AppRoutes from './routes/AppRoutes.jsx'
 import { useTranslation } from 'react-i18next'
+import GlobalLoader from './components/common/GlobalLoader.jsx'
 
 export const App = () => {
   const dispatch = useDispatch()
@@ -27,6 +28,7 @@ export const App = () => {
 
   return (
     <>
+      <GlobalLoader />
       <Toaster 
         position="top-right"
         toastOptions={{

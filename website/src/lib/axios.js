@@ -9,14 +9,32 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  // Only access localStorage if we are in the browser
+  // Only access window and localStorage if we are in the browser
   if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('axios-request-start'));
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;
+}, (error) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('axios-request-end'));
+  }
+  return Promise.reject(error);
+});
+
+api.interceptors.response.use((response) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('axios-request-end'));
+  }
+  return response;
+}, (error) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('axios-request-end'));
+  }
+  return Promise.reject(error);
 });
 
 export default api;

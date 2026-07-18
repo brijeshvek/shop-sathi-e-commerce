@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { Providers } from "@/context/Providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { GlobalLoader } from "@/components/common/GlobalLoader";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -107,6 +108,7 @@ export default function RootLayout({ children }) {
         </a>
 
         <Providers>
+          <GlobalLoader />
           <Navbar />
           <Toaster position="bottom-right" />
           <main id="main-content" className="flex-1">
