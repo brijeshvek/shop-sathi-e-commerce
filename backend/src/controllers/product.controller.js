@@ -10,10 +10,12 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   const {
     page = 1, limit = 12, search, category, minPrice, maxPrice,
     brand, minRating, inStock, isFeatured, sort = 'createdAt', order = 'desc', tags, isFlashSale,
+    collectionName,
   } = req.query
 
   const filter = { isActive: true }
   if (isFlashSale === 'true') filter.isFlashSale = true
+  if (collectionName) filter.collectionName = collectionName
   if (search) filter.$text = { $search: search }
   if (category) {
     const childCats = await Category.find({ parent: category }).select('_id').lean()

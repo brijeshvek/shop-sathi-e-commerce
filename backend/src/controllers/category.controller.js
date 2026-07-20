@@ -6,7 +6,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 
 // GET /api/categories
 export const getAllCategories = asyncHandler(async (req, res) => {
-  const allCategories = await Category.find({ isActive: true }).lean()
+  const allCategories = await Category.find({ isActive: true, name: { $ne: "Seasonal Collections" } }).lean()
 
   const buildTree = (parentId) => {
     return allCategories

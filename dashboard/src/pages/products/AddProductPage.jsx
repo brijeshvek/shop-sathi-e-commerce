@@ -87,28 +87,39 @@ export const AddProductPage = () => {
   const dynamicFields = attrRes?.data?.fields || []
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    const formData = new FormData()
-    formData.append('image', file)
+    const files = Array.from(e.target.files)
+    if (files.length === 0) return
 
     setUploading(true)
     try {
-      const res = await api.post('/upload/image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      if (res.data?.success) {
-        const newImg = { 
-          url: res.data.data.url, 
-          publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9), 
-          isMain: images.length === 0 
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData()
+        formData.append('image', file)
+        const res = await api.post('/upload/image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (res.data?.success) {
+          return {
+            url: res.data.data.url,
+            publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9),
+            isMain: false
+          }
         }
-        setImages([...images, newImg])
-        toast.success('Image uploaded successfully!')
-      }
+        throw new Error('Upload failed')
+      })
+
+      const uploadedImages = await Promise.all(uploadPromises)
+      
+      setImages(prev => {
+        const updated = [...prev, ...uploadedImages]
+        if (updated.length > 0 && !updated.some(img => img.isMain)) {
+          updated[0].isMain = true
+        }
+        return updated
+      })
+      toast.success(`${uploadedImages.length} images uploaded successfully!`)
     } catch (err) {
-      toast.error('File upload failed. Ensure it is a valid image under 5MB.')
+      toast.error('Some files failed to upload. Ensure they are valid images under 5MB.')
     } finally {
       setUploading(false)
     }
@@ -208,9 +219,9 @@ export const AddProductPage = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main fields (2 cols) */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
+          {/* Main fields */}
+          <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-xs">
               <h3 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">Basic Information</h3>
               <Input
@@ -635,6 +646,7 @@ export const AddProductPage = () => {
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleFileUpload}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                   disabled={uploading}
@@ -662,10 +674,10 @@ export const AddProductPage = () => {
 
               {/* Uploaded Images List */}
               {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   {images.map((img, idx) => (
-                    <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 h-20 bg-slate-50">
-                      <img src={img.url} alt="Uploaded" className="w-full h-full object-cover" />
+                    <div key={idx} className={`relative group rounded-lg overflow-hidden border h-24 w-24 bg-slate-50 flex items-center justify-center p-1 ${img.isMain ? 'border-2 border-green-500 ring-2 ring-green-500/20' : 'border-slate-200'}`}>
+                      <img src={img.url} alt="Uploaded" className="max-w-full max-h-full object-contain" />
                       <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-1.5 transition-opacity">
                         <button
                           type="button"

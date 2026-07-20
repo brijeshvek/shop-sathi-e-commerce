@@ -34,6 +34,7 @@ function ProductsContent() {
   const [sort, setSort] = useState("newest");
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") || "");
   const [brands, setBrands] = useState([]);
+  const [collectionName, setCollectionName] = useState(searchParams.get("collectionName") || "");
 
   const { addToCart } = useCart();
 
@@ -46,7 +47,7 @@ function ProductsContent() {
     setPage(1);
     setHasMore(true);
     fetchProducts(1, true);
-  }, [category, search, minPrice, maxPrice, sort, selectedBrand]);
+  }, [category, search, minPrice, maxPrice, sort, selectedBrand, collectionName]);
 
   // Load next pages
   useEffect(() => {
@@ -79,6 +80,7 @@ function ProductsContent() {
     setSearch(searchParams.get("search") || "");
     setCategory(searchParams.get("category") || "");
     setSelectedBrand(searchParams.get("brand") || "");
+    setCollectionName(searchParams.get("collectionName") || "");
   }, [searchParams]);
 
   useEffect(() => {
@@ -132,6 +134,7 @@ function ProductsContent() {
       if (minPrice) url += `&minPrice=${minPrice}`;
       if (maxPrice) url += `&maxPrice=${maxPrice}`;
       if (selectedBrand) url += `&brand=${selectedBrand}`;
+      if (collectionName) url += `&collectionName=${encodeURIComponent(collectionName)}`;
 
       const { data } = await api.get(url);
       const newProducts = data.data || [];
@@ -166,6 +169,7 @@ function ProductsContent() {
     params.delete("minPrice");
     params.delete("maxPrice");
     params.delete("brand");
+    params.delete("collectionName");
     router.push(`/products?${params.toString()}`);
   };
 
@@ -339,7 +343,7 @@ function ProductsContent() {
         <div className="flex-1">
           <div className="hidden md:flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold font-heading">
-              {search ? `Search results for "${search}"` : "Shop All"}
+              {collectionName ? collectionName : search ? `Search results for "${search}"` : "Shop All"}
             </h1>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">Sort by:</span>
