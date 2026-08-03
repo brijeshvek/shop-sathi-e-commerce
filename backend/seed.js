@@ -81,7 +81,12 @@ const seedData = async () => {
             price: Math.floor(Math.random() * 900) + 10,
             originalPrice: Math.floor(Math.random() * 1000) + 100,
             category: category._id, stock: Math.floor(Math.random() * 50),
-            images: [{ url: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=500', isMain: true }],
+            images: [
+              { url: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=800&q=80', isMain: true },
+              { url: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80', isMain: false },
+              { url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80', isMain: false },
+              { url: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80', isMain: false }
+            ],
             isActive: true
           });
         }

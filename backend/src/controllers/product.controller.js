@@ -39,11 +39,13 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit)
   const [products, total] = await Promise.all([
     Product.find(filter)
+      .select('name slug price originalPrice discount images category brand ratings stock isActive isFeatured isFlashSale collectionName tags createdAt')
       .populate('category', 'name slug')
       .sort(sortObj).skip(skip).limit(Number(limit)).lean(),
     Product.countDocuments(filter),
   ])
 
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=300')
   res.status(200).json(new ApiResponse(200, products, 'Products fetched', {
     currentPage: Number(page), totalPages: Math.ceil(total / limit),
     totalItems: total, itemsPerPage: Number(limit),
@@ -53,7 +55,9 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 // GET /api/products/featured
 export const getFeaturedProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({ isActive: true, isFeatured: true })
+    .select('name slug price originalPrice discount images category brand ratings stock isActive isFeatured isFlashSale collectionName createdAt')
     .populate('category', 'name slug').limit(8).lean()
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=300')
   res.status(200).json(new ApiResponse(200, products, 'Featured products fetched'))
 })
 

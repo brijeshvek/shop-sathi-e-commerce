@@ -27,5 +27,9 @@ categorySchema.virtual('isSubcategory').get(function () {
   return this.parent !== null
 })
 
+// Performance Indexes
+categorySchema.index({ isActive: 1, parent: 1 })
+categorySchema.index({ slug: 1 })
+
 const Category = mongoose.model('Category', categorySchema)
 export default Category

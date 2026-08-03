@@ -9,6 +9,9 @@
     "dev": "nodemon server.js",
     "lint": "eslint src/**/*.js",
     "seed": "node src/utils/seed.js",
+    "update-images": "node scripts/updateAllProductImages.js",
+    "bulk-update-images": "node scripts/bulkUpdateAllImages.js",
+    "exact-product-images": "node scripts/exactProductImages.js",
     "update-pet-supplies": "node src/utils/updatePetSuppliesProducts.js",
     "update-mobile-accessories": "node src/utils/updateMobileAccessoriesProducts.js",
     "update-toys-games": "node src/utils/updateToysGamesProducts.js"

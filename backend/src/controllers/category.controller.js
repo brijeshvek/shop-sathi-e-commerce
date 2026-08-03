@@ -19,6 +19,7 @@ export const getAllCategories = asyncHandler(async (req, res) => {
 
   const result = buildTree(null)
 
+  res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=600')
   res.status(200).json(new ApiResponse(200, result, 'Categories fetched'))
 })
 
@@ -26,6 +27,7 @@ export const getAllCategories = asyncHandler(async (req, res) => {
 export const getCategoryBySlug = asyncHandler(async (req, res) => {
   const category = await Category.findOne({ slug: req.params.slug, isActive: true }).lean()
   if (!category) throw new ApiError(404, 'Category not found.')
+  res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=600')
   res.status(200).json(new ApiResponse(200, category, 'Category fetched'))
 })
 

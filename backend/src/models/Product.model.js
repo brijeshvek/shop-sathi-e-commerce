@@ -188,5 +188,13 @@ productSchema.virtual('stockStatus').get(function () {
 // Full-text search index
 productSchema.index({ name: 'text', description: 'text', tags: 'text', brand: 'text' })
 
+// Performance Compound Indexes for Deployed Site
+productSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 })
+productSchema.index({ isActive: 1, isFlashSale: 1 })
+productSchema.index({ isActive: 1, category: 1 })
+productSchema.index({ isActive: 1, collectionName: 1 })
+productSchema.index({ isActive: 1, price: 1 })
+productSchema.index({ isActive: 1, createdAt: -1 })
+
 const Product = mongoose.model('Product', productSchema)
 export default Product

@@ -134,7 +134,12 @@ const SEED_PRODUCTS = [
     originalPrice: 69999,
     brand: "OnePlus",
     sku: "OP-12-FE-512G",
-    images: [{ url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 25,
     isFeatured: true,
     tags: ["smartphone", "oneplus", "flagship", "5g"],
@@ -181,7 +186,12 @@ const SEED_PRODUCTS = [
     originalPrice: 59900,
     brand: "Apple",
     sku: "APL-IPDA-M2-128",
-    images: [{ url: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1561154464-82e9adf32764?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 12,
     isFeatured: true,
     tags: ["tablet", "ipad", "apple", "m2"],
@@ -199,7 +209,12 @@ const SEED_PRODUCTS = [
     originalPrice: 114900,
     brand: "Apple",
     sku: "APL-MBA-M3-256",
-    images: [{ url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 18,
     isFeatured: true,
     tags: ["laptop", "macbook", "apple", "m3"],
@@ -218,7 +233,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1999,
     brand: "Spigen",
     sku: "SPG-LA-IP15P-MB",
-    images: [{ url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1541877944-ac82a091518a?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 50,
     tags: ["case", "iphone 15", "spigen", "cover"],
     specifications: [
@@ -235,7 +255,12 @@ const SEED_PRODUCTS = [
     originalPrice: 14999,
     brand: "Anker",
     sku: "ANK-737-24K-140W",
-    images: [{ url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1619441207978-3d326c46e2c9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 30,
     tags: ["powerbank", "anker", "charger", "portable"],
     categoryName: "Power Banks"
@@ -248,7 +273,12 @@ const SEED_PRODUCTS = [
     originalPrice: 2999,
     brand: "Peter England",
     sku: "PE-LS-LSN-WHT",
-    images: [{ url: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 45,
     tags: ["shirt", "men", "linen", "fashion"],
     categoryName: "Men's Clothing"
@@ -261,7 +291,12 @@ const SEED_PRODUCTS = [
     originalPrice: 3999,
     brand: "Zara",
     sku: "ZR-FD-FLR-MX",
-    images: [{ url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 20,
     tags: ["dress", "women", "fashion", "floral"],
     categoryName: "Women's Clothing"
@@ -274,7 +309,12 @@ const SEED_PRODUCTS = [
     originalPrice: 7999,
     brand: "Fossil",
     sku: "FSL-MIN-LT-TN",
-    images: [{ url: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 15,
     tags: ["watch", "accessories", "leather", "timepiece"],
     categoryName: "Watches"
@@ -287,7 +327,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1299,
     brand: "The Derma Co",
     sku: "TDC-HAS-30ML",
-    images: [{ url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1608248597261-833258657640?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 100,
     tags: ["skincare", "serum", "beauty", "hydrate"],
     categoryName: "Skincare"
@@ -300,7 +345,12 @@ const SEED_PRODUCTS = [
     originalPrice: 4999,
     brand: "Prestige",
     sku: "PRST-IC-2000W",
-    images: [{ url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 22,
     tags: ["appliance", "cooktop", "kitchen", "prestige"],
     categoryName: "Kitchen Appliances"
@@ -313,7 +363,12 @@ const SEED_PRODUCTS = [
     originalPrice: 134999,
     brand: "Samsung",
     sku: "SAM-S24U-256G",
-    images: [{ url: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 15,
     isFeatured: true,
     tags: ["smartphone", "samsung", "galaxy", "5g"],
@@ -332,7 +387,12 @@ const SEED_PRODUCTS = [
     originalPrice: 179990,
     brand: "Asus",
     sku: "ASUS-ROG-G16-4070",
-    images: [{ url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 10,
     isFeatured: true,
     tags: ["laptop", "gaming", "asus", "rog"],
@@ -351,7 +411,12 @@ const SEED_PRODUCTS = [
     originalPrice: 129900,
     brand: "Apple",
     sku: "APL-MACMINI-M2P",
-    images: [{ url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1527443224154-c4a3942d4aff?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 25,
     isFeatured: false,
     tags: ["desktop", "apple", "mac mini", "m2 pro"],
@@ -370,7 +435,12 @@ const SEED_PRODUCTS = [
     originalPrice: 65999,
     brand: "AMD",
     sku: "AMD-R9-7950X",
-    images: [{ url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1562976540-1502c2145186?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 30,
     tags: ["processor", "cpu", "amd", "ryzen 9"],
     categoryName: "Computer Components"
@@ -383,7 +453,12 @@ const SEED_PRODUCTS = [
     originalPrice: 45000,
     brand: "LG",
     sku: "LG-27UP850N-W",
-    images: [{ url: "https://images.unsplash.com/photo-1527443224154-c4a3942d4aff?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1527443224154-c4a3942d4aff?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1547082299-de196ea013d6?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 15,
     isFeatured: true,
     tags: ["monitor", "lg", "4k", "display"],
@@ -397,7 +472,12 @@ const SEED_PRODUCTS = [
     originalPrice: 42999,
     brand: "HP",
     sku: "HP-LJ-4101FDW",
-    images: [{ url: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 12,
     tags: ["printer", "hp", "laserjet", "office"],
     categoryName: "Printers & Scanners"
@@ -410,7 +490,12 @@ const SEED_PRODUCTS = [
     originalPrice: 12999,
     brand: "TP-Link",
     sku: "TPL-ARCHER-AX73",
-    images: [{ url: "https://images.unsplash.com/photo-1544122860-15632120db37?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1544122860-15632120db37?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 40,
     tags: ["router", "networking", "wifi 6", "tp-link"],
     categoryName: "Networking"
@@ -423,7 +508,12 @@ const SEED_PRODUCTS = [
     originalPrice: 22999,
     brand: "Samsung",
     sku: "SAM-990PRO-2TB",
-    images: [{ url: "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1544652478-6653e09f18a2?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 50,
     tags: ["ssd", "storage", "nvme", "samsung"],
     categoryName: "Storage Devices"
@@ -436,7 +526,12 @@ const SEED_PRODUCTS = [
     originalPrice: 5499,
     brand: "Amazon",
     sku: "AMZ-ECHO-DOT5",
-    images: [{ url: "https://images.unsplash.com/photo-1543512214-318c7553f230?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1543512214-318c7553f230?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1589003077984-894e133dabab?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 60,
     tags: ["smart speaker", "alexa", "amazon", "smart home"],
     categoryName: "Smart Home"
@@ -449,7 +544,12 @@ const SEED_PRODUCTS = [
     originalPrice: 154999,
     brand: "Microsoft",
     sku: "MS-SURFPRO9-I7",
-    images: [{ url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 18,
     isFeatured: true,
     tags: ["tablet", "windows", "surface", "microsoft"],
@@ -468,7 +568,12 @@ const SEED_PRODUCTS = [
     originalPrice: 5999,
     brand: "OtterBox",
     sku: "OTB-DEF-S24U-BLK",
-    images: [{ url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1541877944-ac82a091518a?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 45,
     isFeatured: false,
     tags: ["case", "samsung", "s24 ultra", "otterbox", "rugged"],
@@ -486,7 +591,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1999,
     brand: "Spigen",
     sku: "SPG-GLAS-IP15P",
-    images: [{ url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 100,
     isFeatured: false,
     tags: ["screen protector", "iphone 15 pro", "spigen", "tempered glass"],
@@ -500,7 +610,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1900,
     brand: "Apple",
     sku: "APL-20W-USBC",
-    images: [{ url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1619441207978-3d326c46e2c9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 150,
     isFeatured: true,
     tags: ["charger", "apple", "adapter", "usb-c"],
@@ -518,7 +633,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1599,
     brand: "Anker",
     sku: "ANK-313-WCP",
-    images: [{ url: "https://images.unsplash.com/photo-1615526675159-e248c3021d3f?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1615526675159-e248c3021d3f?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1622445268465-8431b68a4202?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 60,
     tags: ["charger", "wireless", "anker", "qi"],
     categoryName: "Chargers"
@@ -531,7 +651,12 @@ const SEED_PRODUCTS = [
     originalPrice: 3499,
     brand: "Samsung",
     sku: "SAM-PB-10K-25W",
-    images: [{ url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1619441207978-3d326c46e2c9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 80,
     tags: ["powerbank", "samsung", "portable", "25w"],
     categoryName: "Power Banks"
@@ -544,7 +669,12 @@ const SEED_PRODUCTS = [
     originalPrice: 1999,
     brand: "Belkin",
     sku: "BLK-BCPF-USBC-LT",
-    images: [{ url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1609592424109-dd9892f1b17c?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1619441207978-3d326c46e2c9?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 120,
     tags: ["cable", "lightning", "belkin", "mfi"],
     categoryName: "Cables"
@@ -557,7 +687,12 @@ const SEED_PRODUCTS = [
     originalPrice: 29990,
     brand: "Sony",
     sku: "SONY-WF1000XM5",
-    images: [{ url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1606220588913-b3eea8951234?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 35,
     isFeatured: true,
     tags: ["earbuds", "audio", "sony", "noise cancelling"],
@@ -571,7 +706,12 @@ const SEED_PRODUCTS = [
     originalPrice: 26900,
     brand: "Apple",
     sku: "APL-AIRPODSPRO-2",
-    images: [{ url: "https://images.unsplash.com/photo-1606220588913-b3eea8951234?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1606220588913-b3eea8951234?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 50,
     isFeatured: true,
     tags: ["earbuds", "apple", "airpods", "audio"],
@@ -585,7 +725,12 @@ const SEED_PRODUCTS = [
     originalPrice: 44900,
     brand: "Apple",
     sku: "APL-AW9-GPS-45M",
-    images: [{ url: "https://images.unsplash.com/photo-1434493789847-2f02b0c156f4?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1434493789847-2f02b0c156f4?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 25,
     isFeatured: true,
     tags: ["smartwatch", "apple watch", "wearable", "fitness"],
@@ -599,10 +744,39 @@ const SEED_PRODUCTS = [
     originalPrice: 2999,
     brand: "iOttie",
     sku: "IOT-EOT5-CM",
-    images: [{ url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=800&q=80", isMain: true }],
+    images: [
+      { url: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1541877944-ac82a091518a?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
     stock: 75,
     tags: ["holder", "mount", "car accessory", "iottie"],
     categoryName: "Phone Holders"
+  },
+  {
+    name: "Mobil 1 Extended Performance Full Synthetic Motor Oil 5W-30",
+    description: "Advanced full synthetic motor oil designed to protect critical engine parts for up to 20,000 miles between oil changes, keeping your engine running like new.",
+    shortDescription: "Advanced Full Synthetic Motor Oil 5W-30, 20,000 miles protection.",
+    price: 3499,
+    originalPrice: 4200,
+    brand: "Mobil 1",
+    sku: "M1-EP-FS-5W30",
+    images: [
+      { url: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80", isMain: true },
+      { url: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=800&q=80", isMain: false },
+      { url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80", isMain: false }
+    ],
+    stock: 50,
+    isFeatured: true,
+    tags: ["motor oil", "engine oil", "mobil 1", "automotive", "synthetic"],
+    specifications: [
+      { key: "Viscosity", value: "5W-30" },
+      { key: "Oil Type", value: "Full Synthetic" },
+      { key: "Protection", value: "Up to 20,000 Miles" }
+    ],
+    categoryName: "Car Accessories"
   }
 ];
 
@@ -671,6 +845,7 @@ async function seedData() {
         email: "merchant@shopshathi.com",
         password: "DefaultSecurePassword123!",
         role: "seller",
+        phone: "9876543210",
         isEmailVerified: true
       });
       console.log(`Created dummy seller: ${user.email}`);

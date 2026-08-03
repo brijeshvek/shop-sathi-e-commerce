@@ -17,6 +17,7 @@ export const getBanners = asyncHandler(async (req, res) => {
   }
 
   const banners = await Banner.find(filter).sort({ createdAt: -1 }).lean()
+  res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=600')
   res.status(200).json(new ApiResponse(200, banners, 'Banners fetched successfully'))
 })
 
