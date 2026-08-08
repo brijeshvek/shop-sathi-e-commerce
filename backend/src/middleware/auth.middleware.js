@@ -18,7 +18,7 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   // Try access token first
   if (accessToken) {
     try {
-      const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET)
+      const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET || 'your_super_strong_access_secret_min_64_chars')
       const user = await User.findById(decoded.id)
       if (!user) throw new ApiError(401, 'User not found.')
       if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended.')
@@ -32,7 +32,7 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   // Fallback: try refresh token
   if (refreshToken) {
     try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'your_super_strong_refresh_secret_min_64_chars')
       const user = await User.findById(decoded.id)
       if (!user) throw new ApiError(401, 'Session expired. Please login again.')
       if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended.')
