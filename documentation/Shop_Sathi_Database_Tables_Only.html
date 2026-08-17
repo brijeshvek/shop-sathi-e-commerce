@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop Sathi E-Commerce — Database Dictionary (Tables Only)</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+@page {
+    size: A4 landscape;
+    margin: 12mm 10mm 12mm 10mm;
+    @bottom-right {
+        content: counter(page);
+    }
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    background-color: #ffffff;
+    line-height: 1.4;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+}
+
+.cover-page {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 40px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    color: #ffffff;
+    border-radius: 12px;
+}
+
+.cover-badge {
+    display: inline-block;
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    width: fit-content;
+}
+
+.cover-title {
+    font-size: 32pt;
+    font-weight: 800;
+    margin: 0 0 12px 0;
+    color: #ffffff;
+}
+
+.cover-subtitle {
+    font-size: 14pt;
+    color: #cbd5e1;
+    margin: 0 0 30px 0;
+}
+
+h1 {
+    font-size: 18pt;
+    color: #0369a1;
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 6px;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+h2 {
+    font-size: 14pt;
+    color: #0f172a;
+    background: #f1f5f9;
+    border-left: 5px solid #0284c7;
+    padding: 8px 14px;
+    margin-top: 1.8em;
+    margin-bottom: 0.8em;
+    page-break-before: always;
+    border-radius: 0 6px 6px 0;
+}
+
+code {
+    font-family: 'Fira Code', monospace;
+    font-size: 8.5pt;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0 2em 0;
+    font-size: 9pt;
+    page-break-inside: auto;
+}
+
+tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+}
+
+th, td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background-color: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 9pt;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 1.5em 0;
+}
+
+@media print {
+    body {
+        font-size: 9pt;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="cover-page">
+    <div class="cover-badge">Data Dictionary Document</div>
+    <h1 class="cover-title">Shop Sathi Database Dictionary</h1>
+    <div class="cover-subtitle">Complete Tabular Field Reference, Data Types, Constraints & Indexes for all 8 Backend Collections</div>
+</div>
+
+<h1 id="shop-sathi-e-commerce-database-dictionary-tables-only">Shop Sathi E-Commerce — Database Dictionary (Tables Only)</h1>
+<h2 id="collections-summary-index">Collections Summary Index</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Collection Name</th>
+<th>Model Name</th>
+<th>Primary Key</th>
+<th>Description / Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>users</code></td>
+<td><code>User</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Customer and admin accounts, credentials &amp; addresses</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>products</code></td>
+<td><code>Product</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Product catalog, pricing, inventory, variants &amp; images</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>categories</code></td>
+<td><code>Category</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Hierarchical product categories and sub-categories</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>carts</code></td>
+<td><code>Cart</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Active user shopping cart items &amp; applied coupon</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>wishlists</code></td>
+<td><code>Wishlist</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>User saved wishlist items</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>orders</code></td>
+<td><code>Order</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Placed customer orders, delivery status &amp; financials</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>reviews</code></td>
+<td><code>Review</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Product ratings and reviews</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>coupons</code></td>
+<td><code>Coupon</code></td>
+<td><code>_id</code> (ObjectId)</td>
+<td>Promotional discount vouchers and usage tracking</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-users-collection-schema">1. <code>users</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique document identifier</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>User full name (2–50 chars)</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>Unique Index</td>
+<td>—</td>
+<td>User email address (lowercase, unique)</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Bcrypt hashed password (<code>select: false</code>)</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Contact mobile number</td>
+</tr>
+<tr>
+<td><code>avatar.url</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Profile image Cloudinary URL</td>
+</tr>
+<tr>
+<td><code>avatar.publicId</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Profile image asset public ID</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>String</td>
+<td>No</td>
+<td>Index</td>
+<td><code>'customer'</code></td>
+<td>Enum: <code>['customer', 'admin', 'superadmin']</code></td>
+</tr>
+<tr>
+<td><code>addresses</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Embedded address sub-documents</td>
+</tr>
+<tr>
+<td><code>addresses._id</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Sub-ID</td>
+<td>Auto</td>
+<td>Unique address identifier</td>
+</tr>
+<tr>
+<td><code>addresses.label</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Label (e.g. "Home", "Work", "Office")</td>
+</tr>
+<tr>
+<td><code>addresses.fullName</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Recipient full name</td>
+</tr>
+<tr>
+<td><code>addresses.phone</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Contact phone number</td>
+</tr>
+<tr>
+<td><code>addresses.street</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Street / Building address</td>
+</tr>
+<tr>
+<td><code>addresses.city</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>City / Town</td>
+</tr>
+<tr>
+<td><code>addresses.state</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>State / Province</td>
+</tr>
+<tr>
+<td><code>addresses.pincode</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Postal pincode</td>
+</tr>
+<tr>
+<td><code>addresses.country</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>'India'</code></td>
+<td>Country name</td>
+</tr>
+<tr>
+<td><code>addresses.isDefault</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>No</td>
+<td><code>false</code></td>
+<td>Default shipping address flag</td>
+</tr>
+<tr>
+<td><code>isBlocked</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>Index</td>
+<td><code>false</code></td>
+<td>Account blocked status flag</td>
+</tr>
+<tr>
+<td><code>resetPasswordToken</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>SHA-256 password reset token</td>
+</tr>
+<tr>
+<td><code>resetPasswordExpire</code></td>
+<td>Date</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Password reset token expiration date</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Account creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last account modification timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-products-collection-schema">2. <code>products</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique product identifier</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>Text Index</td>
+<td>—</td>
+<td>Product title (3–200 chars)</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>String</td>
+<td>Auto</td>
+<td>Unique Index</td>
+<td>Auto</td>
+<td>URL slug generated from name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>Text Index</td>
+<td>—</td>
+<td>Full detailed description</td>
+</tr>
+<tr>
+<td><code>shortDescription</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Short overview (Max 300 chars)</td>
+</tr>
+<tr>
+<td><code>price</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>Index</td>
+<td>—</td>
+<td>Current selling price (&gt;= 0)</td>
+</tr>
+<tr>
+<td><code>originalPrice</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Strike-through MRP (&gt;= 0)</td>
+</tr>
+<tr>
+<td><code>discount</code></td>
+<td>Number</td>
+<td>Auto</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Calculated discount percentage (0–100%)</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Foreign Key</td>
+<td>—</td>
+<td>Reference to <code>Category._id</code></td>
+</tr>
+<tr>
+<td><code>brand</code></td>
+<td>String</td>
+<td>No</td>
+<td>Text Index</td>
+<td>—</td>
+<td>Brand / Manufacturer name</td>
+</tr>
+<tr>
+<td><code>sku</code></td>
+<td>String</td>
+<td>No</td>
+<td>Sparse Unique</td>
+<td>—</td>
+<td>Stock Keeping Unit (Uppercase)</td>
+</tr>
+<tr>
+<td><code>images</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Array of product image objects</td>
+</tr>
+<tr>
+<td><code>images._id</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Sub-ID</td>
+<td>Auto</td>
+<td>Image sub-document ID</td>
+</tr>
+<tr>
+<td><code>images.url</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Cloudinary image URL</td>
+</tr>
+<tr>
+<td><code>images.publicId</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Cloudinary asset public ID</td>
+</tr>
+<tr>
+<td><code>images.isMain</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>No</td>
+<td><code>false</code></td>
+<td>Main cover image flag</td>
+</tr>
+<tr>
+<td><code>variants</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Product variant options (Size, Color)</td>
+</tr>
+<tr>
+<td><code>variants.name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Variant group (e.g. "Size")</td>
+</tr>
+<tr>
+<td><code>variants.options</code></td>
+<td>Array[String]</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Option values (e.g. ["S", "M", "L"])</td>
+</tr>
+<tr>
+<td><code>specifications</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Key-value specifications</td>
+</tr>
+<tr>
+<td><code>specifications.key</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Spec attribute name (e.g. "Material")</td>
+</tr>
+<tr>
+<td><code>specifications.value</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Spec attribute value (e.g. "Cotton")</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>Array[String]</td>
+<td>No</td>
+<td>Text Index</td>
+<td><code>[]</code></td>
+<td>Search tags</td>
+</tr>
+<tr>
+<td><code>stock</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>Index</td>
+<td><code>0</code></td>
+<td>Available stock count (&gt;= 0)</td>
+</tr>
+<tr>
+<td><code>isActive</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>Index</td>
+<td><code>true</code></td>
+<td>Active status flag (Soft delete)</td>
+</tr>
+<tr>
+<td><code>isFeatured</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>Index</td>
+<td><code>false</code></td>
+<td>Show on homepage banner</td>
+</tr>
+<tr>
+<td><code>ratings.average</code></td>
+<td>Number</td>
+<td>Auto</td>
+<td>Index</td>
+<td><code>0</code></td>
+<td>Average star rating (0–5)</td>
+</tr>
+<tr>
+<td><code>ratings.count</code></td>
+<td>Number</td>
+<td>Auto</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Total review count</td>
+</tr>
+<tr>
+<td><code>createdBy</code></td>
+<td>ObjectId</td>
+<td>No</td>
+<td>Foreign Key</td>
+<td>—</td>
+<td>Reference to <code>User._id</code> (Creator)</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last modification timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-categories-collection-schema">3. <code>categories</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique category identifier</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>Unique Index</td>
+<td>—</td>
+<td>Category title (2–50 chars)</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>String</td>
+<td>Auto</td>
+<td>Unique Index</td>
+<td>Auto</td>
+<td>URL slug generated from name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Category description</td>
+</tr>
+<tr>
+<td><code>image.url</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Banner image URL</td>
+</tr>
+<tr>
+<td><code>image.publicId</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Cloudinary asset ID</td>
+</tr>
+<tr>
+<td><code>parent</code></td>
+<td>ObjectId</td>
+<td>No</td>
+<td>Foreign Key</td>
+<td><code>null</code></td>
+<td>Reference to parent <code>Category._id</code> (null = main)</td>
+</tr>
+<tr>
+<td><code>isActive</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>Index</td>
+<td><code>true</code></td>
+<td>Active status flag</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Modification timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-carts-collection-schema">4. <code>carts</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique cart identifier</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Unique FK</td>
+<td>—</td>
+<td>Reference to <code>User._id</code> (One cart per user)</td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Cart line items</td>
+</tr>
+<tr>
+<td><code>items._id</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Sub-ID</td>
+<td>Auto</td>
+<td>Cart item ID</td>
+</tr>
+<tr>
+<td><code>items.product</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Foreign Key</td>
+<td>—</td>
+<td>Reference to <code>Product._id</code></td>
+</tr>
+<tr>
+<td><code>items.name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Product name snapshot</td>
+</tr>
+<tr>
+<td><code>items.image</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Image URL snapshot</td>
+</tr>
+<tr>
+<td><code>items.price</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Unit price snapshot</td>
+</tr>
+<tr>
+<td><code>items.quantity</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td><code>1</code></td>
+<td>Quantity (&gt;= 1)</td>
+</tr>
+<tr>
+<td><code>items.selectedVariants</code></td>
+<td>Map[String]</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Selected variant key-values</td>
+</tr>
+<tr>
+<td><code>coupon</code></td>
+<td>ObjectId</td>
+<td>No</td>
+<td>Foreign Key</td>
+<td><code>null</code></td>
+<td>Reference to applied <code>Coupon._id</code></td>
+</tr>
+<tr>
+<td><code>discountAmount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Applied discount amount</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Cart creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last item change timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-wishlists-collection-schema">5. <code>wishlists</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique wishlist identifier</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Unique FK</td>
+<td>—</td>
+<td>Reference to <code>User._id</code> (One wishlist per user)</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td>Array[ObjectId]</td>
+<td>No</td>
+<td>Array FK</td>
+<td><code>[]</code></td>
+<td>Array of <code>Product._id</code> references</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last change timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-orders-collection-schema">6. <code>orders</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique order ID</td>
+</tr>
+<tr>
+<td><code>orderNumber</code></td>
+<td>String</td>
+<td>Auto</td>
+<td>Unique Index</td>
+<td>Auto</td>
+<td>Format: <code>ORD-YYYYMMDD-XXXX</code></td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Foreign Key</td>
+<td>—</td>
+<td>Reference to <code>User._id</code></td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td>Array[Object]</td>
+<td>Yes</td>
+<td>Embedded</td>
+<td>—</td>
+<td>Order line items snapshot</td>
+</tr>
+<tr>
+<td><code>items.product</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Foreign Key</td>
+<td>—</td>
+<td>Reference to <code>Product._id</code></td>
+</tr>
+<tr>
+<td><code>items.name</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Product title snapshot</td>
+</tr>
+<tr>
+<td><code>items.image</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>""</code></td>
+<td>Thumbnail snapshot</td>
+</tr>
+<tr>
+<td><code>items.price</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Unit price snapshot</td>
+</tr>
+<tr>
+<td><code>items.quantity</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Ordered quantity (&gt;= 1)</td>
+</tr>
+<tr>
+<td><code>items.selectedVariants</code></td>
+<td>Map[String]</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Variant options snapshot</td>
+</tr>
+<tr>
+<td><code>shippingAddress.fullName</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Recipient full name</td>
+</tr>
+<tr>
+<td><code>shippingAddress.phone</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Recipient phone number</td>
+</tr>
+<tr>
+<td><code>shippingAddress.street</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Street address</td>
+</tr>
+<tr>
+<td><code>shippingAddress.city</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>City</td>
+</tr>
+<tr>
+<td><code>shippingAddress.state</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>State</td>
+</tr>
+<tr>
+<td><code>shippingAddress.pincode</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Postal pincode</td>
+</tr>
+<tr>
+<td><code>shippingAddress.country</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td><code>'India'</code></td>
+<td>Country</td>
+</tr>
+<tr>
+<td><code>paymentMethod</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Enum: <code>['COD', 'ONLINE']</code></td>
+</tr>
+<tr>
+<td><code>paymentStatus</code></td>
+<td>String</td>
+<td>No</td>
+<td>Index</td>
+<td><code>'pending'</code></td>
+<td>Enum: <code>['pending', 'paid', 'failed', 'refunded']</code></td>
+</tr>
+<tr>
+<td><code>orderStatus</code></td>
+<td>String</td>
+<td>No</td>
+<td>Index</td>
+<td><code>'pending'</code></td>
+<td>Enum: <code>['pending', 'processing', 'shipped', 'delivered', 'cancelled']</code></td>
+</tr>
+<tr>
+<td><code>statusHistory</code></td>
+<td>Array[Object]</td>
+<td>No</td>
+<td>Embedded</td>
+<td><code>[]</code></td>
+<td>Audit trail of status updates</td>
+</tr>
+<tr>
+<td><code>coupon</code></td>
+<td>ObjectId</td>
+<td>No</td>
+<td>Foreign Key</td>
+<td><code>null</code></td>
+<td>Reference to <code>Coupon._id</code></td>
+</tr>
+<tr>
+<td><code>subtotal</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Items price subtotal</td>
+</tr>
+<tr>
+<td><code>shippingCharge</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Shipping charge (Free above ₹499)</td>
+</tr>
+<tr>
+<td><code>taxAmount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>GST tax (18%)</td>
+</tr>
+<tr>
+<td><code>discountAmount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Discount deduction</td>
+</tr>
+<tr>
+<td><code>totalAmount</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Final payable total</td>
+</tr>
+<tr>
+<td><code>estimatedDelivery</code></td>
+<td>Date</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Expected delivery date</td>
+</tr>
+<tr>
+<td><code>deliveredAt</code></td>
+<td>Date</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Delivery completion date</td>
+</tr>
+<tr>
+<td><code>cancelledAt</code></td>
+<td>Date</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Order cancellation date</td>
+</tr>
+<tr>
+<td><code>cancelReason</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Reason for cancellation</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>Index</td>
+<td>Current Date</td>
+<td>Order date</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last status change date</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-reviews-collection-schema">7. <code>reviews</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique review ID</td>
+</tr>
+<tr>
+<td><code>product</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Compound Unique</td>
+<td>—</td>
+<td>Reference to <code>Product._id</code></td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>ObjectId</td>
+<td>Yes</td>
+<td>Compound Unique</td>
+<td>—</td>
+<td>Reference to <code>User._id</code></td>
+</tr>
+<tr>
+<td><code>rating</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Star rating score (1 to 5)</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>String</td>
+<td>No</td>
+<td>No</td>
+<td>—</td>
+<td>Review title (Max 100 chars)</td>
+</tr>
+<tr>
+<td><code>comment</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Review text (10–1000 chars)</td>
+</tr>
+<tr>
+<td><code>isVerifiedPurchase</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>No</td>
+<td><code>false</code></td>
+<td>True if verified purchase</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>Index</td>
+<td>Current Date</td>
+<td>Review submission date</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Last edit date</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-coupons-collection-schema">8. <code>coupons</code> Collection Schema</h2>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Key / Index</th>
+<th>Default Value</th>
+<th>Description / Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_id</code></td>
+<td>ObjectId</td>
+<td>Auto</td>
+<td>Primary Key</td>
+<td>Auto</td>
+<td>Unique coupon ID</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>Unique Index</td>
+<td>—</td>
+<td>Coupon code (3–20 chars, uppercase)</td>
+</tr>
+<tr>
+<td><code>discountType</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Enum: <code>['percentage', 'flat']</code></td>
+</tr>
+<tr>
+<td><code>discountValue</code></td>
+<td>Number</td>
+<td>Yes</td>
+<td>No</td>
+<td>—</td>
+<td>Percentage % or flat amount ₹</td>
+</tr>
+<tr>
+<td><code>minOrderAmount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Minimum order subtotal required</td>
+</tr>
+<tr>
+<td><code>maxDiscount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>null</code></td>
+<td>Max discount cap for percentage</td>
+</tr>
+<tr>
+<td><code>usageLimit</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>null</code></td>
+<td>Total max redemptions (null = unlimited)</td>
+</tr>
+<tr>
+<td><code>usedCount</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Current total redemptions</td>
+</tr>
+<tr>
+<td><code>perUserLimit</code></td>
+<td>Number</td>
+<td>No</td>
+<td>No</td>
+<td><code>1</code></td>
+<td>Max redemptions per user</td>
+</tr>
+<tr>
+<td><code>usedBy</code></td>
+<td>Array[ObjectId]</td>
+<td>No</td>
+<td>Foreign Keys</td>
+<td><code>[]</code></td>
+<td>Array of <code>User._id</code> references</td>
+</tr>
+<tr>
+<td><code>isActive</code></td>
+<td>Boolean</td>
+<td>No</td>
+<td>Index</td>
+<td><code>true</code></td>
+<td>Active status flag</td>
+</tr>
+<tr>
+<td><code>expiresAt</code></td>
+<td>Date</td>
+<td>Yes</td>
+<td>Index</td>
+<td>—</td>
+<td>Expiration timestamp</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Creation timestamp</td>
+</tr>
+<tr>
+<td><code>updatedAt</code></td>
+<td>Date</td>
+<td>Auto</td>
+<td>No</td>
+<td>Current Date</td>
+<td>Modification timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="database-indexes-reference-table">Database Indexes Reference Table</h2>
+<table>
+<thead>
+<tr>
+<th>Collection</th>
+<th>Index Fields</th>
+<th>Index Type</th>
+<th>Unique</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td><code>{ email: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Fast unique user login lookup</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td><code>{ role: 1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Role based user filtering</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td><code>{ isBlocked: 1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Account status filter</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ slug: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Fast product detail URL lookup</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ category: 1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Category product listing filter</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ isActive: 1, isFeatured: 1 }</code></td>
+<td>Compound</td>
+<td>No</td>
+<td>Homepage featured products query</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ isActive: 1, price: 1 }</code></td>
+<td>Compound</td>
+<td>No</td>
+<td>Price sorting and filtering</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ 'ratings.average': -1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Top rated products sorting</td>
+</tr>
+<tr>
+<td><code>products</code></td>
+<td><code>{ name: 'text', description: 'text', tags: 'text', brand: 'text' }</code></td>
+<td>Text</td>
+<td>No</td>
+<td>Full-text search search bar</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td><code>{ slug: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Category page URL lookup</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td><code>{ parent: 1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Sub-category hierarchy queries</td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td><code>{ orderNumber: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Order tracking code lookup</td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td><code>{ user: 1, createdAt: -1 }</code></td>
+<td>Compound</td>
+<td>No</td>
+<td>Customer order history listing</td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td><code>{ orderStatus: 1 }</code></td>
+<td>B-Tree</td>
+<td>No</td>
+<td>Admin order fulfillment filter</td>
+</tr>
+<tr>
+<td><code>reviews</code></td>
+<td><code>{ product: 1, user: 1 }</code></td>
+<td>Compound</td>
+<td>Yes</td>
+<td>Prevent duplicate user reviews per product</td>
+</tr>
+<tr>
+<td><code>reviews</code></td>
+<td><code>{ product: 1, createdAt: -1 }</code></td>
+<td>Compound</td>
+<td>No</td>
+<td>Product review list pagination</td>
+</tr>
+<tr>
+<td><code>coupons</code></td>
+<td><code>{ code: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Fast coupon code validation</td>
+</tr>
+<tr>
+<td><code>coupons</code></td>
+<td><code>{ isActive: 1, expiresAt: 1 }</code></td>
+<td>Compound</td>
+<td>No</td>
+<td>Active coupon validity queries</td>
+</tr>
+<tr>
+<td><code>carts</code></td>
+<td><code>{ user: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Single cart per user enforcement</td>
+</tr>
+<tr>
+<td><code>wishlists</code></td>
+<td><code>{ user: 1 }</code></td>
+<td>B-Tree</td>
+<td>Yes</td>
+<td>Single wishlist per user enforcement</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>
