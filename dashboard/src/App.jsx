@@ -13,7 +13,7 @@ export const App = () => {
 
   const { i18n } = useTranslation()
 
-  // commint
+
   useEffect(() => {
     if (isLoading) {
       dispatch(setLoading(true))
