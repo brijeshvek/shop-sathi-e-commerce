@@ -13,6 +13,7 @@ export const App = () => {
 
   const { i18n } = useTranslation()
 
+  // commint
   useEffect(() => {
     if (isLoading) {
       dispatch(setLoading(true))
@@ -29,7 +30,7 @@ export const App = () => {
   return (
     <>
       <GlobalLoader />
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           style: {
