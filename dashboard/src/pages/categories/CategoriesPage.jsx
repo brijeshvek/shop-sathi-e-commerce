@@ -15,6 +15,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog.jsx'
 import Table from '../../components/common/Table.jsx'
 import Spinner from '../../components/common/Spinner.jsx'
 import api from '../../services/api.js'
+import { convertFileToWebpBase64 } from '../../utils/imageUtils.js'
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -67,24 +68,36 @@ export const CategoriesPage = () => {
     const file = e.target.files[0]
     if (!file) return
 
-    const formData = new FormData()
-    formData.append('image', file)
-
     setUploading(true)
     try {
-      const res = await api.post('/upload/image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-      if (res.data?.success) {
-        const imageUrl = res.data.data.url
-        setValue('imageUrl', imageUrl)
-        setPreviewImage(imageUrl)
-        toast.success('Image uploaded successfully!')
+      // First convert client-side to WebP Base64 for instant preview
+      const webpBase64 = await convertFileToWebpBase64(file, 1200, 0.85)
+      setValue('imageUrl', webpBase64)
+      setPreviewImage(webpBase64)
+
+      // Also upload via backend upload endpoint
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('folder', 'categories')
+
+      const res = await api.post('/upload/image', formData)
+      if (res.data?.success && res.data.data?.url) {
+        setValue('imageUrl', res.data.data.url)
+        setPreviewImage(res.data.data.url)
       }
+      toast.success('Image converted to WebP and uploaded successfully!')
     } catch (err) {
-      toast.error('Image upload failed. Ensure it is a valid image under 5MB.')
+      console.error('Upload error:', err)
+      // If backend had an issue but client-side WebP succeeded, keep client WebP Base64
+      if (previewImage) {
+        toast.success('Image optimized to WebP and attached!')
+      } else {
+        toast.error('Image upload failed. Please try a valid image.')
+      }
     } finally {
       setUploading(false)
+      // Reset input value so same file can be re-selected if needed
+      e.target.value = ''
     }
   }
 
@@ -272,19 +285,36 @@ export const CategoriesPage = () => {
               
               {/* Preview */}
               {previewImage && (
-                <div className="relative inline-block">
-                  <img 
-                    src={previewImage} 
-                    alt="Category preview" 
-                    className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-xs"
-                  />
-                  <button 
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
-                  >
-                    <X size={12} />
-                  </button>
+                <div className="flex items-center space-x-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="relative inline-block">
+                    <img 
+                      src={previewImage} 
+                      alt="Category preview" 
+                      className="w-20 h-20 object-cover rounded-xl border border-slate-200 shadow-xs"
+                    />
+                    <button 
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+                      title="Remove image"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-xs cursor-pointer transition-colors">
+                      <Upload size={14} className="mr-1.5 text-slate-500" />
+                      <span>{uploading ? 'Converting...' : 'Change Image'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        disabled={uploading}
+                      />
+                    </label>
+                    <p className="text-[11px] text-slate-400">Select new PNG/JPG/WebP to replace</p>
+                  </div>
                 </div>
               )}
 

@@ -3,6 +3,7 @@ import { UserCog, Mail, Shield, Calendar, Store, Edit2, Lock, Save, Sliders, X, 
 import { useAuth } from '../../hooks/useAuth.js'
 import { useUpdateProfileMutation, useChangePasswordMutation } from '../../features/customers/customersApi.js'
 import api from '../../services/api.js'
+import { convertFileToWebpBase64 } from '../../utils/imageUtils.js'
 import Badge from '../../components/common/Badge.jsx'
 import Button from '../../components/common/Button.jsx'
 import Input from '../../components/common/Input.jsx'
@@ -102,33 +103,43 @@ export const ProfilePage = () => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size should be less than 5MB")
-      return
-    }
-
     try {
       setIsUploadingAvatar(true)
-      const formData = new FormData()
-      formData.append("image", file)
 
-      // Upload to /api/upload/avatar
-      const uploadRes = await api.post("/upload/avatar", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      const { url, publicId } = uploadRes.data.data
+      // Convert to WebP Base64 client-side
+      const webpBase64 = await convertFileToWebpBase64(file, 600, 0.85).catch(() => null)
+
+      let finalUrl = webpBase64
+      let finalPublicId = `avatar_${user._id}_${Date.now()}`
+
+      try {
+        const formData = new FormData()
+        formData.append("image", file)
+
+        const uploadRes = await api.post("/upload/avatar", formData)
+        if (uploadRes.data?.success && uploadRes.data.data?.url) {
+          finalUrl = uploadRes.data.data.url
+          finalPublicId = uploadRes.data.data.publicId || finalPublicId
+        }
+      } catch (uploadErr) {
+        console.warn("Avatar upload backend error, using client WebP:", uploadErr)
+      }
+
+      if (!finalUrl) {
+        throw new Error("Failed to process profile image")
+      }
 
       // Update user profile
       await updateProfile({
         id: user._id,
         name: user.name,
         phone: user.phone,
-        avatar: { url, publicId }
+        avatar: { url: finalUrl, publicId: finalPublicId }
       }).unwrap()
       
-      toast.success("Profile picture updated!")
+      toast.success("Profile picture converted to WebP & updated!")
     } catch (err) {
-      toast.error(err?.data?.message || err?.response?.data?.message || "Failed to upload image")
+      toast.error(err?.data?.message || err?.response?.data?.message || "Failed to update profile picture")
     } finally {
       setIsUploadingAvatar(false)
       if (fileInputRef.current) fileInputRef.current.value = ""

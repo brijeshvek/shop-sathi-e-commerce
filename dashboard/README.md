@@ -16,15 +16,10 @@ The React Compiler is not enabled on this template because of its impact on dev 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
 
-# id password
+# Admin Login Credentials
 Email: admin@shopsathi.com
-Password: adminpassword123
+Password: password123
 
-
-# seller passowrd
-Email : seller@shopsathi.com
-Password : sellerpassword123
-
-# seller 2 passwprd
-Email : seller2@shopsathi.com
-Password : seller2password123
+# Seller Login Credentials
+Email: brijesh@shopsathi.com (or amit@shopsathi.com)
+Password: password123

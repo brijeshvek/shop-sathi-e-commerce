@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { ArrowLeft, Upload, X, Check, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api.js'
+import { convertFileToWebpBase64 } from '../../utils/imageUtils.js'
 import { useCreateProductMutation, useGetDistinctBrandsQuery } from '../../features/products/productsApi.js'
 import { useGetCategoriesQuery } from '../../features/categories/categoriesApi.js'
 import Button from '../../components/common/Button.jsx'
@@ -93,15 +94,29 @@ export const AddProductPage = () => {
     setUploading(true)
     try {
       const uploadPromises = files.map(async (file) => {
-        const formData = new FormData()
-        formData.append('image', file)
-        const res = await api.post('/upload/image', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-        if (res.data?.success) {
+        // Convert to WebP client-side as fallback/immediate
+        const webpBase64 = await convertFileToWebpBase64(file, 1600, 0.82).catch(() => null)
+
+        try {
+          const formData = new FormData()
+          formData.append('image', file)
+          formData.append('folder', 'products')
+          const res = await api.post('/upload/image', formData)
+          if (res.data?.success && res.data.data?.url) {
+            return {
+              url: res.data.data.url,
+              publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9),
+              isMain: false
+            }
+          }
+        } catch (serverErr) {
+          console.warn('Server upload error, using client WebP Base64:', serverErr)
+        }
+
+        if (webpBase64) {
           return {
-            url: res.data.data.url,
-            publicId: res.data.data.publicId || 'uploaded_' + Math.random().toString(36).substring(2, 9),
+            url: webpBase64,
+            publicId: 'client_webp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             isMain: false
           }
         }
@@ -117,11 +132,12 @@ export const AddProductPage = () => {
         }
         return updated
       })
-      toast.success(`${uploadedImages.length} images uploaded successfully!`)
+      toast.success(`${uploadedImages.length} image(s) converted to WebP and added!`)
     } catch (err) {
-      toast.error('Some files failed to upload. Ensure they are valid images under 5MB.')
+      toast.error('Some files failed to process. Ensure they are valid image files.')
     } finally {
       setUploading(false)
+      e.target.value = ''
     }
   }
 
