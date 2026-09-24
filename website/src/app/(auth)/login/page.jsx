@@ -53,8 +53,12 @@ export default function LoginPage() {
     setCanResend(false);
     setTimer(15);
     try {
-      await api.post('/auth/login-phone', { phone });
-      toast.success("Verification OTP resent successfully!");
+      const res = await api.post('/auth/login-phone', { phone });
+      if (res?.data?.data?.devOtp) {
+        toast.success(`OTP resent! (Demo OTP: ${res.data.data.devOtp})`, { duration: 6000 });
+      } else {
+        toast.success("Verification OTP resent successfully!");
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to resend code");
       setCanResend(true);
@@ -93,11 +97,16 @@ export default function LoginPage() {
     try {
       const res = await loginWithPhone(data.phone);
       if (res?.data?.otpRequired) {
-        setPhone(data.phone);
+        const cleanP = res.data.phone || data.phone;
+        setPhone(cleanP);
         setOtpRequired(true);
         setTimer(15);
         setCanResend(false);
-        toast.success("Verification code sent to your phone!");
+        if (res.data.devOtp) {
+          toast.success(`Verification code sent! (Demo OTP: ${res.data.devOtp})`, { duration: 6000 });
+        } else {
+          toast.success("Verification code sent to your phone!");
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");

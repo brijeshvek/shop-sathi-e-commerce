@@ -154,8 +154,27 @@ export const socialLogin = asyncHandler(async (req, res) => {
 // POST /api/auth/login-phone
 export const loginWithPhone = asyncHandler(async (req, res) => {
   const { phone } = req.body
-  const user = await User.findOne({ phone })
-  if (!user) throw new ApiError(404, 'Phone number not registered.')
+  const cleanPhone = (phone || '').replace(/[\s+()-]/g, '').slice(-10)
+  
+  if (!cleanPhone || cleanPhone.length !== 10) {
+    throw new ApiError(400, 'Please provide a valid 10-digit mobile number.')
+  }
+
+  let user = await User.findOne({ phone: cleanPhone })
+  
+  // If user doesn't exist, auto-create initial customer account (Amazon/Flipkart flow)
+  if (!user) {
+    const randomPassword = crypto.randomBytes(16).toString('hex')
+    user = await User.create({
+      name: `User ${cleanPhone.slice(-4)}`,
+      email: `${cleanPhone}@phone.shopsathi.com`,
+      phone: cleanPhone,
+      password: randomPassword,
+      authProvider: 'phone',
+      role: 'customer'
+    })
+  }
+
   if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
 
   // Generate 6-digit verification code
@@ -166,31 +185,37 @@ export const loginWithPhone = asyncHandler(async (req, res) => {
 
   // Log OTP in development mode
   if (process.env.NODE_ENV === 'development') {
-    console.log(`\n📱 [DEV ONLY] OTP for phone ${user.phone} is: ${otp}\n`)
+    console.log(`\n📱 [DEV ONLY] OTP for phone ${cleanPhone} is: ${otp}\n`)
   }
 
   // Send SMS (non-blocking)
   sendLoginOtpSms(user, otp).catch(err => console.error('OTP sms error:', err.message))
   
-  res.status(200).json(new ApiResponse(200, { otpRequired: true, phone: user.phone }, 'Verification OTP sent to phone.'))
+  res.status(200).json(new ApiResponse(200, {
+    otpRequired: true,
+    phone: cleanPhone,
+    devOtp: process.env.NODE_ENV === 'development' ? otp : undefined
+  }, 'Verification OTP sent to your phone.'))
 })
 
 // POST /api/auth/verify-phone-otp
 export const verifyPhoneOtp = asyncHandler(async (req, res) => {
   const { phone, otp } = req.body
-  if (!phone || !otp) {
+  const cleanPhone = (phone || '').replace(/[\s+()-]/g, '').slice(-10)
+
+  if (!cleanPhone || !otp) {
     throw new ApiError(400, 'Phone number and OTP code are required.')
   }
 
-  const user = await User.findOne({ phone }).select('+loginOtp +loginOtpExpire')
-  if (!user) throw new ApiError(404, 'User not found.')
+  const user = await User.findOne({ phone: cleanPhone }).select('+loginOtp +loginOtpExpire')
+  if (!user) throw new ApiError(404, 'User not found for this phone number.')
 
   if (!user.loginOtp || !user.loginOtpExpire || user.loginOtpExpire < Date.now()) {
     throw new ApiError(400, 'The verification code has expired or is invalid. Please request a new one.')
   }
 
-  if (user.loginOtp !== otp) {
-    throw new ApiError(400, 'Invalid verification code. Please try again.')
+  if (user.loginOtp !== otp.trim()) {
+    throw new ApiError(400, 'Invalid verification code. Please check and try again.')
   }
 
   // Clear OTP fields

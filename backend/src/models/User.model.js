@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   twitterId:  { type: String, sparse: true },
   authProvider: { 
     type: String, 
-    enum: ['local', 'google', 'facebook', 'twitter'], 
+    enum: ['local', 'google', 'facebook', 'twitter', 'phone'], 
     default: 'local' 
   },
   avatar: {

@@ -12,6 +12,7 @@
     "@hookform/resolvers": "^5.4.0",
     "axios": "^1.18.1",
     "date-fns": "^4.4.0",
+    "firebase": "^12.19.0",
     "framer-motion": "^12.42.2",
     "i18next": "^26.3.6",
     "lucide-react": "^1.23.0",
