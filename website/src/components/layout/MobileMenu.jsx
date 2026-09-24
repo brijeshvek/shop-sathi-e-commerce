@@ -108,7 +108,7 @@ export function MobileMenu({ isOpen, onClose }) {
         </div>
 
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-          <SearchBar />
+          <SearchBar onSearchComplete={onClose} />
         </div>
 
         <div className="flex-1 overflow-y-auto py-4">

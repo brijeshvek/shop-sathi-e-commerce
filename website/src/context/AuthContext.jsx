@@ -75,6 +75,16 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const socialLogin = async (socialData) => {
+    const { data } = await api.post('/auth/social-login', socialData);
+    if (data.data?.token) {
+      localStorage.setItem('accessToken', data.data.token);
+    }
+    setUser(data.data);
+    if (data.data?.language) i18n.changeLanguage(data.data.language);
+    return data;
+  };
+
   const logout = async () => {
     await api.post('/auth/logout');
     localStorage.removeItem('accessToken');
@@ -82,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, verifyOtp, loginWithPhone, verifyPhoneOtp, register, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, verifyOtp, loginWithPhone, verifyPhoneOtp, register, socialLogin, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

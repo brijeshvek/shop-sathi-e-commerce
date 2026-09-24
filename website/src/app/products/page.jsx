@@ -130,10 +130,10 @@ function ProductsContent() {
 
       let url = `/products?sort=${sortField}&order=${order}&limit=12&page=${pageNum}`;
       if (category) url += `&category=${category}`;
-      if (search) url += `&search=${search}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
       if (maxPrice) url += `&maxPrice=${maxPrice}`;
-      if (selectedBrand) url += `&brand=${selectedBrand}`;
+      if (selectedBrand) url += `&brand=${encodeURIComponent(selectedBrand)}`;
       if (collectionName) url += `&collectionName=${encodeURIComponent(collectionName)}`;
 
       const { data } = await api.get(url);

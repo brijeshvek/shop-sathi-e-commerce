@@ -57,6 +57,100 @@ export const login = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, userData, 'Login successful'))
 })
 
+// POST /api/auth/social-login
+export const socialLogin = asyncHandler(async (req, res) => {
+  const { provider, email, identifier, name, avatar, providerId, phone } = req.body
+
+  if (!provider || !['google', 'facebook', 'twitter'].includes(provider)) {
+    throw new ApiError(400, 'A valid social provider is required (google, facebook, twitter).')
+  }
+
+  const rawInput = (email || identifier || '').trim()
+  let userEmail = ''
+  let userPhone = phone || ''
+  let userName = (name || '').trim() || `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`
+
+  // Check if rawInput is email, phone, or username
+  if (rawInput.includes('@') && rawInput.includes('.')) {
+    userEmail = rawInput.toLowerCase()
+  } else if (/^\d{10,12}$/.test(rawInput.replace(/[\s+-]/g, ''))) {
+    userPhone = rawInput.replace(/[\s+-]/g, '').slice(-10)
+    userEmail = `${userPhone}@${provider}.shopsathi.com`
+  } else if (rawInput) {
+    const cleanHandle = rawInput.replace('@', '').toLowerCase()
+    userEmail = `${cleanHandle}@${provider}.shopsathi.com`
+  } else {
+    userEmail = `${provider}_${providerId || Date.now()}@social.shopsathi.com`
+  }
+
+  // Look for existing user by providerId, email, or phone
+  const orConditions = [{ email: userEmail }]
+  if (userPhone) {
+    orConditions.push({ phone: userPhone })
+  }
+  if (providerId) {
+    orConditions.push({ [`${provider}Id`]: providerId })
+  }
+
+  let user = await User.findOne({ $or: orConditions })
+
+  if (user) {
+    if (user.isBlocked) throw new ApiError(403, 'Your account has been suspended. Contact support.')
+    let shouldSave = false
+    if (providerId && !user[`${provider}Id`]) {
+      user[`${provider}Id`] = providerId
+      shouldSave = true
+    }
+    if (userPhone && !user.phone) {
+      user.phone = userPhone
+      shouldSave = true
+    }
+    if (avatar && (!user.avatar || !user.avatar.url)) {
+      user.avatar = { url: avatar, publicId: '' }
+      shouldSave = true
+    }
+    if (shouldSave) {
+      await user.save({ validateBeforeSave: false })
+    }
+  } else {
+    // Create new social user
+    const randomPassword = crypto.randomBytes(16).toString('hex')
+    const createData = {
+      name: userName,
+      email: userEmail,
+      password: randomPassword,
+      avatar: { url: avatar || '', publicId: '' },
+      authProvider: provider,
+      [`${provider}Id`]: providerId || `social_${Date.now()}`,
+      role: 'customer'
+    }
+    if (userPhone) {
+      createData.phone = userPhone
+    }
+
+    user = await User.create(createData)
+
+    if (userEmail && !userEmail.includes('.shopsathi.com')) {
+      sendWelcomeEmail(user).catch(err => console.error('Welcome email error:', err.message))
+    }
+  }
+
+  const accessToken  = generateAccessToken(user._id)
+  const refreshToken = generateRefreshToken(user._id)
+  setCookies(res, accessToken, refreshToken)
+
+  let roleDoc = await Role.findOne({ name: user.role })
+  if (!roleDoc && user.role !== 'admin' && user.role !== 'superadmin') {
+    roleDoc = await Role.create({ name: user.role })
+  }
+  const rolePermissions = roleDoc ? roleDoc.permissions : {}
+
+  const { password: _, ...userData } = user.toObject()
+  userData.permissions = rolePermissions
+  userData.token = accessToken
+  res.status(200).json(new ApiResponse(200, userData, `Logged in successfully with ${provider}`))
+})
+
 // POST /api/auth/login-phone
 export const loginWithPhone = asyncHandler(async (req, res) => {
   const { phone } = req.body

@@ -25,16 +25,23 @@ const userSchema = new mongoose.Schema({
     match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
   },
   password: {
-    type: String, required: [true, 'Password is required'],
+    type: String,
     minLength: [8, 'Password must be at least 8 characters'],
     select: false,
   },
   phone: { 
     type: String, 
-    required: [true, 'Phone number is required'],
     unique: true,
     sparse: true,
     trim: true 
+  },
+  googleId:   { type: String, sparse: true },
+  facebookId: { type: String, sparse: true },
+  twitterId:  { type: String, sparse: true },
+  authProvider: { 
+    type: String, 
+    enum: ['local', 'google', 'facebook', 'twitter'], 
+    default: 'local' 
   },
   avatar: {
     url:      { type: String, default: '' },

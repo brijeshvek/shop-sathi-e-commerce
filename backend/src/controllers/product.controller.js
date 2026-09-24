@@ -16,7 +16,15 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   const filter = { isActive: true }
   if (isFlashSale === 'true') filter.isFlashSale = true
   if (collectionName) filter.collectionName = collectionName
-  if (search) filter.$text = { $search: search }
+  if (search) {
+    const searchRegex = { $regex: search, $options: 'i' }
+    filter.$or = [
+      { name: searchRegex },
+      { brand: searchRegex },
+      { tags: searchRegex },
+      { description: searchRegex }
+    ]
+  }
   if (category) {
     const childCats = await Category.find({ parent: category }).select('_id').lean()
     const catIds = [category, ...childCats.map(c => c._id)]
