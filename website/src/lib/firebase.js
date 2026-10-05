@@ -26,9 +26,18 @@ export const isFirebaseConfigured = () => {
   );
 };
 
-// Initialize Firebase App safely
-export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const auth = isFirebaseConfigured() ? getAuth(app) : null;
+// Safe Firebase App and Auth getter
+export const getFirebaseApp = () => {
+  if (getApps().length > 0) {
+    return getApp();
+  }
+  return initializeApp(firebaseConfig);
+};
+
+export const getFirebaseAuth = () => {
+  const app = getFirebaseApp();
+  return getAuth(app);
+};
 
 // Providers
 const googleProvider = new GoogleAuthProvider();
@@ -41,15 +50,13 @@ const twitterProvider = new TwitterAuthProvider();
  * Sign in using real Google OAuth Popup
  */
 export async function signInWithGoogle() {
-  if (!isFirebaseConfigured() || !auth) {
-    throw new Error("FIREBASE_NOT_CONFIGURED");
-  }
+  const auth = getFirebaseAuth();
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
   const idToken = await user.getIdToken();
   return {
     provider: "google",
-    name: user.displayName || "Google User",
+    name: user.displayName || user.email?.split("@")[0] || "Google User",
     email: user.email || "",
     avatar: user.photoURL || "",
     phone: user.phoneNumber || "",
@@ -62,9 +69,7 @@ export async function signInWithGoogle() {
  * Sign in using real Facebook OAuth Popup
  */
 export async function signInWithFacebook() {
-  if (!isFirebaseConfigured() || !auth) {
-    throw new Error("FIREBASE_NOT_CONFIGURED");
-  }
+  const auth = getFirebaseAuth();
   const result = await signInWithPopup(auth, facebookProvider);
   const user = result.user;
   const idToken = await user.getIdToken();
@@ -83,9 +88,7 @@ export async function signInWithFacebook() {
  * Sign in using real Twitter (X) OAuth Popup
  */
 export async function signInWithTwitter() {
-  if (!isFirebaseConfigured() || !auth) {
-    throw new Error("FIREBASE_NOT_CONFIGURED");
-  }
+  const auth = getFirebaseAuth();
   const result = await signInWithPopup(auth, twitterProvider);
   const user = result.user;
   const idToken = await user.getIdToken();
@@ -104,8 +107,8 @@ export async function signInWithTwitter() {
  * Initialize invisible ReCAPTCHA for Firebase Phone Auth
  */
 export function setupFirebaseRecaptcha(elementOrId) {
-  if (!auth) return null;
   if (typeof window === "undefined") return null;
+  const auth = getFirebaseAuth();
   
   if (window.recaptchaVerifier) {
     return window.recaptchaVerifier;
@@ -128,7 +131,7 @@ export function setupFirebaseRecaptcha(elementOrId) {
  * Send Phone OTP via Firebase
  */
 export async function sendFirebasePhoneOtp(phoneNumber, appVerifier) {
-  if (!auth) throw new Error("FIREBASE_NOT_CONFIGURED");
+  const auth = getFirebaseAuth();
   const formattedPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber.replace(/\D/g, "").slice(-10)}`;
   return await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
 }
